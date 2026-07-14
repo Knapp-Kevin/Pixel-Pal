@@ -8,11 +8,9 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "lint": "eslint src --max-warnings=0"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@vite-pwa/assets-generator": "^0.2.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
