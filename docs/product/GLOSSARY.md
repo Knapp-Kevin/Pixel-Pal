@@ -1,0 +1,32 @@
+# Pixel Pals Glossary
+
+- **Pal:** An anthropomorphic animal person with agency, relationships, history, and a place in the world.
+- **Player:** The human participant guiding a saved world.
+- **Caretaker-guide:** The player's lightly defined role. They support and influence but do not own or command Pals.
+- **First Pal:** The player-named companion who introduces the child to the world and remains a durable part of their history.
+- **Species:** Biological body plan and inherited species identity.
+- **Regional lineage:** A related population shaped over generations by a particular environment.
+- **Genome:** Stored inherited information used to resolve biological traits.
+- **Phenotype:** The expressed biological appearance produced from genome and developmental rules.
+- **Environment:** Physical conditions and ecological context in which a Pal lives.
+- **Culture:** Learned traditions, language, clothing, craft, music, food, values, and social practices.
+- **Affinity:** Natural or developed sensitivity to an environment, activity, material, or form of experience.
+- **Talent:** Potential that creates an opportunity but does not replace practice.
+- **Skill:** Learned capability developed through practice, teaching, and experience.
+- **Characteristic:** A gradual, contextual tendency in how a Pal responds to the world.
+- **Preference:** Something a Pal currently enjoys, avoids, or values.
+- **Memory:** A durable record of a meaningful experience and its participants, place, emotion, and consequences.
+- **Relationship dimension:** A simulation value such as trust, warmth, familiarity, respect, tension, or shared history.
+- **Relationship label:** A socially meaningful state such as friend, close friend, companion, mentor, partner, spouse, or family member.
+- **Companion:** A mutually chosen, durable relationship that may be platonic or romantic according to context. It is not ownership.
+- **Household:** Pals who share a home or domestic life. A household is not automatically a biological family.
+- **Family:** A recognized enduring bond formed through biology, adoption, guardianship, partnership, or chosen kinship.
+- **Resident:** A Pal who lives within a village or region.
+- **Village:** A living community of residents, homes, shared spaces, traditions, needs, and history.
+- **Great Tree:** A village's central communal and symbolic landmark where important relationships and memories may be recognized.
+- **Ceremony:** A community-recognized event that marks a relationship, transition, contribution, reconciliation, or remembrance.
+- **Adventure:** A cooperative illustrated journey involving exploration, help, discovery, uncertainty, or change rather than combat progression.
+- **World state:** The canonical simulation data for one saved player world.
+- **Established Canon:** Verified source-world fact.
+- **Game Canon:** Fact created for the shared game continuity.
+- **Player Canon:** Fact unique to one saved world.
