@@ -1,6 +1,7 @@
 import { CURRENT_SCHEMA_VERSION, parseWorld, type World } from '@pixel-pals/content-schema';
 import {
   ACTIVITY_LABELS,
+  ACTIVITY_WORLD_MARKERS,
   type FirstActivity,
   type FirstActivityCompletion,
   preferredFirstActivity,
@@ -194,6 +195,7 @@ export function completeFirstActivity(world: World, result: FirstActivityComplet
   const preferenceLabel = preferred
     ? `Especially loves ${ACTIVITY_LABELS[result.activity]}`
     : `Enjoys ${ACTIVITY_LABELS[result.activity]} more with a friend`;
+  const worldMarker = ACTIVITY_WORLD_MARKERS[result.activity];
 
   return parseWorld({
     ...world,
@@ -246,8 +248,8 @@ export function completeFirstActivity(world: World, result: FirstActivityComplet
       }
     ],
     villages: world.villages.map((candidate) =>
-      candidate.id === village.id && !candidate.visibleChanges.includes('shared-play-stones')
-        ? { ...candidate, visibleChanges: [...candidate.visibleChanges, 'shared-play-stones'] }
+      candidate.id === village.id && !candidate.visibleChanges.includes(worldMarker)
+        ? { ...candidate, visibleChanges: [...candidate.visibleChanges, worldMarker] }
         : candidate
     )
   });
