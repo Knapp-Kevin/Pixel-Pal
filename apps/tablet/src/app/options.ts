@@ -39,7 +39,7 @@ export const activityOptions: Array<{
 }> = [
   { id: 'leaf-chase', title: 'Chase Leaves', description: 'Catch drifting leaf shapes and take turns helping each other.', expression: 'delighted', playable: true },
   { id: 'stone-stacking', title: 'Stack Stones', description: 'Take turns choosing and balancing stones together.', expression: 'thoughtful', playable: true },
-  { id: 'garden-game', title: 'Garden Game', description: 'Playable garden guessing mini-game in development.', expression: 'curious', playable: false }
+  { id: 'garden-game', title: 'Garden Game', description: 'Match bloom shapes and colors while tending the garden together.', expression: 'curious', playable: true }
 ];
 
 export const homeObjectOptions: Array<{ id: HomeObject; title: string; description: string }> = [
