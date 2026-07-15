@@ -105,6 +105,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
         speciesId: 'rabbit',
         homeVillageId: villageId,
         storyRole: 'first-neighbor',
+        artIdentity: 'fern',
         appearance: {
           bodyFamily: 'lagomorph',
           paletteId: 'mosscream',
