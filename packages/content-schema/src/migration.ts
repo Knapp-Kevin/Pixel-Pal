@@ -1,5 +1,5 @@
 import { CURRENT_SCHEMA_VERSION } from './primitives';
-import { WorldV1Schema, type WorldV1 } from './worldBase';
+import { WorldV1Schema, WorldV2Schema, type WorldV1, type WorldV2 } from './worldBase';
 import { WorldSchema, type World } from './world';
 
 function availableHomeId(baseId: string, homes: WorldV1['homes']): string {
@@ -35,25 +35,27 @@ function migratePals(
 ): WorldV1['pals'] {
   return world.pals.map((pal) => {
     const nextPal = { ...pal };
-
     const householdValid = pal.householdId
       && homes.some((home) => home.id === pal.householdId && home.residentPalIds.includes(pal.id));
-    if (pal.id === firstPalId && !householdValid) {
-      nextPal.householdId = firstHomeId;
-    }
 
-    if (pal.id === firstNeighborId && !pal.storyRole) {
-      nextPal.storyRole = 'first-neighbor';
-    }
-
+    if (pal.id === firstPalId && !householdValid) nextPal.householdId = firstHomeId;
+    if (pal.id === firstNeighborId && !pal.storyRole) nextPal.storyRole = 'first-neighbor';
     return nextPal;
+  });
+}
+
+function migrateV2(world: WorldV2): World {
+  return WorldSchema.parse({
+    ...world,
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    daySessions: []
   });
 }
 
 function migrateV1(world: WorldV1): World {
   const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
   if (!firstPal) {
-    return WorldSchema.parse({ ...world, schemaVersion: CURRENT_SCHEMA_VERSION });
+    return migrateV2(WorldV2Schema.parse({ ...world, schemaVersion: 2 }));
   }
 
   const firstRelationship = world.relationships.find(
@@ -62,17 +64,18 @@ function migrateV1(world: WorldV1): World {
   const { homes, firstHomeId } = ensureFirstHome(world, firstPal);
   const pals = migratePals(world, firstPal.id, firstRelationship?.toPalId, firstHomeId, homes);
 
-  return WorldSchema.parse({
+  return migrateV2(WorldV2Schema.parse({
     ...world,
-    schemaVersion: CURRENT_SCHEMA_VERSION,
+    schemaVersion: 2,
     pals,
     homes
-  });
+  }));
 }
 
 export function parseWorld(input: unknown): World {
-  if (typeof input === 'object' && input !== null && 'schemaVersion' in input && input.schemaVersion === 1) {
-    return migrateV1(WorldV1Schema.parse(input));
+  if (typeof input === 'object' && input !== null && 'schemaVersion' in input) {
+    if (input.schemaVersion === 1) return migrateV1(WorldV1Schema.parse(input));
+    if (input.schemaVersion === 2) return migrateV2(WorldV2Schema.parse(input));
   }
 
   return WorldSchema.parse(input);
