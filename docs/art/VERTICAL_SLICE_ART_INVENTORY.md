@@ -89,16 +89,23 @@ The renderer now includes:
 
 The home objects share the same room anchors for every starter species. No option is presented as the correct object for a particular body family.
 
-### Memory journal
+### Storybook memory compositions
 
-The journal now includes illustrated entry panels that:
+The journal now uses structured scene compositions rather than abstract color panels.
 
-- render the saved first Pal with their chosen appearance;
-- render Fern when she participated in the memory;
-- vary the background treatment by emotional tone;
-- distinguish playful, hopeful, and calm memories;
-- retain readable space for title, participants, day, and summary;
-- derive entries from structured world memories rather than fixed story cards.
+The current storybook-memory renderer includes:
+
+- layered Willowmere hills and vegetation;
+- a paper-texture treatment;
+- scene-specific details for shared play, Great Tree friendship recognition, and the first home object;
+- the saved first Pal with their selected species, palette, markings, and accessory;
+- Fern when she participated in the memory;
+- emotional treatment for playful, joyful, hopeful, and calm events;
+- unique SVG resource identifiers so repeated event types do not corrupt one another;
+- readable space for title, participants, world day, and summary;
+- entries derived from structured world memories rather than fixed story cards.
+
+This is a composition and rendering prototype. It establishes framing, layering, character placement, event symbolism, and technical behavior. It is not a substitute for final painterly illustration.
 
 ## Implemented Integration
 
@@ -119,7 +126,7 @@ The tablet app now visually supports:
 - navigation between Village, Home, and Journal;
 - home exterior and interior views;
 - three persistent first-home object choices;
-- illustrated journal entries generated from saved memories.
+- storybook journal scenes generated from saved memories.
 
 ## Not Yet Final
 
@@ -155,12 +162,12 @@ The prototype art is successful when children can:
 7. notice the friendship ribbons after the Great Tree ceremony;
 8. understand that the exterior and interior represent the same home;
 9. notice and remember the personal object they chose;
-10. connect journal illustrations to the events they just experienced;
+10. connect journal compositions to the events they just experienced;
 11. remember both Pals, the home, and the scene the following day.
 
 ## Production Recommendation
 
-Use this vector art system as a layout, behavior, and compatibility reference.
+Use the current vector system as a layout, behavior, compatibility, and art-brief reference.
 
 The next art investment should refine one complete **quality reference path** while preserving all five playable starter choices:
 
@@ -170,7 +177,7 @@ The next art investment should refine one complete **quality reference path** wh
 - Willowmere village scene;
 - Great Tree ceremony scene;
 - first-home exterior and interior;
-- one painterly storybook memory illustration based on the structured journal entry.
+- one final painterly storybook memory illustration based on the structured composition prototype.
 
 The benchmark body family exists to validate line quality, materials, expression, animation anchors, and tablet performance. It does not become the canonical starter.
 
