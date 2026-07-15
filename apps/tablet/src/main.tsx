@@ -1,10 +1,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { ProductionArtProvider } from '@pixel-pals/renderer';
 import { registerSW } from 'virtual:pwa-register';
 import { App } from './App';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ServiceWorkerUpdateNotice } from './ServiceWorkerUpdateNotice';
 import { TabletProfileBoundary } from './TabletProfileBoundary';
+import { productionArtMinimumStatus, productionArtRegistry } from './productionArtRegistry';
 import { setPendingServiceWorkerUpdate } from './serviceWorkerUpdate';
 import './styles.css';
 import './starter-choice.css';
@@ -33,9 +35,11 @@ if (!root) {
 createRoot(root).render(
   <StrictMode>
     <ErrorBoundary>
-      <TabletProfileBoundary>
-        <App />
-      </TabletProfileBoundary>
+      <ProductionArtProvider registry={productionArtRegistry} minimumStatus={productionArtMinimumStatus}>
+        <TabletProfileBoundary>
+          <App />
+        </TabletProfileBoundary>
+      </ProductionArtProvider>
       <ServiceWorkerUpdateNotice />
     </ErrorBoundary>
   </StrictMode>
