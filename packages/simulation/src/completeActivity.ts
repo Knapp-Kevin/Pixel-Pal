@@ -40,7 +40,13 @@ export function completeFirstActivity(world: World, result: FirstActivityComplet
             ...pal,
             preferences: pal.preferences.map((preference) =>
               preference.id === 'first-play-preference'
-                ? { ...preference, label: preferenceLabel, discovered: true }
+                ? {
+                    ...preference,
+                    subjectId: result.activity,
+                    label: preferenceLabel,
+                    discovered: true,
+                    evidenceCount: 1
+                  }
                 : preference
             ),
             characteristics: pal.characteristics.map((characteristic) =>
