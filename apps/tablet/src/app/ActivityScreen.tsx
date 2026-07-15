@@ -32,7 +32,7 @@ export function ActivityScreen({ activity, world, scene, save, onExit }: Activit
     <main className="app-shell" aria-busy={save.saving} data-saving={save.saving}>
       {activity === 'garden-game' ? <GardenGame {...sharedProps} seed={world.seed} /> : null}
       {activity === 'leaf-chase' ? <LeafChaseGame {...sharedProps} seed={world.seed} /> : null}
-      {activity === 'stone-stacking' ? <StoneStackingGame {...sharedProps} /> : null}
+      {activity === 'stone-stacking' ? <StoneStackingGame {...sharedProps} seed={world.seed} /> : null}
       <footer className="prototype-note" aria-live="polite">
         <span>{save.saveStatus}</span>
         <span>Playing together in {scene.village.name}</span>
