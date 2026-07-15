@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CURRENT_SCHEMA_VERSION, type World } from '@pixel-pals/content-schema';
+import { CURRENT_SCHEMA_VERSION, parseWorld, type World } from '@pixel-pals/content-schema';
 import {
   clearWorld,
   importWorld,
@@ -57,7 +57,7 @@ const legacyWorld = {
 };
 
 function worldAtDay(worldDay: number): World {
-  return {
+  return parseWorld({
     schemaVersion: 2,
     worldId: 'integration-world',
     worldName: 'Integration World',
@@ -118,7 +118,7 @@ function worldAtDay(worldDay: number): World {
         visualHistoryMarkers: []
       }
     ]
-  };
+  });
 }
 
 function openDatabase(): Promise<IDBDatabase> {
@@ -181,6 +181,7 @@ describe('world backup import', () => {
     const world = importWorld(JSON.stringify(legacyWorld));
     expect(world.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(world.homes).toHaveLength(1);
+    expect(world.daySessions).toEqual([]);
   });
 
   it('rejects invalid JSON without producing a partial world', () => {
