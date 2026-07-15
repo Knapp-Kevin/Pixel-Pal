@@ -48,6 +48,20 @@ async function stopChrome(processHandle, userDataDirectory) {
   }
 }
 
+function browserExceptionMessage(details) {
+  const description = details.exception?.description;
+  const value = details.exception?.value;
+  const text = details.text;
+  const location = Number.isInteger(details.lineNumber)
+    ? ` at ${details.lineNumber + 1}:${(details.columnNumber ?? 0) + 1}`
+    : '';
+
+  if (typeof description === 'string' && description.length > 0) return `${description}${location}`;
+  if (typeof value === 'string' && value.length > 0) return `${value}${location}`;
+  if (typeof text === 'string' && text.length > 0) return `${text}${location}`;
+  return 'Browser evaluation failed.';
+}
+
 class CdpSession {
   constructor(webSocketUrl) {
     if (typeof WebSocket === 'undefined') {
@@ -110,7 +124,7 @@ class CdpSession {
     });
 
     if (response.exceptionDetails) {
-      throw new Error(response.exceptionDetails.text ?? 'Browser evaluation failed.');
+      throw new Error(browserExceptionMessage(response.exceptionDetails));
     }
     return response.result?.value;
   }
