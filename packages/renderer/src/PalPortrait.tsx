@@ -1,4 +1,4 @@
-export type PalSpecies = 'fox' | 'deer' | 'rabbit';
+export type PalSpecies = 'fox' | 'deer' | 'rabbit' | 'cat' | 'duck';
 export type PalExpression = 'content' | 'curious' | 'delighted' | 'uncertain' | 'thoughtful';
 export type PalPose = 'standing' | 'playful';
 
@@ -26,6 +26,14 @@ const PALETTES: Record<string, Palette> = {
   riverstone: { fur: '#758B91', light: '#DDE4DF', dark: '#394F55', accent: '#8BB6B1', clothing: '#725C8D' },
   berrybloom: { fur: '#A86678', light: '#F2D3D8', dark: '#5E3545', accent: '#D99A9E', clothing: '#587B68' },
   mosscream: { fur: '#B9A67B', light: '#F1E7C9', dark: '#5C5642', accent: '#8FA66D', clothing: '#6E8262' }
+};
+
+const SPECIES_LABELS: Record<PalSpecies, string> = {
+  fox: 'fox',
+  deer: 'deer',
+  rabbit: 'rabbit',
+  cat: 'kitten',
+  duck: 'duckling'
 };
 
 function paletteFor(id: string): Palette {
@@ -87,12 +95,32 @@ function SpeciesHead({ species, palette }: { species: PalSpecies; palette: Palet
     );
   }
 
+  if (species === 'rabbit') {
+    return (
+      <g>
+        <ellipse cx="91" cy="35" rx="20" ry="46" fill={palette.fur} stroke={palette.dark} strokeWidth="5" transform="rotate(-9 91 35)" />
+        <ellipse cx="149" cy="35" rx="20" ry="46" fill={palette.fur} stroke={palette.dark} strokeWidth="5" transform="rotate(9 149 35)" />
+        <ellipse cx="91" cy="35" rx="9" ry="31" fill={palette.light} transform="rotate(-9 91 35)" />
+        <ellipse cx="149" cy="35" rx="9" ry="31" fill={palette.light} transform="rotate(9 149 35)" />
+      </g>
+    );
+  }
+
+  if (species === 'cat') {
+    return (
+      <g>
+        <path d="M72 65 L79 24 L108 58 Z" fill={palette.fur} stroke={palette.dark} strokeLinejoin="round" strokeWidth="5" />
+        <path d="M168 65 L161 24 L132 58 Z" fill={palette.fur} stroke={palette.dark} strokeLinejoin="round" strokeWidth="5" />
+        <path d="M82 55 L84 37 L99 57 Z" fill={palette.light} />
+        <path d="M158 55 L156 37 L141 57 Z" fill={palette.light} />
+      </g>
+    );
+  }
+
   return (
-    <g>
-      <ellipse cx="91" cy="35" rx="20" ry="46" fill={palette.fur} stroke={palette.dark} strokeWidth="5" transform="rotate(-9 91 35)" />
-      <ellipse cx="149" cy="35" rx="20" ry="46" fill={palette.fur} stroke={palette.dark} strokeWidth="5" transform="rotate(9 149 35)" />
-      <ellipse cx="91" cy="35" rx="9" ry="31" fill={palette.light} transform="rotate(-9 91 35)" />
-      <ellipse cx="149" cy="35" rx="9" ry="31" fill={palette.light} transform="rotate(9 149 35)" />
+    <g fill="none" stroke={palette.dark} strokeLinecap="round" strokeLinejoin="round" strokeWidth="5">
+      <path d="M104 48 Q105 25 116 20 Q119 36 120 50" fill={palette.fur} />
+      <path d="M120 49 Q126 25 137 24 Q134 41 132 53" fill={palette.fur} />
     </g>
   );
 }
@@ -140,12 +168,16 @@ function Accessory({ accessoryId, palette }: { accessoryId?: string; palette: Pa
     return <path d="M86 153 Q68 137 77 123 Q95 129 97 148 Q92 154 86 153" fill={palette.accent} stroke={palette.dark} strokeWidth="3" />;
   }
 
-  return (
-    <g>
-      <path d="M78 145 Q120 165 162 145 L156 169 Q120 180 84 169 Z" fill={palette.clothing} stroke={palette.dark} strokeWidth="4" />
-      <path d="M151 162 Q167 183 155 218" fill="none" stroke={palette.clothing} strokeLinecap="round" strokeWidth="13" />
-    </g>
-  );
+  if (accessoryId === 'scarf') {
+    return (
+      <g>
+        <path d="M78 145 Q120 165 162 145 L156 169 Q120 180 84 169 Z" fill={palette.clothing} stroke={palette.dark} strokeWidth="4" />
+        <path d="M151 162 Q167 183 155 218" fill="none" stroke={palette.clothing} strokeLinecap="round" strokeWidth="13" />
+      </g>
+    );
+  }
+
+  return null;
 }
 
 export function PalPortrait({
@@ -168,13 +200,15 @@ export function PalPortrait({
       className={className}
       viewBox="0 0 240 280"
       role="img"
-      aria-label={`${name}, a ${species} Pal`}
+      aria-label={`${name}, a ${SPECIES_LABELS[species]} Pal`}
       xmlns="http://www.w3.org/2000/svg"
     >
       <ellipse cx="120" cy="260" rx="72" ry="11" fill="#20342D" opacity="0.13" />
       {species === 'fox' ? <path d="M162 201 Q222 180 216 226 Q194 244 162 224" fill={palette.fur} stroke={palette.dark} strokeWidth="5" /> : null}
       {species === 'rabbit' ? <circle cx="174" cy="214" r="23" fill={palette.light} stroke={palette.dark} strokeWidth="5" /> : null}
       {species === 'deer' ? <path d="M164 211 Q196 197 199 218 Q184 231 164 226" fill={palette.fur} stroke={palette.dark} strokeWidth="5" /> : null}
+      {species === 'cat' ? <path d="M164 213 Q214 214 205 180 Q192 169 187 192 Q193 211 164 226" fill={palette.fur} stroke={palette.dark} strokeLinecap="round" strokeWidth="5" /> : null}
+      {species === 'duck' ? <path d="M164 211 Q195 199 207 214 Q191 230 164 226" fill={palette.fur} stroke={palette.dark} strokeWidth="5" /> : null}
 
       <path d={armPath.left} fill="none" stroke={palette.dark} strokeLinecap="round" strokeWidth="21" />
       <path d={armPath.left} fill="none" stroke={palette.fur} strokeLinecap="round" strokeWidth="13" />
@@ -187,14 +221,29 @@ export function PalPortrait({
       <path d="M146 239 Q149 259 158 264" fill="none" stroke={palette.dark} strokeLinecap="round" strokeWidth="20" />
       <path d="M94 239 Q91 259 82 264" fill="none" stroke={palette.fur} strokeLinecap="round" strokeWidth="12" />
       <path d="M146 239 Q149 259 158 264" fill="none" stroke={palette.fur} strokeLinecap="round" strokeWidth="12" />
+      {species === 'duck' ? (
+        <g fill={palette.accent} stroke={palette.dark} strokeLinejoin="round" strokeWidth="3">
+          <path d="M68 264 L82 255 L96 267 L82 271 Z" />
+          <path d="M144 267 L158 255 L173 264 L158 271 Z" />
+        </g>
+      ) : null}
 
       <SpeciesHead species={species} palette={palette} />
       <ellipse cx="120" cy="98" rx="58" ry="57" fill={palette.fur} stroke={palette.dark} strokeWidth="6" />
       <Markings markingId={markingId} palette={palette} />
-      <ellipse cx="120" cy="111" rx="30" ry="22" fill={palette.light} />
       <Eyes expression={expression} dark={palette.dark} />
-      <ellipse cx="120" cy="107" rx="7" ry="5" fill={palette.dark} />
-      <Mouth expression={expression} dark={palette.dark} />
+      {species === 'duck' ? (
+        <g>
+          <path d="M92 107 Q120 94 148 107 Q143 127 120 130 Q97 127 92 107" fill={palette.accent} stroke={palette.dark} strokeLinejoin="round" strokeWidth="4" />
+          <path d="M101 117 Q120 123 139 117" fill="none" stroke={palette.dark} strokeLinecap="round" strokeWidth="3" />
+        </g>
+      ) : (
+        <g>
+          <ellipse cx="120" cy="111" rx="30" ry="22" fill={palette.light} />
+          <ellipse cx="120" cy="107" rx="7" ry="5" fill={palette.dark} />
+          <Mouth expression={expression} dark={palette.dark} />
+        </g>
+      )}
       <Accessory accessoryId={accessoryId} palette={palette} />
     </svg>
   );
