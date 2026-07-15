@@ -89,6 +89,29 @@ summary:focus-visible {
   line-height: 1.5;
 }
 
+.import-control {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  color: #314a40;
+  font-weight: 800;
+}
+
+.import-control input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  border: 2px dashed #71887c;
+  border-radius: 12px;
+  color: #20342d;
+  background: #fffef8;
+}
+
+.tool-note {
+  margin-bottom: 0;
+  color: #587065;
+  font-size: 0.9rem;
+}
+
 .observation-field {
   display: grid;
   gap: 7px;
