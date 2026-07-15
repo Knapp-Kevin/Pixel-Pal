@@ -95,14 +95,15 @@ async function assertLayout(page, profile, state) {
       '.inline-action:not([disabled])',
       'input:not([disabled])',
       '.leaf-finish-button',
-      '.stone-finish-button'
+      '.stone-finish-button',
+      '.garden-finish-button'
     ].join(',');
     const controls = [...document.querySelectorAll(selectors)].filter(visible);
     const clippedControls = controls.filter((element) => {
       const rect = element.getBoundingClientRect();
       return rect.left < -1 || rect.top < -1 || rect.right > innerWidth + 1 || rect.bottom > innerHeight + 1;
     }).map((element) => element.textContent?.replace(/\\s+/g, ' ').trim() || element.getAttribute('aria-label'));
-    const panels = [...document.querySelectorAll('.storybook-panel, .action-grid, .leaf-game-shell, .stone-game-shell, .journal-shell')]
+    const panels = [...document.querySelectorAll('.storybook-panel, .action-grid, .leaf-game-shell, .stone-game-shell, .garden-game-shell, .journal-shell')]
       .filter(visible)
       .filter((element) => {
         const rect = element.getBoundingClientRect();
@@ -186,6 +187,13 @@ async function runProfile(browser, profile) {
     await clickButton(page, 'Stack Stones');
     await page.waitFor("Boolean(document.querySelector('.stone-game-shell'))");
     await assertLayout(page, profile, 'stone-stacking');
+    await clickButton(page, 'Return to Willowmere');
+    await page.waitFor("Boolean(document.querySelector('.world-nav'))");
+
+    await waitForEnabledButton(page, 'Garden Game');
+    await clickButton(page, 'Garden Game');
+    await page.waitFor("Boolean(document.querySelector('.garden-game-shell'))");
+    await assertLayout(page, profile, 'garden-game');
     await clickButton(page, 'Return to Willowmere');
     await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 
