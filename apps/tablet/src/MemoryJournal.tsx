@@ -21,6 +21,11 @@ function participantNames(world: World, memory: Memory): string {
     .join(' and ');
 }
 
+function companionForMemory(world: World, firstPal: Pal, memory: Memory): Pal | undefined {
+  const companionId = memory.participantPalIds.find((palId) => palId !== firstPal.id);
+  return world.pals.find((pal) => pal.id === companionId);
+}
+
 export function MemoryJournal({ world, firstPal }: MemoryJournalProps) {
   return (
     <section className="journal-shell" aria-labelledby="journal-title">
@@ -32,9 +37,7 @@ export function MemoryJournal({ world, firstPal }: MemoryJournalProps) {
 
       <div className="journal-list">
         {[...world.memories].reverse().map((memory) => {
-          const includesFern = memory.participantPalIds.some(
-            (palId) => world.pals.find((pal) => pal.id === palId)?.name === 'Fern'
-          );
+          const companion = companionForMemory(world, firstPal, memory);
 
           return (
             <article className="journal-entry" key={memory.id}>
@@ -50,13 +53,13 @@ export function MemoryJournal({ world, firstPal }: MemoryJournalProps) {
                   expression: memory.emotionalTone === 'calm' ? 'content' : 'delighted',
                   pose: memory.eventType === 'first-shared-activity' ? 'playful' : 'standing'
                 }}
-                companion={includesFern
+                companion={companion
                   ? {
-                      name: 'Fern',
-                      species: 'rabbit',
-                      paletteId: 'mosscream',
-                      markingId: 'ear-dapple',
-                      accessoryId: 'leaf-pin',
+                      name: companion.name,
+                      species: renderableSpecies(companion.speciesId),
+                      paletteId: companion.appearance.paletteId,
+                      markingId: companion.appearance.markingId,
+                      accessoryId: companion.appearance.accessoryId,
                       expression: 'delighted',
                       pose: memory.eventType === 'first-shared-activity' ? 'playful' : 'standing'
                     }
