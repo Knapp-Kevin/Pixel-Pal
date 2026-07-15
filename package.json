@@ -14,7 +14,9 @@
     "preview": "npm run preview --workspace=@pixel-pals/tablet",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present"
+    "lint": "npm run lint --workspaces --if-present",
+    "verify:artifacts": "node scripts/verify-build-artifacts.mjs apps/tablet/dist",
+    "verify:deployment": "node scripts/verify-deployment.mjs"
   },
   "engines": {
     "node": ">=22.0.0"
