@@ -3,8 +3,8 @@
 ## Review metadata
 
 - Date: 2026-07-15
-- Scope: first playable vertical slice, offline persistence, world schema, simulation transitions, backup and restore, child-facing failure behavior, parent controls, PWA lifecycle, and CI reproducibility
-- Review posture: assume malformed data, rapid repeated input, interrupted writes, stale clients, mistaken adult actions, hostile or accidental imports, and future content growth
+- Scope: first playable vertical slice, offline persistence, world schema, simulation transitions, backup and restore, child-facing failure behavior, parent controls, PWA lifecycle, deployment boundaries, and CI reproducibility
+- Review posture: assume malformed data, rapid repeated input, interrupted writes, stale clients, mistaken adult actions, hostile or accidental imports, casual child access to adult controls, and future content growth
 - Release judgment: suitable for internal observed playtesting; not yet approved for public release
 
 ## Failure model
@@ -17,6 +17,7 @@ This review assumes that:
 - an adult may select the wrong backup file;
 - imported JSON may be malformed, oversized, internally inconsistent, or from an unsupported schema version;
 - duplicate IDs or dangling references may enter through future tooling;
+- a child may casually discover visible backup or deletion controls;
 - a service worker may discover an update during active play;
 - dependency ranges may resolve differently on different days;
 - future developers may mistake display text for identity;
@@ -36,14 +37,14 @@ This review assumes that:
 | AR-008 | High | A render exception could leave a blank application surface. | Fixed | Added a child-safe error boundary that preserves the save and offers a reload action. |
 | AR-009 | High | The PWA used automatic service-worker activation, allowing a running session to change underneath the player. | Fixed | Updates are staged and require an explicit `Update and reopen` action. |
 | AR-010 | High | The repository had no deterministic dependency lockfile, and CI used `npm install`. | Fixed | Added `package-lock.json`; CI now uses `npm ci`, pinned Action commits, lockfile-based caching, and a high-severity production dependency audit. |
-| AR-011 | High | Persistence transaction behavior lacks a browser-like IndexedDB integration test. | Open | Add `fake-indexeddb` or browser-level persistence tests covering interrupted writes, active corruption, recovery promotion, and queued saves. |
-| AR-012 | Medium | Parent and playtest tools are visible behind a one-tap disclosure rather than a true adult gate. | Open for production | Internal playtests may use the current panel. Public builds require a parent-mode entry pattern that is inaccessible through casual child interaction. |
+| AR-011 | High | Persistence transaction behavior lacked a browser-like IndexedDB integration test. | Fixed | Added `fake-indexeddb` coverage for checkpoint rotation, malformed-active recovery, recovery preservation, queued saves, and complete clearing. |
+| AR-012 | Medium | Parent and playtest tools were visible behind a one-tap disclosure rather than a meaningful adult boundary. | Fixed for private playtests | Adult controls are absent from the document while locked. Initial setup requires a deliberate hold, and later access requires a local six-digit PBKDF2-backed PIN. Unlock state is session-only. This is a casual child-access boundary, not remote authentication or protection against device-owner developer access. |
 | AR-013 | Medium | Unsupported imported species currently fall back visually to Fox in the tablet renderer. | Open | Reject non-renderable species in the current tablet profile or add a deliberate generic fallback body family. Never silently misrepresent species. |
-| AR-014 | Medium | Deployment security headers and a Content Security Policy are not yet defined. | Open | Add hosting-specific CSP, frame, referrer, MIME-sniffing, permissions, and cache headers before private external deployment. |
-| AR-015 | Medium | PWA manifest icons and final installability assets are incomplete. | Open | Add approved icons and validate installability on each target tablet. |
+| AR-014 | Medium | Deployment security headers and a Content Security Policy were not defined. | Partially fixed | Added restrictive CSP, frame, referrer, MIME-sniffing, permissions, opener/resource, and cache rules plus a private-deployment contract. The actual HTTPS responses still require verification on the chosen host. |
+| AR-015 | Medium | PWA manifest icons and final installability assets were incomplete. | Partially fixed | Added normal and maskable SVG app icons and registered them in the manifest. Target-tablet installation, mask cropping, and any required raster icon variants still require hardware verification. |
 | AR-016 | Medium | The current first-session event functions use one global event type as their idempotency key. | Accepted for vertical slice | Replace with explicit event-instance identity before multiple activities or ceremonies of the same type become possible. |
 | AR-017 | Medium | Schema validation can become expensive as saves approach maximum collection sizes. | Partially mitigated | Collection and backup limits constrain exposure. Convert remaining repeated membership checks to precomputed sets before large-world testing. |
-| AR-018 | Medium | No oldest-device performance, storage-quota, or low-memory failure test has been completed. | Open | Test the oldest target tablet with offline installation, save growth, update activation, and storage pressure. |
+| AR-018 | Medium | No oldest-device performance, storage-quota, or low-memory failure test has been completed. | Open | Run the checked-in tablet hardware matrix with offline installation, save growth, update activation, interruption, and storage pressure. |
 
 ## Design-level adversarial conclusions
 
@@ -65,36 +66,36 @@ A failed write should cancel or roll back the action. It must not imply that a P
 
 ### Adult power must remain separated from play
 
-Backup import, export, reset, test controls, and future diagnostics must remain outside the ordinary child navigation. Destructive controls require explicit review and confirmation. Public builds need a stronger adult gate than the current internal-playtest disclosure.
+Backup import, export, reset, test controls, and future diagnostics remain outside ordinary child navigation and are not rendered until the local parent gate is unlocked. Destructive controls still require separate review and typed confirmation after unlock.
 
 ## Verification completed
 
-The final hardening pipeline passed:
+The current hardening pipeline passed:
 
 1. lockfile-based `npm ci` installation;
 2. high-severity production dependency audit;
 3. TypeScript checks;
 4. schema and migration tests;
 5. simulation transition and idempotency tests;
-6. persistence import and backup-boundary tests;
-7. production build.
+6. backup-boundary tests;
+7. browser-compatible IndexedDB checkpoint and recovery tests;
+8. production build.
 
-Manual restore, reset, service-worker activation, storage-pressure, and oldest-device checks remain required on real target hardware.
+Manual restore, reset, service-worker activation, response-header, storage-pressure, icon-installation, and oldest-device checks remain required on real target hardware and the actual host.
 
 ## Remaining release blockers
 
 Pixel Pals is not ready for a public release until at least the following are complete:
 
-- IndexedDB integration tests;
-- parent-mode gate;
-- deployment security headers;
-- installability icons;
-- oldest-device and storage-pressure testing;
-- accessibility and child-observation findings from the first internal playtest;
-- final art and asset-provenance review.
+- reject or deliberately render unsupported imported species;
+- verify deployed security headers on the actual HTTPS host;
+- validate normal and maskable icons on every target tablet and add raster variants where required;
+- complete oldest-device, interruption, low-memory, and storage-pressure testing;
+- complete accessibility and child-observation testing;
+- complete final art and asset-provenance review.
 
 ## Current judgment
 
-The hardened vertical slice has a stronger world contract, safer persistence, safer adult controls, stable entity identity, deterministic dependencies, explicit PWA updates, and quieter failure handling than the pre-review build. It is appropriate for internal observed playtesting.
+The hardened vertical slice now has a stronger world contract, browser-tested checkpoint recovery, safer adult controls, stable entity identity, deterministic dependencies, explicit PWA updates, deployment security defaults, installability assets, and quieter failure handling. It is appropriate for internal observed playtesting.
 
 It remains intentionally short of public-release approval. Children should find the bugs in whether the game is fun, not whether the database remembers who their friend was.
