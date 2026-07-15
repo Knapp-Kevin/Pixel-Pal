@@ -1,0 +1,40 @@
+name: Repeatable Day Browser Diagnostic
+
+on:
+  push:
+    branches: [chore/verify-repeatable-day-browser]
+
+permissions:
+  contents: write
+
+jobs:
+  diagnostic:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Capture browser output
+        run: |
+          npm run preview --workspace=@pixel-pals/tablet -- --host 127.0.0.1 --port 4173 > /tmp/pixel-pals-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          for attempt in {1..40}; do
+            curl --fail --silent http://127.0.0.1:4173/ > /dev/null && break
+            sleep .25
+          done
+          npm run verify:viewports > docs/reviews/TEMP_DAY_BROWSER.log 2>&1 || true
+          kill $PREVIEW_PID || true
+      - name: Commit diagnostics
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/reviews/TEMP_DAY_BROWSER.log
+          git commit -m "chore: record repeatable day browser diagnostics" || exit 0
+          git push
