@@ -8,6 +8,17 @@ summary:focus-visible {
   outline-offset: 4px;
 }
 
+.app-shell[data-saving="true"] {
+  cursor: progress;
+}
+
+.app-shell[data-saving="true"] button,
+.app-shell[data-saving="true"] input,
+.app-shell[data-saving="true"] textarea,
+.app-shell[data-saving="true"] summary {
+  pointer-events: none;
+}
+
 .storybook-memory-scene {
   position: relative;
   min-height: 250px;
@@ -80,9 +91,18 @@ summary:focus-visible {
   grid-row: span 2;
 }
 
-.parent-tools-panel h2 {
+.parent-tools-panel h2,
+.parent-tools-panel h3 {
   margin-top: 0;
+}
+
+.parent-tools-panel h2 {
   font-size: 1.4rem;
+}
+
+.parent-tools-panel h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
 }
 
 .parent-tools-panel p {
@@ -104,6 +124,29 @@ summary:focus-visible {
   border-radius: 12px;
   color: #20342d;
   background: #fffef8;
+}
+
+.restore-review {
+  margin-top: 18px;
+  padding: 16px;
+  border: 2px solid #8d795e;
+  border-radius: 14px;
+  background: #fff8df;
+}
+
+.restore-review p {
+  margin: 7px 0;
+}
+
+.adult-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.secondary-adult-action {
+  color: #315b4c;
+  background: #fffdf4;
 }
 
 .tool-note {
@@ -175,5 +218,9 @@ summary:focus-visible {
 
   .parent-tools-panel {
     padding: 14px;
+  }
+
+  .adult-action-row {
+    display: grid;
   }
 }
