@@ -15,37 +15,55 @@ type VillageViewProps = {
   onVisitHome: () => void;
 };
 
-const playMarkers: Array<{
+type ActivityPresentation = {
   change: string;
   marker: WillowmerePlayMarker;
   description: string;
-}> = [
-  {
+};
+
+const activityPresentations: Record<FirstActivity, ActivityPresentation> = {
+  'leaf-chase': {
     change: 'shared-play-leaf-garland',
     marker: 'leaves',
     description: 'The gathered leaf garland and friendship ribbons remain after the tablet closes.'
   },
-  {
+  'garden-game': {
     change: 'shared-play-garden-blooms',
     marker: 'garden',
     description: 'The newly tended blooms and friendship ribbons remain after the tablet closes.'
   },
-  {
+  'stone-stacking': {
     change: 'shared-play-stones',
     marker: 'stones',
     description: 'The play stones and friendship ribbons remain after the tablet closes.'
   }
-];
+};
 
-function resolvePlayMarker(scene: WorldScene) {
-  return playMarkers.find((candidate) => scene.village.visibleChanges.includes(candidate.change));
+function activityFromMemory(scene: WorldScene): FirstActivity | undefined {
+  const activityId = scene.firstMemory?.activityId;
+  if (activityId && activityId in activityPresentations) return activityId as FirstActivity;
+
+  const summary = scene.firstMemory?.summary ?? '';
+  if (summary.includes('chasing windblown leaves')) return 'leaf-chase';
+  if (summary.includes('garden guessing game')) return 'garden-game';
+  if (summary.includes('stacking smooth stones')) return 'stone-stacking';
+  return undefined;
+}
+
+function resolveActivityPresentation(scene: WorldScene): ActivityPresentation | undefined {
+  const memoryActivity = activityFromMemory(scene);
+  if (memoryActivity) return activityPresentations[memoryActivity];
+
+  return Object.values(activityPresentations).find((candidate) =>
+    scene.village.visibleChanges.includes(candidate.change)
+  );
 }
 
 function VillagePanel({ scene }: { scene: WorldScene }) {
   const { firstPal, firstNeighbor, village, firstMemory, ceremonyMemory, firstPreference, latestStory } = scene;
   const expression = firstMemory ? 'delighted' : 'curious';
   const pose = firstMemory ? 'playful' : 'standing';
-  const playMarker = resolvePlayMarker(scene)?.marker;
+  const playMarker = resolveActivityPresentation(scene)?.marker;
 
   return (
     <section className="storybook-panel world-panel" aria-labelledby="welcome-title">
@@ -124,7 +142,7 @@ function CeremonyGrid({ world, scene, saving, runWorldAction, onOpenJournal }: V
 }
 
 function CelebrationGrid({ scene, saving, onOpenJournal, onVisitHome }: VillageViewProps) {
-  const changeDescription = resolvePlayMarker(scene)?.description
+  const changeDescription = resolveActivityPresentation(scene)?.description
     ?? 'Their first shared activity and friendship ribbons remain after the tablet closes.';
 
   return (
