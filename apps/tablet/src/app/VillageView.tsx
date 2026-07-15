@@ -7,6 +7,7 @@ import {
 } from '@pixel-pals/renderer';
 import type { FirstActivity } from '@pixel-pals/simulation';
 import { completeFirstFriendshipCeremony } from '@pixel-pals/simulation/ceremony';
+import { DayInvitationGrid } from './DayInvitationGrid';
 import { activityOptions } from './options';
 import { palAppearanceProps, type WorldScene } from './worldQueries';
 
@@ -16,6 +17,7 @@ type VillageViewProps = {
   saving: boolean;
   runWorldAction: (action: () => World) => void;
   onStartActivity: (activity: FirstActivity) => void;
+  onChooseDayInvitation: (invitationId: string) => void;
   onOpenJournal: () => void;
   onVisitHome: () => void;
 };
@@ -188,7 +190,16 @@ function CelebrationGrid({ scene, saving, onOpenJournal, onVisitHome }: VillageV
 function VillageActions(props: VillageViewProps) {
   if (!props.scene.firstMemory) return <ActivityGrid {...props} />;
   if (!props.scene.ceremonyMemory) return <CeremonyGrid {...props} />;
-  return <CelebrationGrid {...props} />;
+  if (!props.scene.homeMemory) return <CelebrationGrid {...props} />;
+  return (
+    <DayInvitationGrid
+      world={props.world}
+      scene={props.scene}
+      saving={props.saving}
+      runWorldAction={props.runWorldAction}
+      onChoose={props.onChooseDayInvitation}
+    />
+  );
 }
 
 export function VillageView(props: VillageViewProps) {
