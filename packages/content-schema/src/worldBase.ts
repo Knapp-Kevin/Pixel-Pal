@@ -1,17 +1,9 @@
 import { z } from 'zod';
-import {
-  GreatTreeSchema,
-  HomeSchema,
-  MemorySchema,
-  PalSchema,
-  RegionalLineageSchema,
-  RelationshipSchema,
-  SpeciesSchema,
-  VillageSchema
-} from './entities';
+import { DaySessionSchema } from './dayCycle';
+import { GreatTreeSchema, HomeSchema, MemorySchema, PalSchema, RegionalLineageSchema, RelationshipSchema, SpeciesSchema, VillageSchema } from './entities';
 import { CURRENT_SCHEMA_VERSION, id, LIMITS, shortText } from './primitives';
 
-export const WorldFields = {
+export const LegacyWorldFields = {
   worldId: id,
   worldName: shortText,
   seed: z.number().int().nonnegative().max(0xffffffff),
@@ -27,16 +19,19 @@ export const WorldFields = {
   greatTrees: z.array(GreatTreeSchema).min(1).max(LIMITS.greatTrees)
 };
 
-export const BaseWorldSchema = z.object({
-  schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
-  ...WorldFields
-});
+export const WorldFields = {
+  ...LegacyWorldFields,
+  daySessions: z.array(DaySessionSchema).max(LIMITS.daySessions)
+};
 
+export const BaseWorldSchema = z.object({ schemaVersion: z.literal(CURRENT_SCHEMA_VERSION), ...WorldFields });
+export const WorldV2Schema = z.object({ schemaVersion: z.literal(2), ...LegacyWorldFields });
 export const WorldV1Schema = z.object({
   schemaVersion: z.literal(1),
-  ...WorldFields,
+  ...LegacyWorldFields,
   homes: z.array(HomeSchema).max(LIMITS.homes).default([])
 });
 
 export type WorldShape = z.infer<typeof BaseWorldSchema>;
+export type WorldV2 = z.infer<typeof WorldV2Schema>;
 export type WorldV1 = z.infer<typeof WorldV1Schema>;
