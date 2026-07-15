@@ -13,6 +13,7 @@ import { chooseFirstHomeObject } from '@pixel-pals/simulation/home';
 import { MemoryJournal } from './MemoryJournal';
 import { requireRenderableSpecies } from './tabletProfile';
 import { ParentTestTools } from './ParentTestTools';
+import { StoneStackingGame } from './StoneStackingGame';
 
 const speciesOptions: Array<{ id: FirstPalChoice['speciesId']; label: string }> = [
   { id: 'fox', label: 'Fox' },
@@ -45,10 +46,11 @@ const activityOptions: Array<{
   title: string;
   description: string;
   expression: 'curious' | 'thoughtful' | 'delighted';
+  playable: boolean;
 }> = [
-  { id: 'leaf-chase', title: 'Chase Leaves', description: 'Race the wind through the village.', expression: 'delighted' },
-  { id: 'stone-stacking', title: 'Stack Stones', description: 'Build something small together.', expression: 'thoughtful' },
-  { id: 'garden-game', title: 'Garden Game', description: 'Try a garden guessing game together.', expression: 'curious' }
+  { id: 'leaf-chase', title: 'Chase Leaves', description: 'Playable leaf-chasing mini-game in development.', expression: 'delighted', playable: false },
+  { id: 'stone-stacking', title: 'Stack Stones', description: 'Take turns choosing and balancing stones together.', expression: 'thoughtful', playable: true },
+  { id: 'garden-game', title: 'Garden Game', description: 'Playable garden guessing mini-game in development.', expression: 'curious', playable: false }
 ];
 
 const homeObjectOptions: Array<{ id: HomeObject; title: string; description: string }> = [
@@ -88,6 +90,7 @@ export function App() {
   const [world, setWorld] = useState<World | null>(null);
   const [view, setView] = useState<AppView>('village');
   const [homeView, setHomeView] = useState<HomeView>('exterior');
+  const [activeActivity, setActiveActivity] = useState<FirstActivity | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState('Your world is safe on this tablet.');
@@ -253,6 +256,29 @@ export function App() {
     );
   }
 
+  if (activeActivity === 'stone-stacking' && !firstMemory) {
+    return (
+      <main className="app-shell" aria-busy={saving} data-saving={saving}>
+        <StoneStackingGame
+          firstPal={firstPal}
+          friend={firstNeighbor}
+          onCancel={() => {
+            setActiveActivity(null);
+            setSaveStatus('The stones will be waiting when you are ready.');
+          }}
+          onComplete={(result) => {
+            setActiveActivity(null);
+            runWorldAction(() => completeFirstActivity(world, result));
+          }}
+        />
+        <footer className="prototype-note" aria-live="polite">
+          <span>{saveStatus}</span>
+          <span>Playing together in {village.name}</span>
+        </footer>
+      </main>
+    );
+  }
+
   const latestStory = homeMemory?.summary
     ?? ceremonyMemory?.summary
     ?? firstMemory?.summary
@@ -315,9 +341,9 @@ export function App() {
                 <button
                   className="action-card activity-card"
                   type="button"
-                  disabled={saving}
+                  disabled={saving || !activity.playable}
                   key={activity.id}
-                  onClick={() => runWorldAction(() => completeFirstActivity(world, activity.id))}
+                  onClick={() => setActiveActivity(activity.id)}
                 >
                   <span className="activity-portrait" aria-hidden="true">
                     <PalPortrait
@@ -442,6 +468,7 @@ export function App() {
           setSpeciesId(null);
           setView('village');
           setHomeView('exterior');
+          setActiveActivity(null);
           setSaveStatus('Playtest world cleared. A new story can begin.');
         }}
       />
