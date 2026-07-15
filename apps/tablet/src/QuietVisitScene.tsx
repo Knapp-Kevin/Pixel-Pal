@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Pal } from '@pixel-pals/content-schema';
-import { ProductionPalPortrait } from '@pixel-pals/renderer';
+import { PalArtwork } from '@pixel-pals/renderer';
 import type { WorldDayCompletion } from '@pixel-pals/simulation';
 import { requireRenderableSpecies } from './tabletProfile';
 
@@ -58,7 +58,7 @@ export function QuietVisitScene({ firstPal, friend, onComplete, onCancel }: Quie
       </header>
 
       <div className="day-scene-stage quiet-visit-stage">
-        <ProductionPalPortrait {...portraitProps(firstPal)} expression="thoughtful" pose="standing" className="day-scene-pal" />
+        <PalArtwork {...portraitProps(firstPal)} expression="thoughtful" pose="standing" className="day-scene-pal" />
         <div className="quiet-observation-grid" aria-label="Things to notice">
           {OBSERVATIONS.map((observation) => (
             <button
@@ -73,7 +73,7 @@ export function QuietVisitScene({ firstPal, friend, onComplete, onCancel }: Quie
             </button>
           ))}
         </div>
-        <ProductionPalPortrait {...portraitProps(friend)} expression={selected.length ? 'content' : 'curious'} pose="standing" className="day-scene-pal" />
+        <PalArtwork {...portraitProps(friend)} expression={selected.length ? 'content' : 'curious'} pose="standing" className="day-scene-pal" />
       </div>
 
       <div className="day-scene-controls">
