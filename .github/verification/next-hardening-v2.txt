@@ -1,0 +1,1 @@
+Verify IndexedDB integration tests, PBKDF2 parent PIN gate, security headers, installability assets, production audit, typecheck, tests, and build after Web Crypto typing correction.
