@@ -52,6 +52,7 @@ export const PalSchema = z.object({
   homeVillageId: id,
   householdId: id.optional(),
   storyRole: id.optional(),
+  artIdentity: id.optional(),
   appearance: AppearanceSchema,
   preferences: z.array(PreferenceSchema).max(LIMITS.palDetails),
   characteristics: z.array(CharacteristicSchema).max(LIMITS.palDetails),
