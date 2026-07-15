@@ -8,3 +8,11 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+.failsafe/
+# qor:seed -- do not edit between markers
+.qor/session/
+# qor:seed/end
+.claude/
+.codex/
+.agent/
+.qor/
