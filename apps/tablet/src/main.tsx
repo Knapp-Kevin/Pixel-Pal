@@ -15,6 +15,7 @@ import './update-notice.css';
 import './viewport-layout.css';
 import './stone-stacking.css';
 import './leaf-chase.css';
+import './garden-game.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,
