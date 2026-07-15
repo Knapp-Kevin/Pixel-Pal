@@ -57,7 +57,6 @@ describe('createFirstWorld', () => {
 
   it('registers all five starter species in the world', () => {
     const world = createFirstWorld(input);
-
     expect(world.species.map((species) => species.id)).toEqual(['fox', 'deer', 'rabbit', 'cat', 'duck']);
   });
 
@@ -69,6 +68,11 @@ describe('createFirstWorld', () => {
     expect(home).toBeDefined();
     expect(firstPal?.householdId).toBe(home?.id);
     expect(home?.chosenObjectId).toBeUndefined();
+  });
+
+  it('assigns the first neighbor a stable story role', () => {
+    const world = createFirstWorld(input);
+    expect(world.pals.find((pal) => pal.storyRole === 'first-neighbor')?.name).toBe('Fern');
   });
 
   it('is deterministic for the same input', () => {
@@ -88,33 +92,41 @@ describe('createFirstWorld', () => {
   it('begins with personality left to discover', () => {
     const world = createFirstWorld(input);
     const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
-
     expect(firstPal?.preferences.some((preference) => !preference.discovered)).toBe(true);
   });
 });
 
 describe('completeFirstActivity', () => {
-  it('discovers a preference and creates a shared memory', () => {
+  it('discovers a seed-dependent preference and creates a shared memory', () => {
     const world = completeFirstActivity(createFirstWorld(input), 'garden-game');
     const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
 
     expect(firstPal?.preferences[0]?.discovered).toBe(true);
-    expect(firstPal?.preferences[0]?.label).toBe('Playing a garden guessing game');
+    expect(firstPal?.preferences[0]?.label).toContain('garden guessing game');
     expect(world.memories).toHaveLength(1);
     expect(world.memories[0]?.participantPalIds).toHaveLength(2);
   });
 
   it('moves the first relationship from acquaintance to friend', () => {
     const world = completeFirstActivity(createFirstWorld(input), 'leaf-chase');
-
     expect(world.relationships[0]?.label).toBe('friend');
     expect(world.relationships[0]?.sharedHistory).toBeGreaterThan(0);
+  });
+
+  it('does not confuse a first Pal named Fern with the first neighbor', () => {
+    const world = completeFirstActivity(createFirstWorld({
+      ...input,
+      firstPal: { ...input.firstPal, name: 'Fern' }
+    }), 'stone-stacking');
+
+    expect(world.memories).toHaveLength(1);
+    expect(new Set(world.memories[0]?.participantPalIds).size).toBe(2);
+    expect(world.relationships[0]?.label).toBe('friend');
   });
 
   it('does not duplicate the first memory when repeated', () => {
     const once = completeFirstActivity(createFirstWorld(input), 'stone-stacking');
     const twice = completeFirstActivity(once, 'garden-game');
-
     expect(twice).toEqual(once);
     expect(twice.memories).toHaveLength(1);
   });
@@ -129,6 +141,15 @@ describe('completeFirstFriendshipCeremony', () => {
     expect(celebrated.memories.some((memory) => memory.eventType === 'first-friendship-ceremony')).toBe(true);
     expect(tree?.visualHistoryMarkers).toContain('first-friendship-ribbon');
     expect(tree?.recognizedMemoryIds).toHaveLength(1);
+  });
+
+  it('works when the first Pal is also named Fern', () => {
+    const namedFern = createFirstWorld({ ...input, firstPal: { ...input.firstPal, name: 'Fern' } });
+    const celebrated = completeFirstFriendshipCeremony(completeFirstActivity(namedFern, 'leaf-chase'));
+    const ceremony = celebrated.memories.find((memory) => memory.eventType === 'first-friendship-ceremony');
+
+    expect(ceremony?.participantPalIds).toHaveLength(2);
+    expect(new Set(ceremony?.participantPalIds).size).toBe(2);
   });
 
   it('requires a shared activity first', () => {
@@ -161,7 +182,6 @@ describe('chooseFirstHomeObject', () => {
 
   it('requires the friendship ceremony first', () => {
     const played = completeFirstActivity(createFirstWorld(input), 'garden-game');
-
     expect(() => chooseFirstHomeObject(played, 'story-lantern')).toThrow(
       'The first home object becomes available after the friendship ceremony.'
     );
