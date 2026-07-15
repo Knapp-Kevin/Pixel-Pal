@@ -97,6 +97,21 @@ export const MemorySchema = z.object({
   significance: z.number().min(0).max(1)
 });
 
+export const HomeObjectSchema = z.enum([
+  'window-cushion',
+  'memory-shelf',
+  'story-lantern'
+]);
+
+export const HomeSchema = z.object({
+  id,
+  villageId: id,
+  residentPalIds: z.array(id).min(1),
+  styleId: id,
+  chosenObjectId: HomeObjectSchema.optional(),
+  visibleChanges: z.array(id)
+});
+
 export const VillageSchema = z.object({
   id,
   name: shortText,
@@ -126,6 +141,7 @@ export const WorldSchema = z.object({
   pals: z.array(PalSchema),
   relationships: z.array(RelationshipSchema),
   memories: z.array(MemorySchema),
+  homes: z.array(HomeSchema).default([]),
   villages: z.array(VillageSchema),
   greatTrees: z.array(GreatTreeSchema)
 }).superRefine((world, context) => {
@@ -151,11 +167,25 @@ export const WorldSchema = z.object({
       context.addIssue({ code: z.ZodIssueCode.custom, message: `Relationship ${relationship.id} cannot be self-directed.` });
     }
   }
+
+  for (const home of world.homes) {
+    if (!villageIds.has(home.villageId)) {
+      context.addIssue({ code: z.ZodIssueCode.custom, message: `Home ${home.id} references an unknown village.` });
+    }
+
+    for (const residentPalId of home.residentPalIds) {
+      if (!palIds.has(residentPalId)) {
+        context.addIssue({ code: z.ZodIssueCode.custom, message: `Home ${home.id} references an unknown resident Pal.` });
+      }
+    }
+  }
 });
 
 export type Pal = z.infer<typeof PalSchema>;
 export type Relationship = z.infer<typeof RelationshipSchema>;
 export type Memory = z.infer<typeof MemorySchema>;
+export type Home = z.infer<typeof HomeSchema>;
+export type HomeObject = z.infer<typeof HomeObjectSchema>;
 export type World = z.infer<typeof WorldSchema>;
 
 export function parseWorld(input: unknown): World {
