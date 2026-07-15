@@ -79,5 +79,24 @@ SHA256(content_hash + previous_hash) = 52dfd54372346f91c37506353861d983bf9ae4339
 **Decision**: PASS. V1 razor-overage remediated (0 files > 250 lines, max 244; logic functions ≤40 via module extraction; 0 nested ternaries — two pre-existing instances also removed). V2 dependency-unjustified remediated (amended table matches installed manifests exactly). Behavior preservation evidenced by 43/43 tests unmodified, typecheck ×5, build + verify:artifacts PASS. Orphan and macro-architecture passes re-verified over the new 24-module topology: clean. Amended plan content hash: 4f60a9ed6ccd993b778aeab8cafd09634b189679aa9e54ae364884d6b5cb2c1a. Gate OPEN.
 
 ---
+
+### Entry #5: UPSTREAM INTEGRATION (REBASE)
+
+**Timestamp**: 2026-07-15T13:00:00-04:00
+**Phase**: IMPLEMENT (maintenance)
+**Author**: Specialist
+**Risk Grade**: L2
+
+**Content Hash**:
+SHA256(refactor commit 4ada785 + extraction commit 3bb1ec1 full SHAs) = 84c3c895998e4265ed7038a5b5b3cd19df4d97a0cbe975acf3b95ea3846c8f88
+
+**Previous Hash**: 52dfd54372346f91c37506353861d983bf9ae43391a50f85843b52fb9aaf4753 (Entry #4 chain hash)
+
+**Chain Hash**:
+SHA256(content_hash + previous_hash) = 4257a9d586ebf3df8e0c540806f0dfab2a1cbad6d1f9f21e99f8712e871cdd38
+
+**Decision**: Branch rebased onto origin/main (11 upstream commits: stone-stacking mini-game, activity-completion evidence, viewport layout). App.tsx conflict resolved by porting upstream behavior into the decomposed structure: `app/ActivityScreen.tsx` (new) hosts the mini-game screen; `activityOptions` gained `playable`; `onStartActivity` threaded App → WorldShell → VillageView. Upstream growth pushed simulation/index.ts to 271 lines (razor breach); extracted `activities.ts` (commit 3bb1ec1) with public types re-exported. Post-integration verification: typecheck ×5, 45/45 tests (upstream's expanded suites included), build + verify:artifacts PASS, razor sweep clean (0 files > 250).
+
+---
 *Chain integrity: VALID*
 *Next required action: /qor-implement (feature work) or /qor-substantiate (cycle close)*

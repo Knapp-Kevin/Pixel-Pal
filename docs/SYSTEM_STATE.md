@@ -37,10 +37,10 @@ pixel-pal/
 
 | Metric | Value |
 |--------|-------|
-| Total Source Files | 45 (.ts/.tsx, non-test) |
+| Total Source Files | 48 (.ts/.tsx, non-test; post-rebase incl. upstream StoneStackingGame) |
 | Total Test Files | 4 |
-| Total Lines of Code | 3,932 (incl. tests) |
-| Max File Size | 244 lines (packages/simulation/src/index.ts) |
+| Total Lines of Code | 4,254 (incl. tests) |
+| Max File Size | 228 lines (packages/persistence/src/index.test.ts) |
 | Section 4 Violations | 0 files > 250 lines; nested ternaries removed |
 
 ---

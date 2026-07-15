@@ -19,6 +19,13 @@ The decomposition follows detected conventions: feature folders under `apps/tabl
 
 Incidental fixes (structure-only): nested ternary in home-object symbol rendering replaced with `homeObjectSymbols` lookup map; nested ternary in village action-grid branching replaced with early-return `VillageActions` component.
 
+## Upstream Integration Addendum (rebase onto main, 2026-07-15)
+
+| # | Action | Source | Destination(s) |
+|---|--------|--------|----------------|
+| 5 | port | main's `App.tsx` mini-game integration (commits `a8069bd`, `6e0e92c`) | `app/ActivityScreen.tsx` (new), `app/options.ts` (`playable` flag), `app/VillageView.tsx` + `app/WorldShell.tsx` (`onStartActivity` threading), `App.tsx` (activity state + branch) |
+| 6 | split | `packages/simulation/src/index.ts` (271 lines after upstream merge) | `activities.ts` (FirstActivity types, labels, preference rotation, completion validation); index re-exports public types |
+
 ## Rollback
 
 All changes are in git on branch `feat/pixel-pals-genesis`. Roll back with `git revert <refactor-commit>` or `git checkout <pre-refactor-sha> -- apps/tablet/src packages/content-schema/src`. Pre-refactor baseline: commit `ca49928`.
@@ -26,7 +33,7 @@ All changes are in git on branch `feat/pixel-pals-genesis`. Roll back with `git 
 ## Verification
 
 - Typecheck: all 5 workspaces PASS
-- Tests: 43/43 PASS (tablet 4, content-schema 8, persistence 8, simulation 23)
+- Tests: 45/45 PASS post-rebase (tablet 4, content-schema 8, persistence 8, simulation 25 incl. upstream mini-game evidence tests)
 - Production build + PWA precache: PASS; `verify:artifacts`: PASS
 - Dev server HMR: applied cleanly, HTTP 200
 - Razor: 0 files > 250 lines (max: simulation/index.ts at 244, pre-existing)
