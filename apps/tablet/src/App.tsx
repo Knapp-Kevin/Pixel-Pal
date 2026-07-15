@@ -49,6 +49,16 @@ function renderableSpecies(speciesId: string): PalSpecies {
   return speciesId === 'deer' || speciesId === 'rabbit' ? speciesId : 'fox';
 }
 
+function createLocalWorldSeed(): number {
+  if (globalThis.crypto?.getRandomValues) {
+    const values = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(values);
+    return values[0] ?? 0;
+  }
+
+  return Date.now() % 4_294_967_296;
+}
+
 export function App() {
   const [name, setName] = useState('');
   const [speciesId, setSpeciesId] = useState<FirstPalChoice['speciesId'] | null>(null);
@@ -134,10 +144,11 @@ export function App() {
                 event.preventDefault();
                 if (name.trim().length === 0 || !speciesId) return;
 
+                const seed = createLocalWorldSeed();
                 const nextWorld = createFirstWorld({
-                  worldId: 'local-family-world',
+                  worldId: `local-family-world-${seed.toString(36)}`,
                   worldName: 'Our Pixel Pals',
-                  seed: 42,
+                  seed,
                   firstPal: {
                     name: name.trim(),
                     speciesId,
