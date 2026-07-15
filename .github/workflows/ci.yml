@@ -34,6 +34,11 @@ jobs:
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Verify release script syntax
+        run: |
+          node --check scripts/verify-build-artifacts.mjs
+          node --check scripts/verify-deployment.mjs
+
       - name: Typecheck
         run: npm run typecheck
 
