@@ -16,6 +16,8 @@ This is production-structured prototype art. It is suitable for validating compo
 
 Each body family has a distinct head, ears, tail treatment, and silhouette.
 
+All three are equal first-Pal choices. None is the canonical, recommended, easiest, or default starter.
+
 ### Pal palettes
 
 - Sunleaf
@@ -70,8 +72,8 @@ The current scene includes:
 
 The tablet app now visually supports:
 
-- live first-Pal preview;
-- species selection;
+- live first-Pal preview after a species is intentionally selected;
+- species selection without a preselected default;
 - palette selection;
 - marking selection;
 - accessory selection;
@@ -89,6 +91,7 @@ The current art does not yet include:
 - final painterly storybook illustrations;
 - professionally refined anatomy and line work;
 - final canonical Fern design approval;
+- additional launch starter species beyond Fox, Deer, and Rabbit;
 - child, adult, and elder body stages;
 - sitting, sleeping, walking, carrying, hugging, or working poses;
 - home interiors;
@@ -106,24 +109,28 @@ The current art does not yet include:
 The prototype art is successful when children can:
 
 1. recognize Fox, Deer, and Rabbit without labels;
-2. recognize their named first Pal after customization;
-3. distinguish their Pal from Fern immediately;
-4. understand the emotional difference between expressions;
-5. notice the play stones after the first activity;
-6. notice the friendship ribbons after the Great Tree ceremony;
-7. remember both Pals and the scene the following day.
+2. understand that all three are equally valid starting choices;
+3. recognize their named first Pal after customization;
+4. distinguish their Pal from Fern immediately;
+5. understand the emotional difference between expressions;
+6. notice the play stones after the first activity;
+7. notice the friendship ribbons after the Great Tree ceremony;
+8. remember both Pals and the scene the following day.
 
 ## Production Recommendation
 
 Use this vector art system as a layout, behavior, and compatibility reference.
 
-The next art investment should refine one complete path to near-final quality:
+The next art investment should refine one complete **quality reference path** while preserving all three playable starter choices:
 
-- one approved first-Pal body family;
+- one body family taken temporarily to near-final quality as the art benchmark;
+- equivalent compatibility and no narrative demotion for the other starter body families;
 - Fern;
 - Willowmere village scene;
 - Great Tree ceremony scene;
 - one home exterior and interior;
 - one storybook memory illustration.
 
-That focused quality pass will reveal whether the final living-world style can retain the warmth of the existing storybook references without sacrificing modularity and tablet performance.
+The benchmark body family exists to validate line quality, materials, expression, animation anchors, and tablet performance. It does not become the canonical starter.
+
+After the benchmark is approved, the same quality bar MUST be applied to Fox, Deer, and Rabbit before the first public playtest that evaluates starter choice.
