@@ -1,0 +1,50 @@
+
+> pixel-pals@0.1.0 verify:viewports
+> node scripts/verify-tablet-viewports.mjs
+
+PASS compact-landscape: creation
+PASS compact-landscape: village
+PASS compact-landscape: stone-stacking
+PASS compact-landscape: leaf-chase
+PASS compact-landscape: friendship-created
+PASS compact-landscape: home-exterior
+PASS compact-landscape: home-interior
+PASS compact-landscape: home-personalized
+PASS compact-landscape: journal
+PASS standard-landscape: creation
+PASS standard-landscape: village
+PASS standard-landscape: orientation-change-portrait
+PASS standard-landscape: orientation-change-landscape
+PASS standard-landscape: stone-stacking
+PASS standard-landscape: leaf-chase
+PASS standard-landscape: friendship-created
+PASS standard-landscape: home-exterior
+PASS standard-landscape: home-interior
+PASS standard-landscape: home-personalized
+PASS standard-landscape: journal
+PASS large-landscape: creation
+PASS large-landscape: village
+PASS large-landscape: stone-stacking
+PASS large-landscape: leaf-chase
+PASS large-landscape: friendship-created
+PASS large-landscape: home-exterior
+PASS large-landscape: home-interior
+PASS large-landscape: home-personalized
+PASS large-landscape: journal
+PASS compact-portrait: creation
+PASS compact-portrait: village
+PASS compact-portrait: stone-stacking
+PASS compact-portrait: leaf-chase
+PASS compact-portrait: friendship-created
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+[Error: ENOTEMPTY: directory not empty, rmdir '/tmp/pixel-pals-chrome-qvE22G/Default'] {
+  errno: -39,
+  code: 'ENOTEMPTY',
+  syscall: 'rmdir',
+  path: '/tmp/pixel-pals-chrome-qvE22G/Default'
+}
+
+Node.js v22.23.1
