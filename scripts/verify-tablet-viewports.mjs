@@ -5,7 +5,9 @@ import {
   clickButton,
   completeGardenGame,
   completeLeafChase,
+  completeQuietVisit,
   completeStoneStacking,
+  completeVillageHelping,
   setPalName,
   waitForEnabledButton
 } from './viewport-actions.mjs';
@@ -15,29 +17,17 @@ const origin = new URL(baseUrl).origin;
 const screenshotDirectory = join(process.cwd(), 'artifacts', 'tablet-viewports');
 
 const profiles = [
-  { name: 'compact-landscape', width: 800, height: 600, completion: 'leaf-chase' },
-  { name: 'standard-landscape', width: 1024, height: 768, completion: 'garden-game' },
-  { name: 'large-landscape', width: 1366, height: 1024, completion: 'stone-stacking' },
-  { name: 'compact-portrait', width: 600, height: 800, completion: 'leaf-chase' },
-  { name: 'standard-portrait', width: 768, height: 1024, completion: 'garden-game' }
+  { name: 'compact-landscape', width: 800, height: 600, completion: 'leaf-chase', dayPath: 'quiet' },
+  { name: 'standard-landscape', width: 1024, height: 768, completion: 'garden-game', dayPath: 'helping' },
+  { name: 'large-landscape', width: 1366, height: 1024, completion: 'stone-stacking', dayPath: 'quiet' },
+  { name: 'compact-portrait', width: 600, height: 800, completion: 'leaf-chase', dayPath: 'helping' },
+  { name: 'standard-portrait', width: 768, height: 1024, completion: 'garden-game', dayPath: 'quiet' }
 ];
 
 const activities = {
-  'stone-stacking': {
-    button: 'Stack Stones',
-    selector: '.stone-game-shell',
-    complete: completeStoneStacking
-  },
-  'garden-game': {
-    button: 'Garden Game',
-    selector: '.garden-game-shell',
-    complete: completeGardenGame
-  },
-  'leaf-chase': {
-    button: 'Chase Leaves',
-    selector: '.leaf-game-shell',
-    complete: completeLeafChase
-  }
+  'stone-stacking': { button: 'Stack Stones', selector: '.stone-game-shell', complete: completeStoneStacking },
+  'garden-game': { button: 'Garden Game', selector: '.garden-game-shell', complete: completeGardenGame },
+  'leaf-chase': { button: 'Chase Leaves', selector: '.leaf-game-shell', complete: completeLeafChase }
 };
 
 async function setViewport(page, width, height) {
@@ -60,8 +50,7 @@ async function captureScreenshot(page, profile, state) {
     captureBeyondViewport: false,
     fromSurface: true
   });
-  const fileName = `${profile.name}-${state}.png`;
-  await writeFile(join(screenshotDirectory, fileName), Buffer.from(result.data, 'base64'));
+  await writeFile(join(screenshotDirectory, `${profile.name}-${state}.png`), Buffer.from(result.data, 'base64'));
 }
 
 async function assertLayout(page, profile, state) {
@@ -82,14 +71,17 @@ async function assertLayout(page, profile, state) {
       'input:not([disabled])',
       '.leaf-finish-button',
       '.stone-finish-button',
-      '.garden-finish-button'
+      '.garden-finish-button',
+      '.day-finish-button',
+      '.quiet-observation:not([disabled])',
+      '.path-care-item:not([disabled])'
     ].join(',');
     const controls = [...document.querySelectorAll(selectors)].filter(visible);
     const clippedControls = controls.filter((element) => {
       const rect = element.getBoundingClientRect();
       return rect.left < -1 || rect.top < -1 || rect.right > innerWidth + 1 || rect.bottom > innerHeight + 1;
-    }).map((element) => element.textContent?.replace(/\\s+/g, ' ').trim() || element.getAttribute('aria-label'));
-    const panels = [...document.querySelectorAll('.storybook-panel, .action-grid, .leaf-game-shell, .stone-game-shell, .garden-game-shell, .journal-shell')]
+    }).map((element) => element.textContent?.replace(/\s+/g, ' ').trim() || element.getAttribute('aria-label'));
+    const panels = [...document.querySelectorAll('.storybook-panel, .action-grid, .leaf-game-shell, .stone-game-shell, .garden-game-shell, .day-scene-shell, .journal-shell')]
       .filter(visible)
       .filter((element) => {
         const rect = element.getBoundingClientRect();
@@ -139,6 +131,47 @@ async function visitActivity(page, profile, activityId, complete) {
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 }
 
+async function invitationLabels(page) {
+  return page.evaluate(`JSON.stringify([...document.querySelectorAll('.day-invitation-card')].map((card) => card.textContent?.replace(/\s+/g, ' ').trim()))`);
+}
+
+async function completeRepeatableDay(page, profile) {
+  await waitForEnabledButton(page, 'Village', true);
+  await clickButton(page, 'Village', true);
+  await waitForEnabledButton(page, 'See What Willowmere Offers');
+  await clickButton(page, 'See What Willowmere Offers');
+  await page.waitFor("Boolean(document.querySelector('.day-invitation-grid'))");
+  await assertLayout(page, profile, 'day-one-invitations');
+
+  if (profile.dayPath === 'quiet') {
+    await clickButton(page, 'Sit Quietly with Fern');
+    await page.waitFor("Boolean(document.querySelector('.quiet-visit-shell'))");
+    await assertLayout(page, profile, 'quiet-visit');
+    await captureScreenshot(page, profile, 'quiet-visit');
+    await completeQuietVisit(page);
+  } else {
+    await clickButton(page, 'Care for Willowmere');
+    await page.waitFor("Boolean(document.querySelector('.helping-scene-shell'))");
+    await assertLayout(page, profile, 'village-helping');
+    await captureScreenshot(page, profile, 'village-helping');
+    await completeVillageHelping(page);
+  }
+
+  await page.waitFor("document.body.textContent?.includes('Day 1 in Willowmere')");
+  await assertLayout(page, profile, `day-one-summary-${profile.dayPath}`);
+  await captureScreenshot(page, profile, `day-one-summary-${profile.dayPath}`);
+
+  await waitForEnabledButton(page, 'See What Willowmere Offers');
+  await clickButton(page, 'See What Willowmere Offers');
+  await page.waitFor("Boolean(document.querySelector('.day-invitation-grid'))");
+  const beforeReload = await invitationLabels(page);
+  await page.navigate(baseUrl);
+  await page.waitFor("Boolean(document.querySelector('.day-invitation-grid'))");
+  const afterReload = await invitationLabels(page);
+  if (beforeReload !== afterReload) throw new Error(`${profile.name} changed day-two invitations after reload.`);
+  await assertLayout(page, profile, 'day-two-invitations-after-reload');
+}
+
 async function runProfile(browser, profile) {
   const page = await browser.newPage();
   try {
@@ -168,10 +201,7 @@ async function runProfile(browser, profile) {
       if (activityId === profile.completion) break;
     }
 
-    if (!documentedCompletionReached(profile.completion)) {
-      throw new Error(`Unknown completion activity: ${profile.completion}`);
-    }
-
+    if (!Object.hasOwn(activities, profile.completion)) throw new Error(`Unknown completion activity: ${profile.completion}`);
     await page.waitFor("Boolean(document.querySelector('.world-nav'))");
     await assertLayout(page, profile, `friendship-created-${profile.completion}`);
 
@@ -196,13 +226,11 @@ async function runProfile(browser, profile) {
     await page.waitFor("Boolean(document.querySelector('.journal-shell'))");
     await assertLayout(page, profile, 'journal');
     await captureScreenshot(page, profile, 'journal');
+
+    await completeRepeatableDay(page, profile);
   } finally {
     page.close();
   }
-}
-
-function documentedCompletionReached(activityId) {
-  return Object.hasOwn(activities, activityId);
 }
 
 await rm(screenshotDirectory, { recursive: true, force: true });
@@ -211,7 +239,7 @@ await mkdir(screenshotDirectory, { recursive: true });
 const browser = await startHeadlessChrome();
 try {
   for (const profile of profiles) await runProfile(browser, profile);
-  console.log(`Verified ${profiles.length} tablet viewport profiles with screenshots.`);
+  console.log(`Verified ${profiles.length} tablet viewport profiles through the first repeatable day.`);
 } finally {
   await browser.close();
 }
