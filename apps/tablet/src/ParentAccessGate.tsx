@@ -17,6 +17,12 @@ type ParentAccessGateProps = {
   children: ReactNode;
 };
 
+function ownedArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
 function toBase64(bytes: Uint8Array): string {
   let value = '';
   for (const byte of bytes) value += String.fromCharCode(byte);
@@ -25,19 +31,24 @@ function toBase64(bytes: Uint8Array): string {
 
 function fromBase64(value: string): Uint8Array {
   const decoded = atob(value);
-  return Uint8Array.from(decoded, (character) => character.charCodeAt(0));
+  const bytes = new Uint8Array(decoded.length);
+  for (let index = 0; index < decoded.length; index += 1) {
+    bytes[index] = decoded.charCodeAt(index);
+  }
+  return bytes;
 }
 
 async function derivePinHash(pin: string, salt: Uint8Array, iterations: number): Promise<Uint8Array> {
+  const pinBytes = new TextEncoder().encode(pin);
   const material = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(pin),
+    ownedArrayBuffer(pinBytes),
     'PBKDF2',
     false,
     ['deriveBits']
   );
   const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', hash: 'SHA-256', salt, iterations },
+    { name: 'PBKDF2', hash: 'SHA-256', salt: ownedArrayBuffer(salt), iterations },
     material,
     256
   );
