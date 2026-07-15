@@ -12,6 +12,7 @@ import './playtest.css';
 import './parent-access.css';
 import './compatibility.css';
 import './update-notice.css';
+import './viewport-layout.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,
