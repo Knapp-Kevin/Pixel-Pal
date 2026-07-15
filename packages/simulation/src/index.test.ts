@@ -26,8 +26,29 @@ describe('createFirstWorld', () => {
     expect(firstPals[0]?.createdBy).toBe('player');
   });
 
+  it('preserves the player-selected starter species', () => {
+    const deerWorld = createFirstWorld({
+      ...input,
+      firstPal: { ...input.firstPal, speciesId: 'deer' as const }
+    });
+    const firstPal = deerWorld.pals.find((pal) => pal.id === deerWorld.firstPalId);
+
+    expect(firstPal?.speciesId).toBe('deer');
+    expect(firstPal?.appearance.bodyFamily).toBe('cervid');
+  });
+
   it('is deterministic for the same input', () => {
     expect(createFirstWorld(input)).toEqual(createFirstWorld(input));
+  });
+
+  it('uses different seeds to create distinct starting identities', () => {
+    const firstWorld = createFirstWorld({ ...input, seed: 42 });
+    const secondWorld = createFirstWorld({ ...input, worldId: 'another-world', seed: 43 });
+    const firstPal = firstWorld.pals.find((pal) => pal.id === firstWorld.firstPalId);
+    const secondPal = secondWorld.pals.find((pal) => pal.id === secondWorld.firstPalId);
+
+    expect(firstWorld.firstPalId).not.toBe(secondWorld.firstPalId);
+    expect(firstPal?.characteristics).not.toEqual(secondPal?.characteristics);
   });
 
   it('begins with personality left to discover', () => {
