@@ -42,11 +42,33 @@ function invitationOfKind(world: ReturnType<typeof offerNextWorldDay>, kind: 'ac
   return world.daySessions.find((session) => session.status === 'offered')?.invitations.find((invitation) => invitation.kind === kind);
 }
 
+function firstPal(world: ReturnType<typeof readyWorld>) {
+  return world.pals.find((pal) => pal.id === world.firstPalId)!;
+}
+
 describe('repeatable world day rhythm', () => {
+  it('records structured evidence for the first shared activity', () => {
+    const preference = firstPal(readyWorld()).preferences.find((candidate) => candidate.id === 'first-play-preference');
+    expect(preference).toMatchObject({
+      subjectId: 'garden-game',
+      discovered: true,
+      evidenceCount: 1
+    });
+  });
+
   it('generates deterministic contextual invitations', () => {
     const world = readyWorld();
     expect(generateDayInvitations(world)).toEqual(generateDayInvitations(world));
-    expect(generateDayInvitations(world).map((invitation) => invitation.kind)).toEqual(['active', 'quiet', 'helping']);
+    expect(generateDayInvitations(world).map((invitation) => invitation.kind)).toEqual(['active', 'helping', 'quiet']);
+  });
+
+  it('uses known play preferences while preserving active rotation', () => {
+    const firstOffer = offerNextWorldDay(readyWorld());
+    const dayOne = completeWorldDay(firstOffer, invitationOfKind(firstOffer, 'helping')!.id, helpingCompletion);
+    const dayTwoActive = generateDayInvitations(dayOne).find((invitation) => invitation.kind === 'active');
+
+    expect(dayTwoActive?.activityId).toBe('garden-game');
+    expect(dayTwoActive?.summary).toMatch(/remembered/i);
   });
 
   it('rotates the chosen home object into day two', () => {
@@ -64,19 +86,25 @@ describe('repeatable world day rhythm', () => {
     expect(once.daySessions[0]?.day).toBe(1);
   });
 
-  it('completes a quiet visit and advances exactly one world day', () => {
+  it('completes a quiet visit and discovers a quiet preference', () => {
     const offered = offerNextWorldDay(readyWorld());
     const completed = completeWorldDay(offered, invitationOfKind(offered, 'quiet')!.id, quietCompletion);
-    const firstPal = completed.pals.find((pal) => pal.id === completed.firstPalId);
+    const pal = firstPal(completed);
     expect(completed.worldDay).toBe(1);
     expect(completed.memories.some((memory) => memory.eventType === 'world-day-quiet')).toBe(true);
-    expect(firstPal?.skills.some((skill) => skill.id === 'listening')).toBe(true);
+    expect(pal.skills.some((skill) => skill.id === 'listening')).toBe(true);
+    expect(pal.preferences).toContainEqual(expect.objectContaining({
+      subjectId: 'quiet-noticing',
+      discovered: true,
+      evidenceCount: 1
+    }));
   });
 
-  it('persists a visible village change after helping', () => {
+  it('persists a visible village change and helping preference', () => {
     const offered = offerNextWorldDay(readyWorld());
     const completed = completeWorldDay(offered, invitationOfKind(offered, 'helping')!.id, helpingCompletion);
     expect(completed.villages[0]?.visibleChanges.some((change) => change.startsWith('village-help-'))).toBe(true);
+    expect(firstPal(completed).preferences).toContainEqual(expect.objectContaining({ subjectId: 'village-helping' }));
   });
 
   it('persists the home path in the actual home', () => {
@@ -88,7 +116,8 @@ describe('repeatable world day rhythm', () => {
     expect(dayTwo.worldDay).toBe(2);
     expect(firstHome?.visibleChanges).toContain('shared-day-story-lantern');
     expect(dayTwo.memories.some((memory) => memory.eventType === 'world-day-home')).toBe(true);
-    expect(dayTwo.pals.find((pal) => pal.id === dayTwo.firstPalId)?.skills.some((skill) => skill.id === 'home-making')).toBe(true);
+    expect(firstPal(dayTwo).skills.some((skill) => skill.id === 'home-making')).toBe(true);
+    expect(firstPal(dayTwo).preferences).toContainEqual(expect.objectContaining({ subjectId: 'story-lantern' }));
   });
 
   it('requires the invited mini-game completion evidence', () => {
@@ -103,16 +132,19 @@ describe('repeatable world day rhythm', () => {
     })).toThrow(/does not match/i);
   });
 
-  it('deepens a later quiet visit without duplicating its memory', () => {
+  it('deepens a later quiet preference without duplicating its memory', () => {
     const firstOffer = offerNextWorldDay(readyWorld());
     const dayOne = completeWorldDay(firstOffer, invitationOfKind(firstOffer, 'quiet')!.id, quietCompletion);
     const secondOffer = offerNextWorldDay(dayOne);
     const dayTwo = completeWorldDay(secondOffer, invitationOfKind(secondOffer, 'home')!.id, homeCompletion);
     const thirdOffer = offerNextWorldDay(dayTwo);
     const dayThree = completeWorldDay(thirdOffer, invitationOfKind(thirdOffer, 'quiet')!.id, quietCompletion);
+    const quietPreference = firstPal(dayThree).preferences.find((preference) => preference.subjectId === 'quiet-noticing');
+
     expect(dayThree.worldDay).toBe(3);
     expect(dayThree.daySessions).toHaveLength(3);
     expect(dayThree.memories.filter((memory) => memory.eventType === 'world-day-quiet')).toHaveLength(1);
     expect(dayThree.daySessions[2]?.outcome?.memoryId).toBeUndefined();
+    expect(quietPreference?.evidenceCount).toBe(2);
   });
 });
