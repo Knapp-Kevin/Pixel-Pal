@@ -13,7 +13,9 @@ import { completeFirstFriendshipCeremony } from '@pixel-pals/simulation/ceremony
 const speciesOptions: Array<{ id: FirstPalChoice['speciesId']; label: string }> = [
   { id: 'fox', label: 'Fox' },
   { id: 'deer', label: 'Deer' },
-  { id: 'rabbit', label: 'Rabbit' }
+  { id: 'rabbit', label: 'Rabbit' },
+  { id: 'cat', label: 'Kitten' },
+  { id: 'duck', label: 'Duckling' }
 ];
 
 const paletteOptions: Array<{ id: FirstPalChoice['paletteId']; label: string }> = [
@@ -46,7 +48,11 @@ const activityOptions: Array<{
 ];
 
 function renderableSpecies(speciesId: string): PalSpecies {
-  return speciesId === 'deer' || speciesId === 'rabbit' ? speciesId : 'fox';
+  if (speciesId === 'deer' || speciesId === 'rabbit' || speciesId === 'cat' || speciesId === 'duck') {
+    return speciesId;
+  }
+
+  return 'fox';
 }
 
 function createLocalWorldSeed(): number {
@@ -126,10 +132,10 @@ export function App() {
             ) : (
               <div className="unselected-pal" role="status">
                 <span className="unselected-pal-shapes" aria-hidden="true">
-                  <span>◇</span><span>○</span><span>△</span>
+                  <span>◇</span><span>○</span><span>△</span><span>☆</span><span>◌</span>
                 </span>
                 <strong>Choose who you meet</strong>
-                <span>Fox, Deer, and Rabbit are all waiting.</span>
+                <span>Fox, Deer, Rabbit, Kitten, and Duckling are all waiting.</span>
               </div>
             )}
           </div>
