@@ -1,6 +1,10 @@
 name: Apply App species compatibility codemod
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/app-species-compat-codemod.yml
   workflow_dispatch:
 
 permissions:
