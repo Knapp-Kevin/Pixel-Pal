@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CURRENT_SCHEMA_VERSION = 2 as const;
+export const CURRENT_SCHEMA_VERSION = 3 as const;
 
 export const LIMITS = {
   species: 128,
@@ -11,6 +11,7 @@ export const LIMITS = {
   homes: 5000,
   villages: 256,
   greatTrees: 256,
+  daySessions: 10000,
   palDetails: 128,
   references: 5000
 } as const;
