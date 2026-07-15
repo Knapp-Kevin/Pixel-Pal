@@ -4,10 +4,10 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Last Updated** | 2026-07-15T12:15:00-04:00 |
-| **Updated By** | Judge |
-| **Phase** | BOOTSTRAP (GATE tribunal complete: VETO) |
-| **Iteration** | 1 |
+| **Last Updated** | 2026-07-15T12:35:00-04:00 |
+| **Updated By** | Specialist |
+| **Phase** | IMPLEMENTING (razor remediation complete; awaiting re-audit) |
+| **Iteration** | 2 |
 | **Session Seal** | PENDING |
 
 ---
@@ -17,15 +17,18 @@
 ```
 pixel-pal/
 |-- .agent/staging/AUDIT_REPORT.md
-|-- .qor/gates/2026-07-15-genesis/audit.json
-|-- apps/tablet/                    # PWA game client (React 19, Vite 7)
-|-- packages/content-schema/        # zod-validated content definitions
-|-- packages/persistence/           # IndexedDB world checkpoints, backup import/export
-|-- packages/renderer/              # PalPortrait composition
-|-- packages/simulation/            # deterministic world simulation
-|-- scripts/                        # build-artifact + deployment verification
-|-- .github/workflows/              # ci.yml, verify-deployment.yml
-`-- docs/                           # governance DNA + project docs
+|-- .qor/gates/2026-07-15-genesis/   # audit.json, implement.json (local-only)
+|-- apps/tablet/src/
+|   |-- app/            # options, worldQueries, useWorldSave, StatusPanels, ChoiceGroup,
+|   |                   # CreationPanel, VillageView, HomeView, WorldNav, WorldShell
+|   |-- parentGate/     # credential, useParentGate, ParentGateDialog, ParentAccessGate
+|   |-- parentTools/    # playtestExport, BackupSection, ObservationSection, ResetSection
+|   `-- App.tsx (48), ParentTestTools.tsx (40), MemoryJournal, TabletProfileBoundary, ...
+|-- packages/content-schema/src/     # primitives, entities, worldBase, worldChecks, world,
+|                                    # migration, index (re-export barrel)
+|-- packages/{simulation,persistence,renderer}/
+|-- scripts/ + .github/workflows/
+`-- docs/               # governance DNA + FILE_INDEX movement log
 ```
 
 ---
@@ -34,12 +37,11 @@ pixel-pal/
 
 | Metric | Value |
 |--------|-------|
-| Total Source Files | 22 (.ts/.tsx, non-test) |
+| Total Source Files | 45 (.ts/.tsx, non-test) |
 | Total Test Files | 4 |
-| Total Lines of Code | 3,419 (incl. tests) |
-| Max File Size | 454 lines (apps/tablet/src/App.tsx) |
-| Max Function Size | ≈223 lines (ParentAccessGate component) |
-| Section 4 Violations | 4 files > 250 lines; ≥1 function > 40 lines |
+| Total Lines of Code | 3,932 (incl. tests) |
+| Max File Size | 244 lines (packages/simulation/src/index.ts) |
+| Section 4 Violations | 0 files > 250 lines; nested ternaries removed |
 
 ---
 
@@ -47,11 +49,11 @@ pixel-pal/
 
 | Status | Planned | Actual | Notes |
 |--------|---------|--------|-------|
-| OK Delivered | 5 workspaces | 5 workspaces | apps/tablet + 4 packages match blueprint |
+| OK Delivered | 5 workspaces | 5 workspaces | module decomposition matches amended blueprint tree |
 | WARN Unplanned | 0 | 0 | — |
-| FAIL Missing | 0 | 0 | genetics/ui/content declared NOT-YET, not missing |
+| FAIL Missing | 0 | 0 | genetics/ui/content still declared NOT-YET |
 
-**Compliance Rate**: 100% (structural); Razor compliance FAIL (see below)
+**Compliance Rate**: 100% (structural); Razor compliance PASS (remediated)
 
 ---
 
@@ -62,10 +64,10 @@ pixel-pal/
 | typescript | OK | OK | OK |
 | react / react-dom | OK | OK | OK |
 | vite | OK | OK | OK |
-| zod | FAIL | OK | UNPLANNED (audit V2) |
-| vite-plugin-pwa | FAIL | OK | UNPLANNED (audit V2) |
-| vitest | FAIL | OK | UNPLANNED (audit V2) |
-| fake-indexeddb | FAIL | OK | UNPLANNED (audit V2) |
+| vite-plugin-pwa | OK (amended) | OK | OK |
+| zod | OK (amended) | OK | OK |
+| vitest | OK (amended) | OK | OK |
+| fake-indexeddb | OK (amended) | OK | OK |
 
 ---
 
@@ -73,19 +75,17 @@ pixel-pal/
 
 ### File-Level (Macro KISS)
 
-| File | Lines | Status |
-|------|-------|--------|
-| apps/tablet/src/App.tsx | 454/250 | FAIL |
-| packages/content-schema/src/index.ts | 386/250 | FAIL |
-| apps/tablet/src/ParentAccessGate.tsx | 295/250 | FAIL |
-| apps/tablet/src/ParentTestTools.tsx | 262/250 | FAIL |
-| all other source files | <250 | OK |
+| Check | Result |
+|------|--------|
+| Files > 250 lines | 0 (sweep 2026-07-15; max 244) |
 
 ### Function-Level (Micro KISS)
 
-| File | Longest Function | Deepest Nesting | Status |
-|------|-----------------|-----------------|--------|
-| apps/tablet/src/ParentAccessGate.tsx | ≈223/40 lines | ≤3 | FAIL |
+| Check | Result |
+|------|--------|
+| Logic functions > 40 lines | 0 in remediated scope (handlers/validators extracted to module scope) |
+| Nested ternaries | 0 (two removed during remediation) |
+| Nesting > 3 | none found |
 
 ---
 
@@ -93,21 +93,23 @@ pixel-pal/
 
 | Component | Test File | Exists | Passing |
 |-----------|-----------|--------|---------|
-| persistence | packages/persistence/src/index.test.ts | OK | not run this session |
-| simulation | packages/simulation/src/index.test.ts | OK | not run this session |
-| content-schema | packages/content-schema/src/index.test.ts | OK | not run this session |
-| tablet profile | apps/tablet/src/tabletProfile.test.ts | OK | not run this session |
+| persistence | packages/persistence/src/index.test.ts | OK | OK (8/8) |
+| simulation | packages/simulation/src/index.test.ts | OK | OK (23/23) |
+| content-schema | packages/content-schema/src/index.test.ts | OK | OK (8/8) |
+| tablet profile | apps/tablet/src/tabletProfile.test.ts | OK | OK (4/4) |
 
 ---
 
 ## Recent Changes
 
-| File | Change Type | Lines Changed |
-|------|-------------|---------------|
-| docs/{CONCEPT,ARCHITECTURE_PLAN,META_LEDGER,BACKLOG,FEATURE_INDEX}.md | Created | +185 |
-| docs/{SYSTEM_STATE,SHADOW_GENOME,GOVERNANCE_INDEX}.md | Created (seeded + completed) | — |
-| .agent/staging/AUDIT_REPORT.md | Created | — |
-| .qor/gates/2026-07-15-genesis/audit.json | Created | — |
+| File | Change Type | Notes |
+|------|-------------|-------|
+| packages/content-schema/src/* | Split (6 new modules + barrel) | public API unchanged |
+| apps/tablet/src/parentGate/* | Created (4 files) | replaces ParentAccessGate.tsx (deleted) |
+| apps/tablet/src/parentTools/* | Created (4 files) | ParentTestTools.tsx rewritten as composer |
+| apps/tablet/src/app/* | Created (10 files) | App.tsx rewritten as 48-line orchestrator |
+| docs/ARCHITECTURE_PLAN.md | Amended | dependency table + measured razor pre-check (audit V2) |
+| docs/FILE_INDEX.md | Created | movement log + rollback instructions |
 
 ---
 
@@ -115,19 +117,17 @@ pixel-pal/
 
 | Indicator | Status | Details |
 |-----------|--------|---------|
-| Merkle Chain | VALID | Entries #1–#2; last validated 2026-07-15 |
-| Blueprint Sync | DRIFT | Dependency table incomplete (audit V2) |
-| Section 4 Compliance | VIOLATIONS | 4 file-level + 1 function-level (audit V1) |
-| Test Status | UNKNOWN | Suite not executed this session |
+| Merkle Chain | VALID | Entries #1–#3; last validated 2026-07-15 |
+| Blueprint Sync | SYNCED | dependency table amended to match installed reality |
+| Section 4 Compliance | PASS | 0 violations after /qor-refactor |
+| Test Status | PASS | 43/43; build + verify:artifacts PASS |
 
 ---
 
 ## Next Actions
 
-Based on current state:
-
-- [ ] `/qor-refactor` — split the four >250-line files (audit V1)
-- [ ] Governor: amend ARCHITECTURE_PLAN dependency table + honest Razor pre-check (audit V2), then re-run `/qor-audit`
+- [ ] `/qor-audit` re-run (gate re-verdict after remediation)
+- [ ] Push branch for review after PASS
 
 ---
 

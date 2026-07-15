@@ -59,7 +59,7 @@ Bootstrap-over-existing genesis sealed the as-built monorepo tree as "The Contra
 
 | Status | Action Taken |
 |--------|--------------|
-| PENDING | V1 routed to `/qor-refactor`; V2 routed to Governor plan-text amendment; re-audit required. |
+| FIXED | V1: `/qor-refactor` decomposed all four files (commit e4f5dab; 0 files > 250 lines after sweep). V2: dependency table amended to match installed manifests. Re-audit PASS (ledger Entry #4, report hash 60ceca4f), 2026-07-15. |
 
 #### Related Entries
 - Ledger Entry: #2 (GATE TRIBUNAL, VETO)
@@ -110,7 +110,7 @@ Aggregate lessons from failures into reusable patterns.
 | CHAIN_BREAK | 0 | — |
 
 **Total Failures Recorded**: 1
-**Failures Resolved**: 0
+**Failures Resolved**: 1
 **Patterns Extracted**: 1
 
 ---

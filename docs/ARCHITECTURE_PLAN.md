@@ -15,9 +15,13 @@ Child safety and privacy are architectural requirements (README § Child Safety 
 pixel-pal/
 ├── apps/
 │   └── tablet/                 # Tablet-first PWA game client (TypeScript, React, Vite)
+│       └── src/
+│           ├── app/            # App shell decomposition: views, nav, world-save hook, options
+│           ├── parentGate/     # PIN credential module + gate components
+│           └── parentTools/    # Backup, observation, and reset sections
 ├── packages/
 │   ├── simulation/             # Deterministic world and relationship simulation
-│   ├── content-schema/         # Validated game content definitions
+│   ├── content-schema/         # Validated game content definitions (primitives/entities/world/checks/migration modules)
 │   ├── persistence/            # Local-first saves, migrations, backup import/export
 │   └── renderer/               # Portrait and scene composition (README names this "art-runtime")
 ├── scripts/                    # Build-artifact and deployment verification (verify:artifacts, verify:deployment)
@@ -68,18 +72,24 @@ Network is never on the core-play path (offline is a first-class mode).
 | Package | Justification | Vanilla Alternative |
 |---------|---------------|---------------------|
 | TypeScript | Type safety across simulation/schema boundaries | no |
-| React | Tablet UI client (README technical direction) | no |
+| React + react-dom | Tablet UI client (README technical direction) | no |
 | Vite | Dev server + PWA build tooling | no |
+| vite-plugin-pwa | Installable PWA + offline precache (README tablet-first requirement) | no |
+| zod | Validated content schemas (Architecture Principle 3: content is data-driven through validated schemas) | no |
+| vitest (dev) | Test runner for unit/integration suites across all workspaces | no |
+| fake-indexeddb (dev) | IndexedDB test double for persistence tests without a browser | no |
+| @vitejs/plugin-react-swc, @types/* (dev) | React build/type tooling | n/a |
 | Node ≥22, npm workspaces | Monorepo package boundaries | n/a |
 
-New dependencies require justification against the child-safety and offline-first constraints (no analytics/tracking SDKs by default).
+New dependencies require justification against the child-safety and offline-first constraints (no analytics/tracking SDKs by default). This table is the enforceable baseline: a dependency absent here is unapproved.
 
-## Section 4 Razor Pre-Check
-- [x] All planned functions <= 40 lines
-- [x] All planned files <= 250 lines
-- [x] No planned nesting > 3 levels
+## Section 4 Razor Pre-Check (measured 2026-07-15, post-remediation)
+- [x] All files <= 250 lines (max: `packages/simulation/src/index.ts` at 244; verified by line-count sweep)
+- [x] All logic functions <= 40 lines (handlers/validators extracted to module scope; declarative JSX subcomponents kept small by decomposition)
+- [x] No nesting > 3 levels
+- [x] No nested ternaries (two pre-existing instances removed during razor remediation)
 
-Existing code predates Qor governance; violations found during future cycles route through /qor-refactor rather than blocking genesis.
+History: genesis sealed with 4 file-level violations (audit V1, VETO); remediated via /qor-refactor on 2026-07-15 (see docs/FILE_INDEX.md for the movement log). This pre-check now states measured reality, not aspiration.
 
 ---
 *Blueprint sealed. Awaiting GATE tribunal.*

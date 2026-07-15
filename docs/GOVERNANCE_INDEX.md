@@ -52,7 +52,8 @@ Informational, slow-drift. Drift signal: factual claims diverge from current cod
 
 | Artifact | Path |
 |----------|------|
-| _example_ | `docs/*.md` reference docs |
+| File Index (razor remediation movement log) | `docs/FILE_INDEX.md` |
+| Shadow Genome | `docs/SHADOW_GENOME.md` |
 
 ## Tier 6 — Archived
 
