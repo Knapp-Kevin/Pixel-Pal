@@ -1,5 +1,10 @@
 import type { World } from '@pixel-pals/content-schema';
-import { PalPortrait, WillowmereScene, type WillowmerePlayMarker } from '@pixel-pals/renderer';
+import {
+  PalArtwork,
+  SceneArtwork,
+  WillowmereScene,
+  type WillowmerePlayMarker
+} from '@pixel-pals/renderer';
 import type { FirstActivity } from '@pixel-pals/simulation';
 import { completeFirstFriendshipCeremony } from '@pixel-pals/simulation/ceremony';
 import { activityOptions } from './options';
@@ -59,19 +64,36 @@ function resolveActivityPresentation(scene: WorldScene): ActivityPresentation | 
   );
 }
 
+function villageSceneVariant(scene: WorldScene, marker: WillowmerePlayMarker | undefined): string {
+  const base = marker ?? 'base';
+  return scene.ceremonyMemory ? `${base}-ceremony` : base;
+}
+
 function VillagePanel({ scene }: { scene: WorldScene }) {
   const { firstPal, firstNeighbor, village, firstMemory, ceremonyMemory, firstPreference, latestStory } = scene;
   const expression = firstMemory ? 'delighted' : 'curious';
   const pose = firstMemory ? 'playful' : 'standing';
   const playMarker = resolveActivityPresentation(scene)?.marker;
+  const variant = villageSceneVariant(scene, playMarker);
 
   return (
     <section className="storybook-panel world-panel" aria-labelledby="welcome-title">
       <div className="storybook-art world-art">
-        <WillowmereScene className="willowmere-scene" playMarker={playMarker} showCeremonyMarker={Boolean(ceremonyMemory)} />
+        <SceneArtwork
+          sceneId="willowmere-village"
+          variant={variant}
+          className="willowmere-scene"
+          fallback={(
+            <WillowmereScene
+              className="willowmere-scene"
+              playMarker={playMarker}
+              showCeremonyMarker={Boolean(ceremonyMemory)}
+            />
+          )}
+        />
         <div className="pal-pair" aria-label={`${firstPal.name} and ${firstNeighbor.name} in ${village.name}`}>
-          <PalPortrait className="scene-pal scene-pal-first" {...palAppearanceProps(firstPal)} expression={expression} pose={pose} />
-          <PalPortrait
+          <PalArtwork className="scene-pal scene-pal-first" {...palAppearanceProps(firstPal)} expression={expression} pose={pose} />
+          <PalArtwork
             className="scene-pal scene-pal-fern"
             {...palAppearanceProps(firstNeighbor)}
             expression={firstMemory ? 'delighted' : 'content'}
@@ -103,7 +125,7 @@ function ActivityGrid({ scene, saving, onStartActivity }: VillageViewProps) {
           onClick={() => onStartActivity(activity.id)}
         >
           <span className="activity-portrait" aria-hidden="true">
-            <PalPortrait
+            <PalArtwork
               {...palAppearanceProps(scene.firstPal)}
               expression={activity.expression}
               pose={activity.id === 'leaf-chase' ? 'playful' : 'standing'}
