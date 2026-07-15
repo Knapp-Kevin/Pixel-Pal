@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createFirstWorld } from './index';
+import { completeFirstActivity, createFirstWorld } from './index';
 
 const input = {
   worldId: 'kevin-family-world',
@@ -34,5 +34,32 @@ describe('createFirstWorld', () => {
     const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
 
     expect(firstPal?.preferences.some((preference) => !preference.discovered)).toBe(true);
+  });
+});
+
+describe('completeFirstActivity', () => {
+  it('discovers a preference and creates a shared memory', () => {
+    const world = completeFirstActivity(createFirstWorld(input), 'garden-game');
+    const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
+
+    expect(firstPal?.preferences[0]?.discovered).toBe(true);
+    expect(firstPal?.preferences[0]?.label).toBe('Playing a garden guessing game');
+    expect(world.memories).toHaveLength(1);
+    expect(world.memories[0]?.participantPalIds).toHaveLength(2);
+  });
+
+  it('moves the first relationship from acquaintance to friend', () => {
+    const world = completeFirstActivity(createFirstWorld(input), 'leaf-chase');
+
+    expect(world.relationships[0]?.label).toBe('friend');
+    expect(world.relationships[0]?.sharedHistory).toBeGreaterThan(0);
+  });
+
+  it('does not duplicate the first memory when repeated', () => {
+    const once = completeFirstActivity(createFirstWorld(input), 'stone-stacking');
+    const twice = completeFirstActivity(once, 'garden-game');
+
+    expect(twice).toEqual(once);
+    expect(twice.memories).toHaveLength(1);
   });
 });
