@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { HomeObject, Pal, World } from '@pixel-pals/content-schema';
 import { loadWorld, saveWorld } from '@pixel-pals/persistence';
-import { HomeScene, PalPortrait, WillowmereScene, type PalSpecies } from '@pixel-pals/renderer';
+import { HomeScene, PalPortrait, WillowmereScene } from '@pixel-pals/renderer';
 import {
   completeFirstActivity,
   createFirstWorld,
@@ -11,6 +11,7 @@ import {
 import { completeFirstFriendshipCeremony } from '@pixel-pals/simulation/ceremony';
 import { chooseFirstHomeObject } from '@pixel-pals/simulation/home';
 import { MemoryJournal } from './MemoryJournal';
+import { requireRenderableSpecies } from './tabletProfile';
 import { ParentTestTools } from './ParentTestTools';
 
 const speciesOptions: Array<{ id: FirstPalChoice['speciesId']; label: string }> = [
@@ -58,13 +59,6 @@ const homeObjectOptions: Array<{ id: HomeObject; title: string; description: str
 
 type AppView = 'village' | 'home' | 'journal';
 type HomeView = 'exterior' | 'interior';
-
-function renderableSpecies(speciesId: string): PalSpecies {
-  if (speciesId === 'deer' || speciesId === 'rabbit' || speciesId === 'cat' || speciesId === 'duck') {
-    return speciesId;
-  }
-  return 'fox';
-}
 
 function createLocalWorldSeed(): number {
   if (globalThis.crypto?.getRandomValues) {
@@ -286,7 +280,7 @@ export function App() {
                 <PalPortrait
                   className="scene-pal scene-pal-first"
                   name={firstPal.name}
-                  species={renderableSpecies(firstPal.speciesId)}
+                  species={requireRenderableSpecies(firstPal.speciesId)}
                   paletteId={firstPal.appearance.paletteId}
                   markingId={firstPal.appearance.markingId}
                   accessoryId={firstPal.appearance.accessoryId}
@@ -296,7 +290,7 @@ export function App() {
                 <PalPortrait
                   className="scene-pal scene-pal-fern"
                   name={firstNeighbor.name}
-                  species={renderableSpecies(firstNeighbor.speciesId)}
+                  species={requireRenderableSpecies(firstNeighbor.speciesId)}
                   paletteId={firstNeighbor.appearance.paletteId}
                   markingId={firstNeighbor.appearance.markingId}
                   accessoryId={firstNeighbor.appearance.accessoryId}
@@ -328,7 +322,7 @@ export function App() {
                   <span className="activity-portrait" aria-hidden="true">
                     <PalPortrait
                       name={firstPal.name}
-                      species={renderableSpecies(firstPal.speciesId)}
+                      species={requireRenderableSpecies(firstPal.speciesId)}
                       paletteId={firstPal.appearance.paletteId}
                       markingId={firstPal.appearance.markingId}
                       accessoryId={firstPal.appearance.accessoryId}
@@ -384,7 +378,7 @@ export function App() {
                 <PalPortrait
                   className="home-pal"
                   name={firstPal.name}
-                  species={renderableSpecies(firstPal.speciesId)}
+                  species={requireRenderableSpecies(firstPal.speciesId)}
                   paletteId={firstPal.appearance.paletteId}
                   markingId={firstPal.appearance.markingId}
                   accessoryId={firstPal.appearance.accessoryId}
