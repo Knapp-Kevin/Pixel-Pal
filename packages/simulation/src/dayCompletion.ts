@@ -2,6 +2,7 @@ import { parseWorld, type World } from '@pixel-pals/content-schema';
 import { type FirstActivity, type FirstActivityCompletion, validateActivityCompletion } from './activities';
 import { HELPING_VARIANTS, HOME_VARIANTS, stableDayId } from './dayContent';
 import { currentOfferedDay, type WorldDayInvitation } from './dayInvitations';
+import { updatePreferenceForInvitation } from './dayPreferences';
 import { getFirstNeighborContext } from './firstNeighbor';
 
 export type WorldDayCompletion = {
@@ -131,11 +132,12 @@ export function completeWorldDay(world: World, invitationId: string, evidence: W
     significance: invitation.kind === 'helping' ? 0.5 : 0.42
   } : undefined;
   const highlightIds = [relationship.id, skillId, memoryId, visibleChangeId].filter((value): value is string => Boolean(value));
+  const palsWithSkill = updateSkill(world, firstPal.id, skillId);
 
   return parseWorld({
     ...world,
     worldDay: offered.day,
-    pals: updateSkill(world, firstPal.id, skillId),
+    pals: updatePreferenceForInvitation(palsWithSkill, firstPal.id, invitation),
     relationships: world.relationships.map((candidate) => candidate.id === relationship.id ? {
       ...candidate,
       familiarity: Math.min(1, candidate.familiarity + deltas.familiarity),
