@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -20,6 +21,31 @@ function findChrome() {
   }
 
   throw new Error('A Chrome or Chromium executable is required for viewport verification.');
+}
+
+async function stopChrome(processHandle, userDataDirectory) {
+  if (processHandle.exitCode === null) {
+    processHandle.kill('SIGTERM');
+    await Promise.race([once(processHandle, 'exit'), delay(2_000)]);
+  }
+
+  if (processHandle.exitCode === null) {
+    processHandle.kill('SIGKILL');
+    await Promise.race([once(processHandle, 'exit'), delay(1_000)]);
+  }
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await rm(userDataDirectory, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      if (attempt === 4) {
+        console.warn(`Could not remove temporary Chrome profile: ${error.message}`);
+        return;
+      }
+      await delay(120);
+    }
+  }
 }
 
 class CdpSession {
@@ -156,8 +182,7 @@ export async function startHeadlessChrome({ port = 9222 } = {}) {
       return new CdpSession(target.webSocketDebuggerUrl);
     },
     async close() {
-      processHandle.kill('SIGTERM');
-      await rm(userDataDirectory, { recursive: true, force: true });
+      await stopChrome(processHandle, userDataDirectory);
     }
   };
 }
