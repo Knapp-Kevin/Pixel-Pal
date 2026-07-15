@@ -78,6 +78,7 @@ export const MemorySchema = z.object({
   participantPalIds: idList().min(1),
   villageId: id,
   eventType: id,
+  activityId: id.optional(),
   emotionalTone: z.enum(['joyful', 'playful', 'calm', 'uncertain', 'sad', 'hopeful']),
   summary: z.string().trim().min(1).max(500),
   worldDay: z.number().int().nonnegative(),
