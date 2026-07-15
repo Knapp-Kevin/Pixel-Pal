@@ -18,6 +18,14 @@ export type CreateWorldInput = {
 
 export type FirstActivity = 'leaf-chase' | 'stone-stacking' | 'garden-game';
 
+export type FirstActivityCompletion = {
+  activity: FirstActivity;
+  completed: true;
+  successfulActions: number;
+  cooperativeTurns: number;
+  attempts: number;
+};
+
 const BODY_FAMILY_BY_SPECIES: Record<FirstPalChoice['speciesId'], string> = {
   fox: 'canine',
   deer: 'cervid',
@@ -30,6 +38,12 @@ const ACTIVITY_LABELS: Record<FirstActivity, string> = {
   'leaf-chase': 'chasing windblown leaves',
   'stone-stacking': 'stacking smooth stones',
   'garden-game': 'playing a garden guessing game'
+};
+
+const MINIMUM_ACTIVITY_ACTIONS: Record<FirstActivity, number> = {
+  'leaf-chase': 5,
+  'stone-stacking': 3,
+  'garden-game': 4
 };
 
 const FIRST_ACTIVITY_PREFERENCES: readonly FirstActivity[] = [
@@ -67,6 +81,24 @@ function firstPalCharacteristics(seed: number) {
 
 function preferredFirstActivity(seed: number): FirstActivity {
   return FIRST_ACTIVITY_PREFERENCES[seed % FIRST_ACTIVITY_PREFERENCES.length] ?? 'garden-game';
+}
+
+function validateActivityCompletion(result: FirstActivityCompletion): void {
+  if (!result.completed) {
+    throw new Error('A shared activity can only resolve after the play experience is complete.');
+  }
+
+  if (!Number.isInteger(result.successfulActions) || result.successfulActions < MINIMUM_ACTIVITY_ACTIONS[result.activity]) {
+    throw new Error('The shared activity did not contain enough completed play actions.');
+  }
+
+  if (!Number.isInteger(result.cooperativeTurns) || result.cooperativeTurns < 2) {
+    throw new Error('The shared activity must include participation from both friends.');
+  }
+
+  if (!Number.isInteger(result.attempts) || result.attempts < result.successfulActions) {
+    throw new Error('The shared activity result contains invalid attempt counts.');
+  }
 }
 
 export function createFirstWorld(input: CreateWorldInput): World {
@@ -184,10 +216,12 @@ export function createFirstWorld(input: CreateWorldInput): World {
   });
 }
 
-export function completeFirstActivity(world: World, activity: FirstActivity): World {
+export function completeFirstActivity(world: World, result: FirstActivityCompletion): World {
   if (world.memories.some((memory) => memory.eventType === 'first-shared-activity')) {
     return world;
   }
+
+  validateActivityCompletion(result);
 
   const { firstPal, neighbor, relationship } = getFirstNeighborContext(world);
   const village = world.villages.find((candidate) => candidate.id === firstPal.homeVillageId);
@@ -197,10 +231,10 @@ export function completeFirstActivity(world: World, activity: FirstActivity): Wo
   }
 
   const memoryId = stableId('memory', world.seed, 'first-shared-activity');
-  const preferred = preferredFirstActivity(world.seed) === activity;
+  const preferred = preferredFirstActivity(world.seed) === result.activity;
   const preferenceLabel = preferred
-    ? `Especially loves ${ACTIVITY_LABELS[activity]}`
-    : `Enjoys ${ACTIVITY_LABELS[activity]} more with a friend`;
+    ? `Especially loves ${ACTIVITY_LABELS[result.activity]}`
+    : `Enjoys ${ACTIVITY_LABELS[result.activity]} more with a friend`;
 
   return parseWorld({
     ...world,
@@ -247,7 +281,7 @@ export function completeFirstActivity(world: World, activity: FirstActivity): Wo
         villageId: village.id,
         eventType: 'first-shared-activity',
         emotionalTone: preferred ? 'joyful' : 'playful',
-        summary: `${firstPal.name} and ${neighbor.name} tried ${ACTIVITY_LABELS[activity]}. They left knowing each other a little better.`,
+        summary: `${firstPal.name} and ${neighbor.name} worked together while ${ACTIVITY_LABELS[result.activity]}. They left knowing each other a little better.`,
         worldDay: world.worldDay,
         significance: 0.6
       }
