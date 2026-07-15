@@ -40,6 +40,25 @@ export async function clickButton(page, text, exact = false) {
   })()`);
 }
 
+export async function clickEnabledSelector(page, selector) {
+  const encodedSelector = quoted(selector);
+  await page.waitFor(`(() => {
+    const element = document.querySelector(${encodedSelector});
+    if (!(element instanceof HTMLButtonElement)) return false;
+    const style = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return !element.disabled && style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+  })()`);
+  await page.evaluate(`(() => {
+    const element = document.querySelector(${encodedSelector});
+    if (!(element instanceof HTMLButtonElement) || element.disabled) {
+      throw new Error('Could not find enabled button selector: ' + ${encodedSelector});
+    }
+    element.click();
+    return true;
+  })()`);
+}
+
 export async function setPalName(page, name) {
   await page.evaluate(`(() => {
     const input = document.querySelector('input[aria-label="Pal name"]');
