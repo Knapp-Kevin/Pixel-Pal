@@ -1,0 +1,271 @@
+.stone-game-shell {
+  grid-row: 1 / 4;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(8px, 1.4dvh, 16px);
+  padding: clamp(12px, 2.2dvh, 24px);
+  overflow: hidden;
+  border: 3px solid #315b4c;
+  border-radius: clamp(20px, 3vw, 34px);
+  background:
+    radial-gradient(circle at 50% 14%, rgb(255 249 213 / 78%), transparent 26%),
+    linear-gradient(165deg, #d9ecde, #9fbe91);
+  box-shadow: 0 18px 45px rgb(48 74 62 / 18%);
+}
+
+.stone-game-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.stone-game-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5dvh, 4.5rem);
+}
+
+.stone-game-instruction {
+  margin: 6px 0 0;
+  font-size: clamp(0.88rem, 1.8dvh, 1.1rem);
+  line-height: 1.4;
+}
+
+.stone-game-exit {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.stone-game-stage {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(130px, 24%) minmax(210px, 1fr) minmax(130px, 24%);
+  align-items: end;
+  gap: clamp(6px, 1.4vw, 20px);
+  overflow: hidden;
+}
+
+.stone-game-friend {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  place-items: end center;
+  align-content: end;
+  gap: 4px;
+  border: 0;
+  color: #20342d;
+  background: transparent;
+  font: inherit;
+  text-align: center;
+}
+
+button.stone-game-friend {
+  cursor: pointer;
+}
+
+button.stone-game-friend:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.stone-game-friend svg {
+  width: min(100%, 230px);
+  max-height: 100%;
+  filter: drop-shadow(0 12px 8px rgb(40 55 45 / 24%));
+}
+
+.stone-game-friend strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1rem, 2.2dvh, 1.4rem);
+}
+
+.stone-game-friend span {
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #fffdf3;
+  background: #315b4c;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.stone-game-pal-right:not(:disabled) {
+  border-radius: 22px;
+  background: rgb(255 250 219 / 38%);
+  box-shadow: inset 0 0 0 3px rgb(49 91 76 / 28%);
+}
+
+.stone-tower-zone {
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  place-items: end center;
+  padding: clamp(8px, 1.5dvh, 16px);
+  border: 3px dashed rgb(49 91 76 / 42%);
+  border-radius: 28px;
+  background:
+    linear-gradient(to top, rgb(88 106 77 / 18%) 0 14%, transparent 14%),
+    rgb(255 253 235 / 48%);
+}
+
+.stone-tower {
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.stacked-stone,
+.loose-stone {
+  display: block;
+  height: clamp(16px, 3.2dvh, 30px);
+  border: 2px solid #4f5e58;
+  border-radius: 52% 48% 44% 56% / 58% 46% 54% 42%;
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 36%), transparent 24%),
+    linear-gradient(145deg, #9aa29c, #596861);
+  box-shadow: inset -5px -5px 9px rgb(40 49 45 / 18%), 0 3px 3px rgb(41 57 48 / 18%);
+}
+
+.stacked-stone:nth-child(even),
+.loose-stone-button:nth-child(even) .loose-stone {
+  transform: rotate(-1.5deg);
+  background:
+    radial-gradient(circle at 35% 24%, rgb(255 255 255 / 34%), transparent 24%),
+    linear-gradient(145deg, #b2a798, #6f685f);
+}
+
+.stacked-stone:nth-child(3n),
+.loose-stone-button:nth-child(3n) .loose-stone {
+  transform: rotate(1.2deg);
+  background:
+    radial-gradient(circle at 35% 24%, rgb(255 255 255 / 34%), transparent 24%),
+    linear-gradient(145deg, #8f9d91, #4d6254);
+}
+
+.tower-count {
+  margin-top: 6px;
+  color: #405c50;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.stone-game-controls {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(180px, 30%) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(8px, 1.4vw, 18px);
+}
+
+.stone-feedback {
+  margin: 0;
+  padding: clamp(8px, 1.4dvh, 14px);
+  border-radius: 16px;
+  background: rgb(255 253 243 / 82%);
+  font-size: clamp(0.82rem, 1.7dvh, 1rem);
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.stone-bank {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(6px, 1vw, 12px);
+}
+
+.loose-stone-button {
+  min-width: 0;
+  min-height: clamp(72px, 13dvh, 118px);
+  padding: 8px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+  border: 2px solid #60796d;
+  border-radius: 18px;
+  color: #20342d;
+  background: #fff9e8;
+  cursor: grab;
+  font-size: clamp(0.68rem, 1.5dvh, 0.88rem);
+  font-weight: 800;
+  text-align: center;
+  touch-action: manipulation;
+}
+
+.loose-stone-button:active {
+  cursor: grabbing;
+  transform: translateY(2px);
+}
+
+.loose-stone {
+  max-width: 100%;
+}
+
+.stone-finish-button {
+  width: 100%;
+  min-height: clamp(76px, 13dvh, 118px);
+}
+
+@media (orientation: portrait) {
+  .stone-game-shell {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .stone-game-stage {
+    grid-template-columns: minmax(90px, 25%) minmax(150px, 1fr) minmax(90px, 25%);
+  }
+
+  .stone-game-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .stone-feedback {
+    padding-block: 7px;
+  }
+
+  .loose-stone-button {
+    min-height: clamp(62px, 9dvh, 88px);
+  }
+}
+
+@media (max-height: 700px) {
+  .stone-game-shell {
+    padding: 9px;
+    gap: 6px;
+  }
+
+  .stone-game-header h1 {
+    font-size: clamp(1.7rem, 4.5dvh, 2.8rem);
+  }
+
+  .stone-game-instruction {
+    margin-top: 2px;
+    font-size: 0.78rem;
+  }
+
+  .stone-game-friend strong,
+  .tower-count {
+    font-size: 0.72rem;
+  }
+
+  .stone-game-friend span {
+    font-size: 0.65rem;
+  }
+
+  .stacked-stone,
+  .loose-stone {
+    height: clamp(12px, 2.7dvh, 20px);
+  }
+
+  .loose-stone-button,
+  .stone-finish-button {
+    min-height: 62px;
+  }
+}
