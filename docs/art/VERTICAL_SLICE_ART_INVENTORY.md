@@ -13,10 +13,14 @@ This is production-structured prototype art. It is suitable for validating compo
 - Fox
 - Deer
 - Rabbit
+- Kitten
+- Duckling
 
-Each body family has a distinct head, ears, tail treatment, and silhouette.
+Each body family has a distinct head, ears or feather treatment, tail treatment, feet treatment where needed, and recognizable silhouette.
 
-All three are equal first-Pal choices. None is the canonical, recommended, easiest, or default starter.
+All five are equal first-Pal choices. None is the canonical, recommended, easiest, or default starter.
+
+Kitten uses the Cat species record and feline body family. Duckling uses the Duck species record and waterfowl body family. The younger labels belong to starter presentation and life stage, not to separate biological species.
 
 ### Pal palettes
 
@@ -73,7 +77,8 @@ The current scene includes:
 The tablet app now visually supports:
 
 - live first-Pal preview after a species is intentionally selected;
-- species selection without a preselected default;
+- five equal starter choices with no preselected default;
+- Fox, Deer, Rabbit, Kitten, and Duckling silhouettes;
 - palette selection;
 - marking selection;
 - accessory selection;
@@ -91,9 +96,10 @@ The current art does not yet include:
 - final painterly storybook illustrations;
 - professionally refined anatomy and line work;
 - final canonical Fern design approval;
-- additional launch starter species beyond Fox, Deer, and Rabbit;
-- child, adult, and elder body stages;
-- sitting, sleeping, walking, carrying, hugging, or working poses;
+- additional launch starter species beyond the current five;
+- child, adult, and elder body-stage variants for every species;
+- mature Cat and Duck proportions derived from the Kitten and Duckling prototypes;
+- sitting, sleeping, walking, carrying, hugging, swimming, flying, or working poses;
 - home interiors;
 - animated transitions;
 - seasonal variants;
@@ -108,8 +114,8 @@ The current art does not yet include:
 
 The prototype art is successful when children can:
 
-1. recognize Fox, Deer, and Rabbit without labels;
-2. understand that all three are equally valid starting choices;
+1. recognize Fox, Deer, Rabbit, Kitten, and Duckling without labels;
+2. understand that all five are equally valid starting choices;
 3. recognize their named first Pal after customization;
 4. distinguish their Pal from Fern immediately;
 5. understand the emotional difference between expressions;
@@ -121,7 +127,7 @@ The prototype art is successful when children can:
 
 Use this vector art system as a layout, behavior, and compatibility reference.
 
-The next art investment should refine one complete **quality reference path** while preserving all three playable starter choices:
+The next art investment should refine one complete **quality reference path** while preserving all five playable starter choices:
 
 - one body family taken temporarily to near-final quality as the art benchmark;
 - equivalent compatibility and no narrative demotion for the other starter body families;
@@ -133,4 +139,4 @@ The next art investment should refine one complete **quality reference path** wh
 
 The benchmark body family exists to validate line quality, materials, expression, animation anchors, and tablet performance. It does not become the canonical starter.
 
-After the benchmark is approved, the same quality bar MUST be applied to Fox, Deer, and Rabbit before the first public playtest that evaluates starter choice.
+After the benchmark is approved, the same quality bar MUST be applied to Fox, Deer, Rabbit, Kitten, and Duckling before the first public playtest that evaluates starter choice.
