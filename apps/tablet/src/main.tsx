@@ -13,6 +13,7 @@ import './parent-access.css';
 import './compatibility.css';
 import './update-notice.css';
 import './viewport-layout.css';
+import './stone-stacking.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,
