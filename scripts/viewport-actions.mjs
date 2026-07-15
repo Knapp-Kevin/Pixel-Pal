@@ -21,6 +21,7 @@ export async function waitForEnabledButton(page, text, exact = false) {
 }
 
 export async function clickButton(page, text, exact = false) {
+  await waitForEnabledButton(page, text, exact);
   await page.evaluate(`(() => {
     const expected = ${quoted(text)};
     const exact = ${exact};
@@ -73,7 +74,6 @@ export async function completeLeafChase(page) {
     if (friendTurn) await page.evaluate("document.querySelector('.leaf-game-pal-right:not([disabled])')?.click()");
   }
 
-  await waitForEnabledButton(page, 'Remember This Chase');
   await clickButton(page, 'Remember This Chase');
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 }
@@ -82,14 +82,11 @@ export async function completeStoneStacking(page) {
   const childChoices = ['wide stone', 'middle stone', 'small stone'];
 
   for (let index = 0; index < childChoices.length; index += 1) {
-    await waitForEnabledButton(page, childChoices[index], true);
     await clickButton(page, childChoices[index], true);
     if (index < 2) await clickFriendTurn(page, '.stone-game-pal-right');
   }
 
-  await waitForEnabledButton(page, 'Place the Top Stone Together');
   await clickButton(page, 'Place the Top Stone Together');
-  await waitForEnabledButton(page, 'Remember This Moment');
   await clickButton(page, 'Remember This Moment');
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 }
@@ -116,7 +113,6 @@ export async function completeGardenGame(page) {
     if (friendTurn) await page.evaluate("document.querySelector('.garden-game-pal-right:not([disabled])')?.click()");
   }
 
-  await waitForEnabledButton(page, 'Remember This Garden Game');
   await clickButton(page, 'Remember This Garden Game');
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 }
@@ -126,7 +122,6 @@ export async function completeQuietVisit(page) {
     await page.waitFor("Boolean(document.querySelector('.quiet-observation:not([disabled])'))");
     await page.evaluate("document.querySelector('.quiet-observation:not([disabled])')?.click()");
   }
-  await waitForEnabledButton(page, 'Carry This Quiet Moment Forward');
   await clickButton(page, 'Carry This Quiet Moment Forward');
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 }
@@ -136,7 +131,6 @@ export async function completeVillageHelping(page) {
     await page.waitFor("Boolean(document.querySelector('.path-care-item:not([disabled])'))");
     await page.evaluate("document.querySelector('.path-care-item:not([disabled])')?.click()");
   }
-  await waitForEnabledButton(page, 'Leave the Path Better');
   await clickButton(page, 'Leave the Path Better');
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 }
