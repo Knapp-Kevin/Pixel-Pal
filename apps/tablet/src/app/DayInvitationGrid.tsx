@@ -30,6 +30,7 @@ function InvitationCards({ world, saving, onChoose }: DayInvitationGridProps) {
           disabled={saving}
           key={invitation.id}
           data-invitation-kind={invitation.kind}
+          data-activity-id={invitation.activityId}
           aria-label={`${KIND_LABELS[invitation.kind]}: ${invitation.title}`}
           onClick={() => onChoose(invitation.id)}
         >
