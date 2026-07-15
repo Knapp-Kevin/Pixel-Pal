@@ -15,7 +15,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
@@ -38,6 +38,8 @@ jobs:
         run: |
           node --check scripts/verify-build-artifacts.mjs
           node --check scripts/verify-deployment.mjs
+          node --check scripts/cdp-browser.mjs
+          node --check scripts/verify-tablet-viewports.mjs
 
       - name: Typecheck
         run: npm run typecheck
@@ -47,6 +49,23 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Verify tablet viewport layouts
+        run: |
+          npm run preview --workspace=@pixel-pals/tablet -- --host 127.0.0.1 --port 4173 > /tmp/pixel-pals-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill $PREVIEW_PID' EXIT
+          for attempt in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 40 ]; then
+              cat /tmp/pixel-pals-preview.log
+              exit 1
+            fi
+            sleep 0.25
+          done
+          npm run verify:viewports
 
       - name: Verify installable build artifacts
         run: npm run verify:artifacts
