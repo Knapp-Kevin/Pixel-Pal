@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Pixel Pals app icon</title>
+  <desc id="desc">A warm storybook tree with five small leaves representing different Pals.</desc>
+  <rect width="512" height="512" rx="112" fill="#315b4c"/>
+  <circle cx="256" cy="246" r="176" fill="#f7f1df"/>
+  <path d="M240 338c7-54 13-103 6-151h30c-8 51-3 99 5 151z" fill="#8a5b3f"/>
+  <path d="M256 189c-54 0-101 31-118 76 28 2 49 17 60 41 17-18 37-27 58-27s42 9 58 27c12-24 33-39 60-41-17-45-64-76-118-76z" fill="#6f9f67"/>
+  <circle cx="184" cy="190" r="28" fill="#f1c76d"/>
+  <circle cx="231" cy="151" r="27" fill="#9db8c6"/>
+  <circle cx="282" cy="148" r="27" fill="#d79ab6"/>
+  <circle cx="332" cy="187" r="28" fill="#df9d68"/>
+  <circle cx="256" cy="205" r="29" fill="#a8c887"/>
+  <path d="M170 356c39-31 76-44 112-40 28 3 54 16 79 40-53 31-137 31-191 0z" fill="#d8c48f"/>
+</svg>
