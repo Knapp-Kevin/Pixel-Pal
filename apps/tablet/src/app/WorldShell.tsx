@@ -18,19 +18,20 @@ type WorldShellProps = {
   homeView: HomeViewMode;
   setHomeView: (view: HomeViewMode) => void;
   onStartActivity: (activity: FirstActivity) => void;
+  onChooseDayInvitation: (invitationId: string) => void;
   onReset: () => void;
 };
 
-function WorldFooter({ saveStatus, memoryCount }: { saveStatus: string; memoryCount: number }) {
+function WorldFooter({ saveStatus, memoryCount, worldDay }: { saveStatus: string; memoryCount: number; worldDay: number }) {
   return (
     <footer className="prototype-note" aria-live="polite">
       <span>{saveStatus}</span>
-      <span>{memoryCount} remembered moment{memoryCount === 1 ? '' : 's'}</span>
+      <span>Day {worldDay + 1} · {memoryCount} remembered moment{memoryCount === 1 ? '' : 's'}</span>
     </footer>
   );
 }
 
-function WorldViews({ world, scene, save, view, setView, homeView, setHomeView, onStartActivity }: WorldShellProps) {
+function WorldViews({ world, scene, save, view, setView, homeView, setHomeView, onStartActivity, onChooseDayInvitation }: WorldShellProps) {
   const showHome = view === 'home' && Boolean(scene.ceremonyMemory) && scene.firstHome !== undefined;
 
   if (view === 'village') {
@@ -41,6 +42,7 @@ function WorldViews({ world, scene, save, view, setView, homeView, setHomeView, 
         saving={save.saving}
         runWorldAction={save.runWorldAction}
         onStartActivity={onStartActivity}
+        onChooseDayInvitation={onChooseDayInvitation}
         onOpenJournal={() => setView('journal')}
         onVisitHome={() => {
           setHomeView('exterior');
@@ -87,7 +89,7 @@ export function WorldShell(props: WorldShellProps) {
       />
       <WorldViews {...props} />
       <ParentTestTools world={world} onStatus={save.setSaveStatus} onResetComplete={onReset} />
-      <WorldFooter saveStatus={save.saveStatus} memoryCount={world.memories.length} />
+      <WorldFooter saveStatus={save.saveStatus} memoryCount={world.memories.length} worldDay={world.worldDay} />
     </main>
   );
 }
