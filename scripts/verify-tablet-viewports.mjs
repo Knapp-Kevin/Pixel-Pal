@@ -15,6 +15,24 @@ function quoted(value) {
   return JSON.stringify(value);
 }
 
+function buttonCondition(text, exact = false) {
+  return `(() => {
+    const expected = ${quoted(text)};
+    const exact = ${exact};
+    return [...document.querySelectorAll('button')].some((candidate) => {
+      const label = candidate.textContent?.replace(/\\s+/g, ' ').trim() ?? '';
+      const style = getComputedStyle(candidate);
+      const rect = candidate.getBoundingClientRect();
+      const visible = style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+      return visible && !candidate.disabled && (exact ? label === expected : label.includes(expected));
+    });
+  })()`;
+}
+
+async function waitForEnabledButton(page, text, exact = false) {
+  await page.waitFor(buttonCondition(text, exact));
+}
+
 async function clickButton(page, text, exact = false) {
   await page.evaluate(`(() => {
     const expected = ${quoted(text)};
@@ -26,9 +44,9 @@ async function clickButton(page, text, exact = false) {
     };
     const button = [...document.querySelectorAll('button')].find((candidate) => {
       const label = candidate.textContent?.replace(/\\s+/g, ' ').trim() ?? '';
-      return visible(candidate) && (exact ? label === expected : label.includes(expected));
+      return visible(candidate) && !candidate.disabled && (exact ? label === expected : label.includes(expected));
     });
-    if (!button) throw new Error('Could not find button: ' + expected);
+    if (!button) throw new Error('Could not find enabled button: ' + expected);
     button.click();
     return true;
   })()`);
@@ -136,7 +154,7 @@ async function completeLeafChase(page) {
     }
   }
 
-  await page.waitFor("[...document.querySelectorAll('button')].some((button) => button.textContent?.includes('Remember This Chase'))");
+  await waitForEnabledButton(page, 'Remember This Chase');
   await clickButton(page, 'Remember This Chase');
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 }
@@ -152,6 +170,7 @@ async function runProfile(browser, profile) {
 
     await clickButton(page, 'Fox', true);
     await setPalName(page, `Pip-${profile.width}`);
+    await waitForEnabledButton(page, 'Meet my Pal');
     await clickButton(page, 'Meet my Pal');
     await page.waitFor("Boolean(document.querySelector('.world-nav'))");
     await assertLayout(page, profile, 'village');
@@ -163,31 +182,37 @@ async function runProfile(browser, profile) {
       await assertLayout(page, profile, 'orientation-change-landscape');
     }
 
+    await waitForEnabledButton(page, 'Stack Stones');
     await clickButton(page, 'Stack Stones');
     await page.waitFor("Boolean(document.querySelector('.stone-game-shell'))");
     await assertLayout(page, profile, 'stone-stacking');
     await clickButton(page, 'Return to Willowmere');
     await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 
+    await waitForEnabledButton(page, 'Chase Leaves');
     await clickButton(page, 'Chase Leaves');
     await page.waitFor("Boolean(document.querySelector('.leaf-game-shell'))");
     await assertLayout(page, profile, 'leaf-chase');
     await completeLeafChase(page);
     await assertLayout(page, profile, 'friendship-created');
 
+    await waitForEnabledButton(page, 'Visit the Great Tree');
     await clickButton(page, 'Visit the Great Tree');
-    await page.waitFor("[...document.querySelectorAll('.world-nav button')].some((button) => button.textContent?.trim() === 'Home' && !button.disabled)");
+    await waitForEnabledButton(page, 'Home', true);
     await clickButton(page, 'Home', true);
     await page.waitFor("Boolean(document.querySelector('#home-title'))");
     await assertLayout(page, profile, 'home-exterior');
 
+    await waitForEnabledButton(page, 'Go inside');
     await clickButton(page, 'Go inside');
     await page.waitFor(`Boolean(document.querySelector('[aria-label="Choose the first home object"]'))`);
     await assertLayout(page, profile, 'home-interior');
+    await waitForEnabledButton(page, 'Window Cushion');
     await clickButton(page, 'Window Cushion');
     await page.waitFor("document.body.textContent?.includes('It Feels Like Home')");
     await assertLayout(page, profile, 'home-personalized');
 
+    await waitForEnabledButton(page, 'Journal', true);
     await clickButton(page, 'Journal', true);
     await page.waitFor("Boolean(document.querySelector('.journal-shell'))");
     await assertLayout(page, profile, 'journal');
