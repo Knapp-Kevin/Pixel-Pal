@@ -40,6 +40,7 @@ jobs:
           node --check scripts/verify-deployment.mjs
           node --check scripts/cdp-browser.mjs
           node --check scripts/viewport-actions.mjs
+          node --check scripts/viewport-home-actions.mjs
           node --check scripts/verify-tablet-viewports.mjs
           node --check scripts/verify-production-art.mjs
 
