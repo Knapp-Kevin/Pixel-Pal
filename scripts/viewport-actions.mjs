@@ -123,11 +123,9 @@ export async function completeLeafChase(page) {
 }
 
 export async function completeStoneStacking(page) {
-  const childChoices = ['wide stone', 'middle stone', 'small stone'];
-
-  for (let index = 0; index < childChoices.length; index += 1) {
-    await clickButton(page, childChoices[index], true);
-    if (index < 2) await clickFriendTurn(page, '.stone-game-pal-right');
+  for (let round = 0; round < 3; round += 1) {
+    await clickEnabledSelector(page, '.loose-stone-button[data-target-match="true"]');
+    if (round < 2) await clickFriendTurn(page, '.stone-game-pal-right');
   }
 
   await clickButton(page, 'Place the Top Stone Together');
