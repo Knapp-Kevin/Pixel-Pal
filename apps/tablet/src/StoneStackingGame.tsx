@@ -1,6 +1,6 @@
 import { useState, type CSSProperties, type DragEvent } from 'react';
 import type { Pal } from '@pixel-pals/content-schema';
-import { PalPortrait } from '@pixel-pals/renderer';
+import { PalArtwork } from '@pixel-pals/renderer';
 import type { FirstActivityCompletion } from '@pixel-pals/simulation';
 import { requireRenderableSpecies } from './tabletProfile';
 
@@ -42,6 +42,17 @@ function stoneStyle(size: number): CSSProperties {
   return {
     width: `${34 + size * 8}%`,
     minWidth: `${42 + size * 5}px`
+  };
+}
+
+function palArtProps(pal: Pal) {
+  return {
+    name: pal.name,
+    species: requireRenderableSpecies(pal.speciesId),
+    paletteId: pal.appearance.paletteId,
+    markingId: pal.appearance.markingId,
+    accessoryId: pal.appearance.accessoryId,
+    artIdentity: pal.artIdentity
   };
 }
 
@@ -122,12 +133,8 @@ export function StoneStackingGame({ firstPal, friend, onComplete, onCancel }: St
 
       <div className="stone-game-stage">
         <div className="stone-game-friend stone-game-pal-left">
-          <PalPortrait
-            name={firstPal.name}
-            species={requireRenderableSpecies(firstPal.speciesId)}
-            paletteId={firstPal.appearance.paletteId}
-            markingId={firstPal.appearance.markingId}
-            accessoryId={firstPal.appearance.accessoryId}
+          <PalArtwork
+            {...palArtProps(firstPal)}
             expression={phase === 'celebrate' ? 'delighted' : 'thoughtful'}
             pose="standing"
           />
@@ -160,12 +167,8 @@ export function StoneStackingGame({ firstPal, friend, onComplete, onCancel }: St
           onClick={takeFriendTurn}
           aria-label={phase === 'friend' ? `Let ${friend.name} place the next stone` : `${friend.name} is waiting`}
         >
-          <PalPortrait
-            name={friend.name}
-            species={requireRenderableSpecies(friend.speciesId)}
-            paletteId={friend.appearance.paletteId}
-            markingId={friend.appearance.markingId}
-            accessoryId={friend.appearance.accessoryId}
+          <PalArtwork
+            {...palArtProps(friend)}
             expression={phase === 'friend' || phase === 'celebrate' ? 'delighted' : 'content'}
             pose="standing"
           />
