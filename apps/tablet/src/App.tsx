@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import type { World } from '@pixel-pals/content-schema';
+import type { HomeObject, Memory, World } from '@pixel-pals/content-schema';
 import { loadWorld, saveWorld } from '@pixel-pals/persistence';
-import { PalPortrait, WillowmereScene, type PalSpecies } from '@pixel-pals/renderer';
+import { HomeScene, PalPortrait, WillowmereScene, type PalSpecies } from '@pixel-pals/renderer';
 import {
   completeFirstActivity,
   createFirstWorld,
@@ -9,6 +9,7 @@ import {
   type FirstPalChoice
 } from '@pixel-pals/simulation';
 import { completeFirstFriendshipCeremony } from '@pixel-pals/simulation/ceremony';
+import { chooseFirstHomeObject } from '@pixel-pals/simulation/home';
 
 const speciesOptions: Array<{ id: FirstPalChoice['speciesId']; label: string }> = [
   { id: 'fox', label: 'Fox' },
@@ -47,6 +48,27 @@ const activityOptions: Array<{
   { id: 'garden-game', title: 'Garden Game', description: 'Play Fern’s favorite guessing game.', expression: 'curious' }
 ];
 
+const homeObjectOptions: Array<{ id: HomeObject; title: string; description: string }> = [
+  {
+    id: 'window-cushion',
+    title: 'Window Cushion',
+    description: 'A soft place to watch Willowmere wake up.'
+  },
+  {
+    id: 'memory-shelf',
+    title: 'Memory Shelf',
+    description: 'A place for keepsakes, gifts, and stories that accumulate over time.'
+  },
+  {
+    id: 'story-lantern',
+    title: 'Story Lantern',
+    description: 'A warm light for quiet evenings and shared tales.'
+  }
+];
+
+type AppView = 'village' | 'home' | 'journal';
+type HomeView = 'exterior' | 'interior';
+
 function renderableSpecies(speciesId: string): PalSpecies {
   if (speciesId === 'deer' || speciesId === 'rabbit' || speciesId === 'cat' || speciesId === 'duck') {
     return speciesId;
@@ -65,6 +87,13 @@ function createLocalWorldSeed(): number {
   return Date.now() % 4_294_967_296;
 }
 
+function participantNames(world: World, memory: Memory): string {
+  return memory.participantPalIds
+    .map((palId) => world.pals.find((pal) => pal.id === palId)?.name)
+    .filter((name): name is string => Boolean(name))
+    .join(' and ');
+}
+
 export function App() {
   const [name, setName] = useState('');
   const [speciesId, setSpeciesId] = useState<FirstPalChoice['speciesId'] | null>(null);
@@ -72,6 +101,8 @@ export function App() {
   const [markingId, setMarkingId] = useState<FirstPalChoice['markingId']>('tail-tip');
   const [accessoryId, setAccessoryId] = useState<NonNullable<FirstPalChoice['accessoryId']>>('scarf');
   const [world, setWorld] = useState<World | null>(null);
+  const [view, setView] = useState<AppView>('village');
+  const [homeView, setHomeView] = useState<HomeView>('exterior');
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('Your world is safe on this tablet.');
 
@@ -85,7 +116,9 @@ export function App() {
   const firstPal = world?.pals.find((pal) => pal.id === world.firstPalId);
   const firstMemory = world?.memories.find((memory) => memory.eventType === 'first-shared-activity');
   const ceremonyMemory = world?.memories.find((memory) => memory.eventType === 'first-friendship-ceremony');
+  const homeMemory = world?.memories.find((memory) => memory.eventType === 'first-home-object');
   const firstPreference = firstPal?.preferences.find((preference) => preference.id === 'first-play-preference');
+  const firstHome = world?.homes.find((home) => home.residentPalIds.includes(world.firstPalId));
 
   async function persist(nextWorld: World): Promise<void> {
     setWorld(nextWorld);
@@ -218,112 +251,258 @@ export function App() {
     return <main className="app-shell"><p>The saved world could not find its first Pal.</p></main>;
   }
 
-  const latestStory = ceremonyMemory?.summary ?? firstMemory?.summary ?? `${firstPal.name} has met Fern, but their first shared memory is still waiting.`;
+  const latestStory = homeMemory?.summary
+    ?? ceremonyMemory?.summary
+    ?? firstMemory?.summary
+    ?? `${firstPal.name} has met Fern, but their first shared memory is still waiting.`;
 
   return (
     <main className="app-shell">
-      <section className="storybook-panel world-panel" aria-labelledby="welcome-title">
-        <div className="storybook-art world-art">
-          <WillowmereScene
-            className="willowmere-scene"
-            showPlayMarker={Boolean(firstMemory)}
-            showCeremonyMarker={Boolean(ceremonyMemory)}
-          />
-          <div className="pal-pair" aria-label={`${firstPal.name} and Fern in Willowmere`}>
-            <PalPortrait
-              className="scene-pal scene-pal-first"
-              name={firstPal.name}
-              species={renderableSpecies(firstPal.speciesId)}
-              paletteId={firstPal.appearance.paletteId}
-              markingId={firstPal.appearance.markingId}
-              accessoryId={firstPal.appearance.accessoryId}
-              expression={firstMemory ? 'delighted' : 'curious'}
-              pose={firstMemory ? 'playful' : 'standing'}
-            />
-            <PalPortrait
-              className="scene-pal scene-pal-fern"
-              name="Fern"
-              species="rabbit"
-              paletteId="mosscream"
-              markingId="ear-dapple"
-              accessoryId="leaf-pin"
-              expression={firstMemory ? 'delighted' : 'content'}
-              pose={firstMemory ? 'playful' : 'standing'}
-            />
-          </div>
-        </div>
+      <WorldNav
+        view={view}
+        hasHome={Boolean(ceremonyMemory)}
+        hasJournal={world.memories.length > 0}
+        onChange={(nextView) => {
+          setView(nextView);
+          if (nextView === 'home') setHomeView('exterior');
+        }}
+      />
 
-        <div className="welcome-copy world-copy">
-          <p className="eyebrow">Welcome to Willowmere</p>
-          <h1 id="welcome-title">{firstPal.name}</h1>
-          <p className="tagline">Where every friendship changes the world.</p>
-          <p className="intro">{latestStory}</p>
-          {firstPreference?.discovered ? (
-            <p className="discovery"><strong>Discovered:</strong> {firstPreference.label}</p>
-          ) : null}
-        </div>
-      </section>
-
-      {!firstMemory ? (
-        <section className="action-grid" aria-label="Choose a first shared activity">
-          {activityOptions.map((activity) => (
-            <button
-              className="action-card activity-card"
-              type="button"
-              key={activity.id}
-              onClick={() => void persist(completeFirstActivity(world, activity.id))}
-            >
-              <span className="activity-portrait" aria-hidden="true">
+      {view === 'village' ? (
+        <>
+          <section className="storybook-panel world-panel" aria-labelledby="welcome-title">
+            <div className="storybook-art world-art">
+              <WillowmereScene
+                className="willowmere-scene"
+                showPlayMarker={Boolean(firstMemory)}
+                showCeremonyMarker={Boolean(ceremonyMemory)}
+              />
+              <div className="pal-pair" aria-label={`${firstPal.name} and Fern in Willowmere`}>
                 <PalPortrait
+                  className="scene-pal scene-pal-first"
                   name={firstPal.name}
                   species={renderableSpecies(firstPal.speciesId)}
                   paletteId={firstPal.appearance.paletteId}
                   markingId={firstPal.appearance.markingId}
                   accessoryId={firstPal.appearance.accessoryId}
-                  expression={activity.expression}
-                  pose={activity.id === 'leaf-chase' ? 'playful' : 'standing'}
+                  expression={firstMemory ? 'delighted' : 'curious'}
+                  pose={firstMemory ? 'playful' : 'standing'}
                 />
-              </span>
-              <span className="action-title">{activity.title}</span>
-              <span className="action-description">{activity.description}</span>
-            </button>
-          ))}
+                <PalPortrait
+                  className="scene-pal scene-pal-fern"
+                  name="Fern"
+                  species="rabbit"
+                  paletteId="mosscream"
+                  markingId="ear-dapple"
+                  accessoryId="leaf-pin"
+                  expression={firstMemory ? 'delighted' : 'content'}
+                  pose={firstMemory ? 'playful' : 'standing'}
+                />
+              </div>
+            </div>
+
+            <div className="welcome-copy world-copy">
+              <p className="eyebrow">Welcome to Willowmere</p>
+              <h1 id="welcome-title">{firstPal.name}</h1>
+              <p className="tagline">Where every friendship changes the world.</p>
+              <p className="intro">{latestStory}</p>
+              {firstPreference?.discovered ? (
+                <p className="discovery"><strong>Discovered:</strong> {firstPreference.label}</p>
+              ) : null}
+            </div>
+          </section>
+
+          {!firstMemory ? (
+            <section className="action-grid" aria-label="Choose a first shared activity">
+              {activityOptions.map((activity) => (
+                <button
+                  className="action-card activity-card"
+                  type="button"
+                  key={activity.id}
+                  onClick={() => void persist(completeFirstActivity(world, activity.id))}
+                >
+                  <span className="activity-portrait" aria-hidden="true">
+                    <PalPortrait
+                      name={firstPal.name}
+                      species={renderableSpecies(firstPal.speciesId)}
+                      paletteId={firstPal.appearance.paletteId}
+                      markingId={firstPal.appearance.markingId}
+                      accessoryId={firstPal.appearance.accessoryId}
+                      expression={activity.expression}
+                      pose={activity.id === 'leaf-chase' ? 'playful' : 'standing'}
+                    />
+                  </span>
+                  <span className="action-title">{activity.title}</span>
+                  <span className="action-description">{activity.description}</span>
+                </button>
+              ))}
+            </section>
+          ) : !ceremonyMemory ? (
+            <section className="action-grid" aria-label="Friendship ready for recognition">
+              <button className="action-card action-sun memory-card" type="button" onClick={() => setView('journal')}>
+                <span className="action-title">Read the New Memory</span>
+                <span className="action-description">{firstMemory.title}</span>
+              </button>
+              <article className="action-card action-leaf memory-card">
+                <span className="action-title">A Friendship Began</span>
+                <span className="action-description">Fern is now part of this world’s growing legacy.</span>
+              </article>
+              <button
+                className="action-card action-clay ceremony-button"
+                type="button"
+                onClick={() => void persist(completeFirstFriendshipCeremony(world))}
+              >
+                <span className="action-title">Visit the Great Tree</span>
+                <span className="action-description">Let Willowmere recognize the friendship they have begun.</span>
+              </button>
+            </section>
+          ) : (
+            <section className="action-grid" aria-label="First friendship ceremony complete">
+              <button className="action-card action-sun memory-card" type="button" onClick={() => setView('journal')}>
+                <span className="action-title">Open the Journal</span>
+                <span className="action-description">Read the moments Willowmere already remembers.</span>
+              </button>
+              <button
+                className="action-card action-leaf memory-card"
+                type="button"
+                onClick={() => {
+                  setHomeView('exterior');
+                  setView('home');
+                }}
+              >
+                <span className="action-title">Visit {firstPal.name}’s Home</span>
+                <span className="action-description">Choose the first object that will make it feel personal.</span>
+              </button>
+              <article className="action-card action-clay memory-card">
+                <span className="action-title">The World Changed</span>
+                <span className="action-description">The play stones and friendship ribbons remain after the tablet closes.</span>
+              </article>
+            </section>
+          )}
+        </>
+      ) : null}
+
+      {view === 'home' && ceremonyMemory && firstHome ? (
+        <>
+          <section className="storybook-panel home-panel" aria-labelledby="home-title">
+            <div className="storybook-art home-art">
+              <HomeScene
+                className="home-scene"
+                view={homeView}
+                chosenObjectId={firstHome.chosenObjectId}
+              />
+              {homeView === 'interior' ? (
+                <PalPortrait
+                  className="home-pal"
+                  name={firstPal.name}
+                  species={renderableSpecies(firstPal.speciesId)}
+                  paletteId={firstPal.appearance.paletteId}
+                  markingId={firstPal.appearance.markingId}
+                  accessoryId={firstPal.appearance.accessoryId}
+                  expression={firstHome.chosenObjectId ? 'content' : 'curious'}
+                />
+              ) : null}
+            </div>
+            <div className="welcome-copy home-copy">
+              <p className="eyebrow">A place in Willowmere</p>
+              <h1 id="home-title">{firstPal.name}’s Home</h1>
+              <p className="intro">
+                {homeView === 'exterior'
+                  ? 'A quiet roundhouse waits beside the village path. The inside is simple, warm, and ready to become personal.'
+                  : homeMemory?.summary ?? 'Choose one object that feels right. There is no best choice, only the beginning of a home.'}
+              </p>
+              <button
+                className="inline-action"
+                type="button"
+                onClick={() => setHomeView(homeView === 'exterior' ? 'interior' : 'exterior')}
+              >
+                {homeView === 'exterior' ? 'Go inside' : 'Step outside'}
+              </button>
+            </div>
+          </section>
+
+          {homeView === 'interior' && !firstHome.chosenObjectId ? (
+            <section className="action-grid" aria-label="Choose the first home object">
+              {homeObjectOptions.map((option) => (
+                <button
+                  className="action-card home-object-card"
+                  type="button"
+                  key={option.id}
+                  onClick={() => void persist(chooseFirstHomeObject(world, option.id))}
+                >
+                  <span className="home-object-symbol" aria-hidden="true">
+                    {option.id === 'window-cushion' ? '◒' : option.id === 'memory-shelf' ? '▤' : '◇'}
+                  </span>
+                  <span className="action-title">{option.title}</span>
+                  <span className="action-description">{option.description}</span>
+                </button>
+              ))}
+            </section>
+          ) : null}
+
+          {homeView === 'interior' && firstHome.chosenObjectId ? (
+            <section className="action-grid" aria-label="Home object chosen">
+              <article className="action-card action-sun memory-card">
+                <span className="action-title">It Feels Like Home</span>
+                <span className="action-description">The chosen object will remain here as this household grows.</span>
+              </article>
+              <button className="action-card action-leaf memory-card" type="button" onClick={() => setView('journal')}>
+                <span className="action-title">Read the New Memory</span>
+                <span className="action-description">The journal now remembers this first personal choice.</span>
+              </button>
+              <button className="action-card action-clay memory-card" type="button" onClick={() => setView('village')}>
+                <span className="action-title">Return to Willowmere</span>
+                <span className="action-description">The house will be waiting exactly as it is.</span>
+              </button>
+            </section>
+          ) : null}
+        </>
+      ) : null}
+
+      {view === 'journal' ? (
+        <section className="journal-shell" aria-labelledby="journal-title">
+          <header className="journal-header">
+            <p className="eyebrow">The world remembers</p>
+            <h1 id="journal-title">Memory Journal</h1>
+            <p className="intro">These are not achievements. They are the moments that became part of this world’s history.</p>
+          </header>
+
+          <div className="journal-list">
+            {[...world.memories].reverse().map((memory) => (
+              <article className="journal-entry" key={memory.id}>
+                <div className={`memory-tone memory-tone-${memory.emotionalTone}`}>
+                  <PalPortrait
+                    className="journal-pal journal-pal-first"
+                    name={firstPal.name}
+                    species={renderableSpecies(firstPal.speciesId)}
+                    paletteId={firstPal.appearance.paletteId}
+                    markingId={firstPal.appearance.markingId}
+                    accessoryId={firstPal.appearance.accessoryId}
+                    expression={memory.emotionalTone === 'calm' ? 'content' : 'delighted'}
+                    pose={memory.eventType === 'first-shared-activity' ? 'playful' : 'standing'}
+                  />
+                  {memory.participantPalIds.some((palId) => world.pals.find((pal) => pal.id === palId)?.name === 'Fern') ? (
+                    <PalPortrait
+                      className="journal-pal journal-pal-second"
+                      name="Fern"
+                      species="rabbit"
+                      paletteId="mosscream"
+                      markingId="ear-dapple"
+                      accessoryId="leaf-pin"
+                      expression="delighted"
+                    />
+                  ) : null}
+                </div>
+                <div className="journal-copy">
+                  <span className="memory-meta">Day {memory.worldDay + 1} · {participantNames(world, memory)}</span>
+                  <h2>{memory.title}</h2>
+                  <p>{memory.summary}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
-      ) : !ceremonyMemory ? (
-        <section className="action-grid" aria-label="Friendship ready for recognition">
-          <article className="action-card action-sun memory-card">
-            <span className="action-title">A New Memory</span>
-            <span className="action-description">{firstMemory.title}</span>
-          </article>
-          <article className="action-card action-leaf memory-card">
-            <span className="action-title">A Friendship Began</span>
-            <span className="action-description">Fern is now part of this world’s growing legacy.</span>
-          </article>
-          <button
-            className="action-card action-clay ceremony-button"
-            type="button"
-            onClick={() => void persist(completeFirstFriendshipCeremony(world))}
-          >
-            <span className="action-title">Visit the Great Tree</span>
-            <span className="action-description">Let Willowmere recognize the friendship they have begun.</span>
-          </button>
-        </section>
-      ) : (
-        <section className="action-grid" aria-label="First friendship ceremony complete">
-          <article className="action-card action-sun memory-card">
-            <span className="action-title">The Tree Remembers</span>
-            <span className="action-description">A ribbon now marks {firstPal.name} and Fern’s friendship.</span>
-          </article>
-          <article className="action-card action-leaf memory-card">
-            <span className="action-title">Legacy Began</span>
-            <span className="action-description">This friendship now belongs to Willowmere’s visible history.</span>
-          </article>
-          <article className="action-card action-clay memory-card">
-            <span className="action-title">The World Changed</span>
-            <span className="action-description">The play stones and friendship ribbons will remain after the tablet closes.</span>
-          </article>
-        </section>
-      )}
+      ) : null}
 
       <footer className="prototype-note" aria-live="polite">
         <span>{saveStatus}</span>
@@ -358,5 +537,22 @@ function ChoiceGroup<T extends string>({ legend, options, selected, onSelect }: 
         ))}
       </div>
     </fieldset>
+  );
+}
+
+type WorldNavProps = {
+  view: AppView;
+  hasHome: boolean;
+  hasJournal: boolean;
+  onChange: (view: AppView) => void;
+};
+
+function WorldNav({ view, hasHome, hasJournal, onChange }: WorldNavProps) {
+  return (
+    <nav className="world-nav" aria-label="World places">
+      <button type="button" aria-pressed={view === 'village'} onClick={() => onChange('village')}>Village</button>
+      <button type="button" aria-pressed={view === 'home'} disabled={!hasHome} onClick={() => onChange('home')}>Home</button>
+      <button type="button" aria-pressed={view === 'journal'} disabled={!hasJournal} onClick={() => onChange('journal')}>Journal</button>
+    </nav>
   );
 }
