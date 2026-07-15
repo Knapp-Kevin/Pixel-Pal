@@ -7,7 +7,7 @@ function buttonCondition(text, exact = false) {
     const expected = ${quoted(text)};
     const exact = ${exact};
     return [...document.querySelectorAll('button')].some((candidate) => {
-      const label = candidate.textContent?.replace(/\\s+/g, ' ').trim() ?? '';
+      const label = candidate.textContent?.replace(/\s+/g, ' ').trim() ?? '';
       const style = getComputedStyle(candidate);
       const rect = candidate.getBoundingClientRect();
       const visible = style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
@@ -30,7 +30,7 @@ export async function clickButton(page, text, exact = false) {
       return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
     };
     const button = [...document.querySelectorAll('button')].find((candidate) => {
-      const label = candidate.textContent?.replace(/\\s+/g, ' ').trim() ?? '';
+      const label = candidate.textContent?.replace(/\s+/g, ' ').trim() ?? '';
       return visible(candidate) && !candidate.disabled && (exact ? label === expected : label.includes(expected));
     });
     if (!button) throw new Error('Could not find enabled button: ' + expected);
@@ -118,5 +118,25 @@ export async function completeGardenGame(page) {
 
   await waitForEnabledButton(page, 'Remember This Garden Game');
   await clickButton(page, 'Remember This Garden Game');
+  await page.waitFor("Boolean(document.querySelector('.world-nav'))");
+}
+
+export async function completeQuietVisit(page) {
+  for (let index = 0; index < 2; index += 1) {
+    await page.waitFor("Boolean(document.querySelector('.quiet-observation:not([disabled])'))");
+    await page.evaluate("document.querySelector('.quiet-observation:not([disabled])')?.click()");
+  }
+  await waitForEnabledButton(page, 'Carry This Quiet Moment Forward');
+  await clickButton(page, 'Carry This Quiet Moment Forward');
+  await page.waitFor("Boolean(document.querySelector('.world-nav'))");
+}
+
+export async function completeVillageHelping(page) {
+  for (let index = 0; index < 3; index += 1) {
+    await page.waitFor("Boolean(document.querySelector('.path-care-item:not([disabled])'))");
+    await page.evaluate("document.querySelector('.path-care-item:not([disabled])')?.click()");
+  }
+  await waitForEnabledButton(page, 'Leave the Path Better');
+  await clickButton(page, 'Leave the Path Better');
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 }
