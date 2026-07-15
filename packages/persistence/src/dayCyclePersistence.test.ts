@@ -23,7 +23,7 @@ function invitation(day: number, kind: 'active' | 'quiet' | 'home' | 'helping', 
   };
 }
 
-function completedSession(day: number, kind: 'quiet' | 'home' | 'helping') {
+function completedSession(day: number, kind: 'quiet' | 'home' | 'helping'): World['daySessions'][number] {
   const invitations = [
     invitation(day, 'active', 'active'),
     invitation(day, kind, kind),
@@ -34,7 +34,7 @@ function completedSession(day: number, kind: 'quiet' | 'home' | 'helping') {
   return {
     id: `day-${day}-session`,
     day,
-    status: 'completed' as const,
+    status: 'completed',
     invitations,
     selectedInvitationId: selected.id,
     outcome: {
@@ -48,14 +48,14 @@ function completedSession(day: number, kind: 'quiet' | 'home' | 'helping') {
     summary: {
       title: `Day ${day} in Willowmere`,
       summary: `The saved world remembers its ${kind} path.`,
-      emotionalTone: kind === 'quiet' ? 'calm' as const : 'hopeful' as const,
+      emotionalTone: kind === 'quiet' ? 'calm' : 'hopeful',
       highlightIds: [selected.id]
     }
   };
 }
 
 function advancedWorld(includeOfferedDayFour: boolean): World {
-  const sessions = [
+  const sessions: World['daySessions'] = [
     completedSession(1, 'helping'),
     completedSession(2, 'home'),
     completedSession(3, 'quiet')
@@ -71,7 +71,7 @@ function advancedWorld(includeOfferedDayFour: boolean): World {
         invitation(4, 'home', 'lantern'),
         invitation(4, 'helping', 'path')
       ]
-    } as ReturnType<typeof completedSession>);
+    });
   }
 
   return parseWorld({
