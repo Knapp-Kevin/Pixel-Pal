@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { World } from '@pixel-pals/content-schema';
 import { ParentAccessGate } from './parentGate/ParentAccessGate';
+import { AccessibilitySection } from './parentTools/AccessibilitySection';
 import { BackupSection } from './parentTools/BackupSection';
 import { ObservationSection } from './parentTools/ObservationSection';
 import { ResetSection } from './parentTools/ResetSection';
@@ -20,6 +21,7 @@ export function ParentTestTools({ world, onResetComplete, onStatus }: ParentTest
   return (
     <ParentAccessGate>
       <div className="parent-tools-panel">
+        <AccessibilitySection onStatus={onStatus} />
         <BackupSection
           world={world}
           baseFilename={baseFilename}
