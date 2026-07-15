@@ -1,0 +1,309 @@
+.leaf-game-shell {
+  grid-row: 1 / 4;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(8px, 1.4dvh, 16px);
+  padding: clamp(12px, 2.2dvh, 24px);
+  overflow: hidden;
+  border: 3px solid #315b4c;
+  border-radius: clamp(20px, 3vw, 34px);
+  background:
+    radial-gradient(circle at 50% 16%, rgb(255 248 199 / 74%), transparent 28%),
+    linear-gradient(165deg, #dceccb, #8fb47c);
+  box-shadow: 0 18px 45px rgb(48 74 62 / 18%);
+}
+
+.leaf-game-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.leaf-game-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5dvh, 4.5rem);
+}
+
+.leaf-game-instruction {
+  margin: 6px 0 0;
+  font-size: clamp(0.88rem, 1.8dvh, 1.1rem);
+  line-height: 1.4;
+}
+
+.leaf-game-exit {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.leaf-game-stage {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(120px, 22%) minmax(260px, 1fr) minmax(120px, 22%);
+  align-items: end;
+  gap: clamp(6px, 1.4vw, 18px);
+  overflow: hidden;
+}
+
+.leaf-game-pal {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  place-items: end center;
+  align-content: end;
+  gap: 4px;
+  border: 0;
+  color: #20342d;
+  background: transparent;
+  font: inherit;
+  text-align: center;
+}
+
+button.leaf-game-pal {
+  cursor: pointer;
+}
+
+button.leaf-game-pal:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.leaf-game-pal svg {
+  width: min(100%, 220px);
+  max-height: 100%;
+  filter: drop-shadow(0 12px 8px rgb(40 55 45 / 24%));
+}
+
+.leaf-game-pal strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1rem, 2.2dvh, 1.4rem);
+}
+
+.leaf-game-pal span {
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #fffdf3;
+  background: #315b4c;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.leaf-game-pal-right:not(:disabled) {
+  border-radius: 22px;
+  background: rgb(255 250 219 / 40%);
+  box-shadow: inset 0 0 0 3px rgb(49 91 76 / 28%);
+}
+
+.leaf-chase-field {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  border: 3px solid rgb(49 91 76 / 42%);
+  border-radius: 30px;
+  background:
+    linear-gradient(to top, rgb(105 125 73 / 28%) 0 18%, transparent 18%),
+    radial-gradient(circle at 70% 22%, rgb(255 249 198 / 70%), transparent 24%),
+    linear-gradient(165deg, #b8d8b0, #79a477);
+}
+
+.leaf-target-guide {
+  position: absolute;
+  z-index: 4;
+  top: 10px;
+  left: 50%;
+  min-height: 42px;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 2px solid rgb(49 91 76 / 36%);
+  border-radius: 999px;
+  background: rgb(255 253 243 / 90%);
+  font-size: clamp(0.76rem, 1.7dvh, 0.96rem);
+  font-weight: 850;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.leaf-shape {
+  width: clamp(26px, 4.4dvh, 44px);
+  height: clamp(20px, 3.6dvh, 36px);
+  display: block;
+  border: 2px solid #355840;
+  background: linear-gradient(145deg, #e7c45c, #8da84f);
+  box-shadow: inset -4px -4px 7px rgb(49 70 45 / 16%), 0 4px 7px rgb(43 70 49 / 18%);
+}
+
+.leaf-shape::after {
+  content: "";
+  width: 55%;
+  height: 2px;
+  position: absolute;
+  top: 50%;
+  left: 24%;
+  background: rgb(53 88 64 / 70%);
+  transform: rotate(-18deg);
+}
+
+.leaf-shape-round {
+  position: relative;
+  border-radius: 58% 42% 55% 45% / 52% 58% 42% 48%;
+}
+
+.leaf-shape-pointed {
+  position: relative;
+  border-radius: 80% 12% 76% 18%;
+  transform: rotate(38deg);
+}
+
+.leaf-shape-heart {
+  position: relative;
+  border-radius: 64% 36% 68% 32% / 60% 42% 58% 40%;
+  clip-path: polygon(50% 100%, 5% 45%, 8% 18%, 28% 5%, 50% 26%, 72% 5%, 92% 18%, 95% 45%);
+}
+
+.drifting-leaf-button {
+  position: absolute;
+  z-index: 3;
+  width: clamp(54px, 8dvh, 82px);
+  height: clamp(54px, 8dvh, 82px);
+  padding: 8px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 253 235 / 24%);
+  cursor: pointer;
+  touch-action: manipulation;
+  animation: leaf-drift 6.2s linear infinite;
+}
+
+.drifting-leaf-button:focus-visible {
+  background: rgb(255 253 235 / 78%);
+}
+
+.drifting-leaf-button:nth-of-type(2) .leaf-shape {
+  background: linear-gradient(145deg, #d88254, #a34e3d);
+}
+
+.drifting-leaf-button:nth-of-type(3) .leaf-shape {
+  background: linear-gradient(145deg, #d9b0d3, #8b6a9b);
+}
+
+.wind-line {
+  position: absolute;
+  left: 12%;
+  width: 70%;
+  height: 20%;
+  border-top: 3px solid rgb(255 255 255 / 28%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.wind-line-one {
+  top: 34%;
+  transform: rotate(-4deg);
+}
+
+.wind-line-two {
+  top: 59%;
+  left: 24%;
+  width: 58%;
+  transform: rotate(5deg);
+}
+
+.leaf-catch-progress {
+  position: absolute;
+  z-index: 4;
+  right: 12px;
+  bottom: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+.leaf-catch-progress span {
+  width: clamp(13px, 2.2dvh, 21px);
+  aspect-ratio: 1;
+  border: 2px solid #315b4c;
+  border-radius: 60% 40% 58% 42%;
+  background: rgb(255 253 243 / 52%);
+  transform: rotate(32deg);
+}
+
+.leaf-catch-progress span.caught {
+  background: #e6c55e;
+}
+
+.leaf-game-controls {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 42%) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(8px, 1.4vw, 18px);
+}
+
+.leaf-feedback {
+  margin: 0;
+  padding: clamp(8px, 1.4dvh, 14px);
+  border-radius: 16px;
+  background: rgb(255 253 243 / 84%);
+  font-size: clamp(0.82rem, 1.7dvh, 1rem);
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.leaf-finish-button {
+  width: 100%;
+  min-height: clamp(76px, 13dvh, 118px);
+}
+
+@keyframes leaf-drift {
+  0% { left: -12%; transform: rotate(-18deg); }
+  50% { transform: rotate(18deg) translateY(-10px); }
+  100% { left: 92%; transform: rotate(46deg); }
+}
+
+@media (orientation: portrait) {
+  .leaf-game-stage {
+    grid-template-columns: minmax(84px, 22%) minmax(170px, 1fr) minmax(84px, 22%);
+  }
+
+  .leaf-game-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-height: 700px) {
+  .leaf-game-shell {
+    padding: 9px;
+    gap: 6px;
+  }
+
+  .leaf-game-header h1 {
+    font-size: clamp(1.7rem, 4.5dvh, 2.8rem);
+  }
+
+  .leaf-game-instruction,
+  .leaf-game-pal strong {
+    font-size: 0.76rem;
+  }
+
+  .leaf-target-guide {
+    min-height: 34px;
+    padding-block: 4px;
+  }
+
+  .leaf-finish-button {
+    min-height: 62px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drifting-leaf-button {
+    animation: none !important;
+  }
+}
