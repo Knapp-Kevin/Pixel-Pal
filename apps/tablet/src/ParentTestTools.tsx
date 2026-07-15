@@ -8,6 +8,10 @@ import {
   saveWorld
 } from '@pixel-pals/persistence';
 import { ParentAccessGate } from './ParentAccessGate';
+import {
+  assertTabletProfileCompatible,
+  TabletProfileCompatibilityError
+} from './tabletProfile';
 
 type ParentTestToolsProps = {
   world: World;
@@ -148,12 +152,17 @@ export function ParentTestTools({ world, onResetComplete, onStatus }: ParentTest
 
                 void file.text()
                   .then((serialized) => importWorld(serialized))
+                  .then((candidate) => assertTabletProfileCompatible(candidate))
                   .then((candidate) => {
                     setPendingImport(candidate);
-                    onStatus('Backup validated. Review it before restoring.');
+                    onStatus('Backup validated and compatible. Review it before restoring.');
                   })
-                  .catch(() => {
-                    onStatus('That file is not a valid Pixel Pals world backup. Nothing was replaced.');
+                  .catch((error: unknown) => {
+                    if (error instanceof TabletProfileCompatibilityError) {
+                      onStatus('That backup needs Pal artwork not included in this tablet build. Nothing was replaced.');
+                    } else {
+                      onStatus('That file is not a valid Pixel Pals world backup. Nothing was replaced.');
+                    }
                     setPendingImport(null);
                   })
                   .finally(() => {
