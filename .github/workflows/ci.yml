@@ -72,15 +72,17 @@ jobs:
             fi
             sleep 0.25
           done
-          mkdir -p artifacts/tablet-viewports
-          npm run verify:viewports 2>&1 | tee artifacts/tablet-viewports/verification.log
+          mkdir -p artifacts
+          npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
 
-      - name: Upload tablet viewport screenshots
+      - name: Upload tablet viewport evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: tablet-viewport-screenshots
-          path: artifacts/tablet-viewports
+          path: |
+            artifacts/tablet-viewports
+            artifacts/viewport-verification.log
           if-no-files-found: warn
           retention-days: 14
 
