@@ -129,6 +129,20 @@ Treat these as design evidence, not child failure:
 - Delete test materials when they are no longer needed.
 - Do not place child observation notes inside the game world or child-facing journal.
 
+## Backup and Restore
+
+The parent-facing tools can export and restore validated Pixel Pals world files.
+
+Before importing a backup:
+
+1. confirm that the file came from a trusted local playtest source;
+2. export the current world when it still matters;
+3. select the JSON backup through the parent-facing tools;
+4. allow schema validation and migration to finish;
+5. confirm that the application reopens the expected Pal, memories, home, and village state.
+
+A valid imported world becomes the active checkpoint. The previously active world becomes the recovery checkpoint. An invalid file MUST leave the current world unchanged.
+
 ## Reset Procedure
 
 The parent-facing tools require the adult to type `RESET` before local checkpoints are removed.
