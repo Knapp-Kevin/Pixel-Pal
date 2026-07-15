@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Pal } from '@pixel-pals/content-schema';
-import { ProductionPalPortrait } from '@pixel-pals/renderer';
+import { PalArtwork } from '@pixel-pals/renderer';
 import type { WorldDayCompletion, WorldDayInvitation } from '@pixel-pals/simulation';
 import { requireRenderableSpecies } from './tabletProfile';
 
@@ -63,7 +63,7 @@ export function VillageHelpingScene({ invitation, firstPal, friend, onComplete, 
       </header>
 
       <div className="day-scene-stage helping-stage">
-        <ProductionPalPortrait {...portraitProps(firstPal)} expression={cleared.length === PATH_ITEMS.length ? 'delighted' : 'thoughtful'} pose="standing" className="day-scene-pal" />
+        <PalArtwork {...portraitProps(firstPal)} expression={cleared.length === PATH_ITEMS.length ? 'delighted' : 'thoughtful'} pose="standing" className="day-scene-pal" />
         <div className="path-care-area" aria-label="Village path items">
           {PATH_ITEMS.map((item) => (
             <button
@@ -82,7 +82,7 @@ export function VillageHelpingScene({ invitation, firstPal, friend, onComplete, 
             {Array.from({ length: 3 }, (_, index) => <span className={index < cleared.length ? 'complete' : ''} key={index} />)}
           </div>
         </div>
-        <ProductionPalPortrait {...portraitProps(friend)} expression={friendTurn ? 'delighted' : 'content'} pose="standing" className="day-scene-pal" />
+        <PalArtwork {...portraitProps(friend)} expression={friendTurn ? 'delighted' : 'content'} pose="standing" className="day-scene-pal" />
       </div>
 
       <div className="day-scene-controls">
