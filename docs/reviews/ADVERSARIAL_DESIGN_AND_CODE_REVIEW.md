@@ -5,7 +5,7 @@
 - Date: 2026-07-15
 - Scope: first playable vertical slice, offline persistence, world schema, simulation transitions, backup and restore, child-facing failure behavior, parent controls, PWA lifecycle, and CI reproducibility
 - Review posture: assume malformed data, rapid repeated input, interrupted writes, stale clients, mistaken adult actions, hostile or accidental imports, and future content growth
-- Release judgment: suitable for internal observed playtesting after all required CI checks pass; not yet approved for public release
+- Release judgment: suitable for internal observed playtesting; not yet approved for public release
 
 ## Failure model
 
@@ -35,7 +35,7 @@ This review assumes that:
 | AR-007 | High | UI state changed optimistically but did not roll back when persistence failed. | Fixed | The app returns to the previous valid world and reports that the action was not saved. |
 | AR-008 | High | A render exception could leave a blank application surface. | Fixed | Added a child-safe error boundary that preserves the save and offers a reload action. |
 | AR-009 | High | The PWA used automatic service-worker activation, allowing a running session to change underneath the player. | Fixed | Updates are staged and require an explicit `Update and reopen` action. |
-| AR-010 | High | The repository had no deterministic dependency lockfile, and CI used `npm install`. | In progress | Generate and commit `package-lock.json`, then switch CI to `npm ci`. This remains a release blocker until verified. |
+| AR-010 | High | The repository had no deterministic dependency lockfile, and CI used `npm install`. | Fixed | Added `package-lock.json`; CI now uses `npm ci`, pinned Action commits, lockfile-based caching, and a high-severity production dependency audit. |
 | AR-011 | High | Persistence transaction behavior lacks a browser-like IndexedDB integration test. | Open | Add `fake-indexeddb` or browser-level persistence tests covering interrupted writes, active corruption, recovery promotion, and queued saves. |
 | AR-012 | Medium | Parent and playtest tools are visible behind a one-tap disclosure rather than a true adult gate. | Open for production | Internal playtests may use the current panel. Public builds require a parent-mode entry pattern that is inaccessible through casual child interaction. |
 | AR-013 | Medium | Unsupported imported species currently fall back visually to Fox in the tablet renderer. | Open | Reject non-renderable species in the current tablet profile or add a deliberate generic fallback body family. Never silently misrepresent species. |
@@ -67,24 +67,24 @@ A failed write should cancel or roll back the action. It must not imply that a P
 
 Backup import, export, reset, test controls, and future diagnostics must remain outside the ordinary child navigation. Destructive controls require explicit review and confirmation. Public builds need a stronger adult gate than the current internal-playtest disclosure.
 
-## Verification requirements
+## Verification completed
 
-Every hardening pass must run:
+The final hardening pipeline passed:
 
-1. deterministic dependency installation;
-2. TypeScript checks;
-3. schema and migration tests;
-4. simulation transition and idempotency tests;
-5. persistence import and recovery tests;
-6. production build;
-7. PWA update behavior verification;
-8. manual restore and reset checks on a real tablet before external playtesting.
+1. lockfile-based `npm ci` installation;
+2. high-severity production dependency audit;
+3. TypeScript checks;
+4. schema and migration tests;
+5. simulation transition and idempotency tests;
+6. persistence import and backup-boundary tests;
+7. production build.
+
+Manual restore, reset, service-worker activation, storage-pressure, and oldest-device checks remain required on real target hardware.
 
 ## Remaining release blockers
 
 Pixel Pals is not ready for a public release until at least the following are complete:
 
-- deterministic lockfile and `npm ci` verification;
 - IndexedDB integration tests;
 - parent-mode gate;
 - deployment security headers;
@@ -95,6 +95,6 @@ Pixel Pals is not ready for a public release until at least the following are co
 
 ## Current judgment
 
-The hardened vertical slice has a stronger world contract, safer persistence, safer adult controls, stable entity identity, and quieter failure handling than the pre-review build. Once the dependency lock and final CI pass are complete, it is appropriate for internal observed playtesting.
+The hardened vertical slice has a stronger world contract, safer persistence, safer adult controls, stable entity identity, deterministic dependencies, explicit PWA updates, and quieter failure handling than the pre-review build. It is appropriate for internal observed playtesting.
 
 It remains intentionally short of public-release approval. Children should find the bugs in whether the game is fun, not whether the database remembers who their friend was.
