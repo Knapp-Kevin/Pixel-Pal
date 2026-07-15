@@ -7,7 +7,7 @@ function buttonCondition(text, exact = false) {
     const expected = ${quoted(text)};
     const exact = ${exact};
     return [...document.querySelectorAll('button')].some((candidate) => {
-      const label = candidate.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+      const label = candidate.innerText?.trim() ?? '';
       const style = getComputedStyle(candidate);
       const rect = candidate.getBoundingClientRect();
       const visible = style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
@@ -30,7 +30,7 @@ export async function clickButton(page, text, exact = false) {
       return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
     };
     const button = [...document.querySelectorAll('button')].find((candidate) => {
-      const label = candidate.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+      const label = candidate.innerText?.trim() ?? '';
       return visible(candidate) && !candidate.disabled && (exact ? label === expected : label.includes(expected));
     });
     if (!button) throw new Error('Could not find enabled button: ' + expected);
