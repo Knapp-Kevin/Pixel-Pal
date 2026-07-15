@@ -4,11 +4,13 @@ import { registerSW } from 'virtual:pwa-register';
 import { App } from './App';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ServiceWorkerUpdateNotice } from './ServiceWorkerUpdateNotice';
+import { TabletProfileBoundary } from './TabletProfileBoundary';
 import { setPendingServiceWorkerUpdate } from './serviceWorkerUpdate';
 import './styles.css';
 import './starter-choice.css';
 import './playtest.css';
 import './parent-access.css';
+import './compatibility.css';
 import './update-notice.css';
 
 const updateServiceWorker = registerSW({
@@ -27,7 +29,9 @@ if (!root) {
 createRoot(root).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <TabletProfileBoundary>
+        <App />
+      </TabletProfileBoundary>
       <ServiceWorkerUpdateNotice />
     </ErrorBoundary>
   </StrictMode>
