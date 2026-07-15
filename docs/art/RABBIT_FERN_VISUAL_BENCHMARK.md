@@ -10,6 +10,8 @@ This choice is internal to art production. It does not make Rabbit the canonical
 
 The production manifest keeps `benchmarkFamily` unset until a visual review explicitly approves this direction.
 
+The tablet runtime is ready to preview the benchmark without changing normal release behavior. A review build may set `VITE_PIXEL_PALS_ART_STATUS=benchmark`; ordinary builds continue to require `production` assets and otherwise use the alpha fallback.
+
 ## Benchmark purpose
 
 The benchmark should settle:
@@ -60,6 +62,8 @@ Draft visual characteristics:
 
 The design must leave room for palette, marking, accessory, and later age-stage variation.
 
+Player-created Rabbits remain species-driven in the runtime and do not receive one canonical individual art identity.
+
 ## Fern benchmark
 
 Fern is a specific individual and must not look like the starter Rabbit with a different color swatch.
@@ -79,6 +83,8 @@ Required distinguishing traits:
 
 Fern should feel generous, attentive, and quietly playful. She should not read as a tutorial mascot or a permanently excited sidekick.
 
+Fern uses the stable runtime art identity `fern`, which takes precedence over generic Rabbit-family art.
+
 ## Required benchmark board
 
 The first review board should contain, without text embedded in the artwork:
@@ -92,6 +98,20 @@ The first review board should contain, without text embedded in the artwork:
 7. A small Willowmere environmental vignette establishing lighting and palette.
 
 The board should use a quiet parchment or natural-paper ground with subtle foliage framing. It should feel like a professional animation or game art benchmark, not a marketing poster.
+
+## Runtime review package
+
+The first integrated review package must include:
+
+- benchmark assets registered for generic Rabbit and stable identity `fern`;
+- explicit expression and pose selectors;
+- required Willowmere scene variants;
+- provenance records for every supplied file;
+- crop review at all five supported tablet profiles;
+- a benchmark build using `VITE_PIXEL_PALS_ART_STATUS=benchmark`;
+- confirmation that a normal build still uses the alpha fallback until assets reach `production` status.
+
+Missing benchmark states must fall back honestly. The resolver may not substitute an unrelated expression, identity, or persistent scene state merely because an image exists.
 
 ## Visual language
 
