@@ -15,10 +15,18 @@ export type CreateWorldInput = {
   firstPal: FirstPalChoice;
 };
 
+export type FirstActivity = 'leaf-chase' | 'stone-stacking' | 'garden-game';
+
 const BODY_FAMILY_BY_SPECIES: Record<FirstPalChoice['speciesId'], string> = {
   fox: 'canine',
   deer: 'cervid',
   rabbit: 'lagomorph'
+};
+
+const ACTIVITY_LABELS: Record<FirstActivity, string> = {
+  'leaf-chase': 'Chasing windblown leaves',
+  'stone-stacking': 'Stacking smooth stones',
+  'garden-game': 'Playing a garden guessing game'
 };
 
 function stableId(prefix: string, seed: number, suffix: string): string {
@@ -127,4 +135,82 @@ export function createFirstWorld(input: CreateWorldInput): World {
       }
     ]
   });
+}
+
+export function completeFirstActivity(world: World, activity: FirstActivity): World {
+  if (world.memories.some((memory) => memory.eventType === 'first-shared-activity')) {
+    return world;
+  }
+
+  const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
+  const fern = world.pals.find((pal) => pal.name === 'Fern');
+  const relationship = world.relationships.find(
+    (candidate) => candidate.fromPalId === world.firstPalId && candidate.toPalId === fern?.id
+  );
+
+  if (!firstPal || !fern || !relationship) {
+    throw new Error('The first activity requires the first Pal, Fern, and their relationship.');
+  }
+
+  const memoryId = stableId('memory', world.seed, 'first-shared-activity');
+  const preferred = activity === 'garden-game';
+
+  const nextWorld: World = {
+    ...world,
+    pals: world.pals.map((pal) =>
+      pal.id === firstPal.id
+        ? {
+            ...pal,
+            preferences: pal.preferences.map((preference) =>
+              preference.id === 'first-play-preference'
+                ? { ...preference, label: ACTIVITY_LABELS[activity], discovered: true }
+                : preference
+            ),
+            characteristics: pal.characteristics.map((characteristic) =>
+              characteristic.id === 'confidence'
+                ? {
+                    ...characteristic,
+                    value: Math.min(1, characteristic.value + (preferred ? 0.2 : 0.1)),
+                    confidence: Math.min(1, characteristic.confidence + 0.2)
+                  }
+                : characteristic
+            )
+          }
+        : pal
+    ),
+    relationships: world.relationships.map((candidate) =>
+      candidate.id === relationship.id
+        ? {
+            ...candidate,
+            label: 'friend',
+            familiarity: Math.min(1, candidate.familiarity + 0.25),
+            trust: Math.min(1, candidate.trust + 0.2),
+            warmth: Math.min(1, candidate.warmth + (preferred ? 0.3 : 0.2)),
+            respect: Math.min(1, candidate.respect + 0.1),
+            sharedHistory: Math.min(1, candidate.sharedHistory + 0.25)
+          }
+        : candidate
+    ),
+    memories: [
+      ...world.memories,
+      {
+        id: memoryId,
+        title: `${firstPal.name} and Fern played together`,
+        participantPalIds: [firstPal.id, fern.id],
+        villageId: 'willowmere',
+        eventType: 'first-shared-activity',
+        emotionalTone: preferred ? 'joyful' : 'playful',
+        summary: `${firstPal.name} and Fern tried ${ACTIVITY_LABELS[activity].toLowerCase()}. They left knowing each other a little better.`,
+        worldDay: world.worldDay,
+        significance: 0.6
+      }
+    ],
+    villages: world.villages.map((village) =>
+      village.id === 'willowmere'
+        ? { ...village, visibleChanges: [...village.visibleChanges, 'shared-play-stones'] }
+        : village
+    )
+  };
+
+  return parseWorld(nextWorld);
 }
