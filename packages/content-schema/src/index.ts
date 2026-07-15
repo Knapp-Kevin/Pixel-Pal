@@ -188,6 +188,33 @@ export type Home = z.infer<typeof HomeSchema>;
 export type HomeObject = z.infer<typeof HomeObjectSchema>;
 export type World = z.infer<typeof WorldSchema>;
 
+function addFirstHomeToEarlierSave(world: World): World {
+  if (world.homes.length > 0) return world;
+
+  const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
+  if (!firstPal) return world;
+
+  const homeId = `home-${world.seed.toString(36)}-first`;
+
+  return WorldSchema.parse({
+    ...world,
+    pals: world.pals.map((pal) =>
+      pal.id === firstPal.id && !pal.householdId
+        ? { ...pal, householdId: homeId }
+        : pal
+    ),
+    homes: [
+      {
+        id: homeId,
+        villageId: firstPal.homeVillageId,
+        residentPalIds: [firstPal.id],
+        styleId: 'willowmere-roundhouse',
+        visibleChanges: []
+      }
+    ]
+  });
+}
+
 export function parseWorld(input: unknown): World {
-  return WorldSchema.parse(input);
+  return addFirstHomeToEarlierSave(WorldSchema.parse(input));
 }
