@@ -165,6 +165,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
         recognizedMemoryIds: [],
         visualHistoryMarkers: []
       }
-    ]
+    ],
+    daySessions: []
   });
 }
