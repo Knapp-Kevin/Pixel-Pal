@@ -39,6 +39,7 @@ jobs:
           node --check scripts/verify-build-artifacts.mjs
           node --check scripts/verify-deployment.mjs
           node --check scripts/cdp-browser.mjs
+          node --check scripts/viewport-actions.mjs
           node --check scripts/verify-tablet-viewports.mjs
 
       - name: Typecheck
@@ -66,6 +67,15 @@ jobs:
             sleep 0.25
           done
           npm run verify:viewports
+
+      - name: Upload tablet viewport screenshots
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: tablet-viewport-screenshots
+          path: artifacts/tablet-viewports
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Verify installable build artifacts
         run: npm run verify:artifacts
