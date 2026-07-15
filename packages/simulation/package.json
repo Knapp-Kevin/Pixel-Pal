@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./ceremony": "./src/ceremony.ts"
+    "./ceremony": "./src/ceremony.ts",
+    "./home": "./src/home.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
