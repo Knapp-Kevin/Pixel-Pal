@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Pixel Pals maskable app icon</title>
+  <desc id="desc">A centered storybook tree with five colorful leaves on a green field.</desc>
+  <rect width="512" height="512" fill="#315b4c"/>
+  <circle cx="256" cy="250" r="142" fill="#f7f1df"/>
+  <path d="M245 335c6-45 10-87 5-127h24c-6 42-2 83 4 127z" fill="#8a5b3f"/>
+  <path d="M256 208c-44 0-82 25-96 62 22 2 40 14 49 33 14-14 30-22 47-22s34 8 47 22c10-19 27-31 49-33-14-37-52-62-96-62z" fill="#6f9f67"/>
+  <circle cx="198" cy="209" r="22" fill="#f1c76d"/>
+  <circle cx="236" cy="178" r="21" fill="#9db8c6"/>
+  <circle cx="278" cy="176" r="21" fill="#d79ab6"/>
+  <circle cx="318" cy="206" r="22" fill="#df9d68"/>
+  <circle cx="256" cy="222" r="23" fill="#a8c887"/>
+</svg>
