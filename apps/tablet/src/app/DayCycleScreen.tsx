@@ -7,6 +7,7 @@ import {
   type WorldDayInvitation
 } from '@pixel-pals/simulation';
 import { GardenGame } from '../GardenGame';
+import { HomeDayScene } from '../HomeDayScene';
 import { LeafChaseGame } from '../LeafChaseGame';
 import { QuietVisitScene } from '../QuietVisitScene';
 import { StoneStackingGame } from '../StoneStackingGame';
@@ -48,6 +49,8 @@ export function DayCycleScreen({ invitation, world, scene, save, onExit }: DayCy
     content = <StoneStackingGame {...shared} onComplete={(result: FirstActivityCompletion) => finish(result)} />;
   } else if (invitation.kind === 'quiet') {
     content = <QuietVisitScene {...shared} onComplete={finish} />;
+  } else if (invitation.kind === 'home') {
+    content = <HomeDayScene {...shared} invitation={invitation} onComplete={finish} />;
   } else if (invitation.kind === 'helping') {
     content = <VillageHelpingScene {...shared} invitation={invitation} onComplete={finish} />;
   }
