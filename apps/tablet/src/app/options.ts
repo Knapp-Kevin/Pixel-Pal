@@ -37,7 +37,7 @@ export const activityOptions: Array<{
   expression: 'curious' | 'thoughtful' | 'delighted';
   playable: boolean;
 }> = [
-  { id: 'leaf-chase', title: 'Chase Leaves', description: 'Playable leaf-chasing mini-game in development.', expression: 'delighted', playable: false },
+  { id: 'leaf-chase', title: 'Chase Leaves', description: 'Catch drifting leaf shapes and take turns helping each other.', expression: 'delighted', playable: true },
   { id: 'stone-stacking', title: 'Stack Stones', description: 'Take turns choosing and balancing stones together.', expression: 'thoughtful', playable: true },
   { id: 'garden-game', title: 'Garden Game', description: 'Playable garden guessing mini-game in development.', expression: 'curious', playable: false }
 ];
