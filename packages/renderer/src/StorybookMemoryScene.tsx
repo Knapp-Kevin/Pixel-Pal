@@ -1,12 +1,12 @@
 import { useId } from 'react';
-import { PalPortrait, type PalPortraitProps } from './PalPortrait';
+import { PalArtwork, type PalArtworkRequest } from './ProductionArt';
 
 export type StorybookMemorySceneProps = {
   className?: string;
   eventType: string;
   emotionalTone: 'joyful' | 'playful' | 'calm' | 'uncertain' | 'sad' | 'hopeful';
-  firstPal: PalPortraitProps;
-  companion?: PalPortraitProps;
+  firstPal: PalArtworkRequest;
+  companion?: PalArtworkRequest;
 };
 
 function SceneDetails({ eventType }: { eventType: string }) {
@@ -79,12 +79,12 @@ export function StorybookMemoryScene({
         <rect x="5" y="5" width="470" height="260" rx="24" fill="none" stroke="#6B563F" strokeWidth="7" opacity="0.58" />
       </svg>
 
-      <PalPortrait
+      <PalArtwork
         {...firstPal}
         className={["storybook-memory-pal", "storybook-memory-pal-first", firstPal.className].filter(Boolean).join(' ')}
       />
       {companion ? (
-        <PalPortrait
+        <PalArtwork
           {...companion}
           className={["storybook-memory-pal", "storybook-memory-pal-companion", companion.className].filter(Boolean).join(' ')}
         />
