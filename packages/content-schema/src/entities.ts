@@ -26,8 +26,10 @@ export const AppearanceSchema = z.object({
 export const PreferenceSchema = z.object({
   id,
   kind: z.enum(['activity', 'object', 'place', 'food', 'social']),
+  subjectId: id.optional(),
   label: shortText,
-  discovered: z.boolean()
+  discovered: z.boolean(),
+  evidenceCount: z.number().int().min(1).max(100).default(1)
 });
 
 export const CharacteristicSchema = z.object({
