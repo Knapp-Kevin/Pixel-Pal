@@ -127,17 +127,26 @@ export async function startHeadlessChrome({ port = 9222 } = {}) {
 
   const endpoint = `http://127.0.0.1:${port}`;
   const started = Date.now();
+  let ready = false;
+
   while (Date.now() - started < 10_000) {
+    if (processHandle.exitCode !== null) {
+      throw new Error(`Chrome exited before its DevTools endpoint started (${processHandle.exitCode}).`);
+    }
+
     try {
       const response = await fetch(`${endpoint}/json/version`);
-      if (response.ok) break;
+      if (response.ok) {
+        ready = true;
+        break;
+      }
     } catch {
-      await delay(100);
+      // Chrome is still starting.
     }
+    await delay(100);
   }
 
-  const versionResponse = await fetch(`${endpoint}/json/version`);
-  if (!versionResponse.ok) throw new Error('Chrome DevTools endpoint did not start.');
+  if (!ready) throw new Error('Chrome DevTools endpoint did not start.');
 
   return {
     async newPage() {
