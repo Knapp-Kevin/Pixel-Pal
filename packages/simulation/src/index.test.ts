@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { completeFirstActivity, createFirstWorld } from './index';
+import { completeFirstActivity, createFirstWorld, type FirstPalChoice } from './index';
 import { completeFirstFriendshipCeremony } from './ceremony';
 
 const input = {
@@ -15,6 +15,17 @@ const input = {
   }
 };
 
+const starterBodyFamilies: Array<{
+  speciesId: FirstPalChoice['speciesId'];
+  bodyFamily: string;
+}> = [
+  { speciesId: 'fox', bodyFamily: 'canine' },
+  { speciesId: 'deer', bodyFamily: 'cervid' },
+  { speciesId: 'rabbit', bodyFamily: 'lagomorph' },
+  { speciesId: 'cat', bodyFamily: 'feline' },
+  { speciesId: 'duck', bodyFamily: 'waterfowl' }
+];
+
 describe('createFirstWorld', () => {
   it('creates exactly one matching first Pal', () => {
     const world = createFirstWorld(input);
@@ -26,15 +37,21 @@ describe('createFirstWorld', () => {
     expect(firstPals[0]?.createdBy).toBe('player');
   });
 
-  it('preserves the player-selected starter species', () => {
-    const deerWorld = createFirstWorld({
+  it.each(starterBodyFamilies)('preserves the $speciesId starter and its body family', ({ speciesId, bodyFamily }) => {
+    const world = createFirstWorld({
       ...input,
-      firstPal: { ...input.firstPal, speciesId: 'deer' as const }
+      firstPal: { ...input.firstPal, speciesId }
     });
-    const firstPal = deerWorld.pals.find((pal) => pal.id === deerWorld.firstPalId);
+    const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
 
-    expect(firstPal?.speciesId).toBe('deer');
-    expect(firstPal?.appearance.bodyFamily).toBe('cervid');
+    expect(firstPal?.speciesId).toBe(speciesId);
+    expect(firstPal?.appearance.bodyFamily).toBe(bodyFamily);
+  });
+
+  it('registers all five starter species in the world', () => {
+    const world = createFirstWorld(input);
+
+    expect(world.species.map((species) => species.id)).toEqual(['fox', 'deer', 'rabbit', 'cat', 'duck']);
   });
 
   it('is deterministic for the same input', () => {
