@@ -9,6 +9,24 @@ export type {
   PalSpecies
 } from './PalPortrait';
 
+export {
+  EMPTY_PRODUCTION_ART_REGISTRY,
+  PalArtwork,
+  ProductionArtProvider,
+  resolvePalArtwork,
+  resolveSceneArtwork,
+  SceneArtwork
+} from './ProductionArt';
+export type {
+  PalArtworkAsset,
+  PalArtworkRequest,
+  ProductionArtProviderProps,
+  ProductionArtRegistry,
+  ProductionArtStatus,
+  SceneArtworkAsset,
+  SceneArtworkProps
+} from './ProductionArt';
+
 export { StorybookMemoryScene } from './StorybookMemoryScene';
 export type { StorybookMemorySceneProps } from './StorybookMemoryScene';
 
