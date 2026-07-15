@@ -42,7 +42,11 @@ function completedSession(day: number, kind: 'quiet' | 'home' | 'helping'): Worl
       kind,
       participantPalIds: ['pal-first', 'pal-neighbor'],
       summary: `Pip and Fern completed the ${kind} path on day ${day}.`,
-      visibleChangeId: kind === 'helping' ? 'village-help-cleared-path' : kind === 'home' ? 'home-day-story-lantern' : undefined,
+      visibleChangeId: kind === 'helping'
+        ? 'village-help-cleared-path'
+        : kind === 'home'
+          ? 'home-day-story-lantern'
+          : undefined,
       skillId: kind === 'helping' ? 'village-care' : kind === 'home' ? 'home-making' : 'listening'
     },
     summary: {
@@ -55,14 +59,14 @@ function completedSession(day: number, kind: 'quiet' | 'home' | 'helping'): Worl
 }
 
 function advancedWorld(includeOfferedDayFour: boolean): World {
-  const sessions: World['daySessions'] = [
+  const daySessions: World['daySessions'] = [
     completedSession(1, 'helping'),
     completedSession(2, 'home'),
     completedSession(3, 'quiet')
   ];
 
   if (includeOfferedDayFour) {
-    sessions.push({
+    daySessions.push({
       id: 'day-4-session',
       day: 4,
       status: 'offered',
@@ -150,7 +154,7 @@ function advancedWorld(includeOfferedDayFour: boolean): World {
       residentPalIds: ['pal-first'],
       styleId: 'willowmere-roundhouse',
       chosenObjectId: 'story-lantern',
-      visibleChanges: ['home-day-story-lantern']
+      visibleChanges: ['story-lantern', 'home-day-story-lantern']
     }],
     villages: [{
       id: 'willowmere',
@@ -167,7 +171,7 @@ function advancedWorld(includeOfferedDayFour: boolean): World {
       recognizedMemoryIds: [],
       visualHistoryMarkers: []
     }],
-    daySessions: sessions
+    daySessions
   });
 }
 
