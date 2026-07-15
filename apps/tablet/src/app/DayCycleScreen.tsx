@@ -46,7 +46,7 @@ export function DayCycleScreen({ invitation, world, scene, save, onExit }: DayCy
   } else if (invitation.kind === 'active' && invitation.activityId === 'leaf-chase') {
     content = <LeafChaseGame {...shared} seed={world.seed + invitation.day} onComplete={(result: FirstActivityCompletion) => finish(result)} />;
   } else if (invitation.kind === 'active' && invitation.activityId === 'stone-stacking') {
-    content = <StoneStackingGame {...shared} onComplete={(result: FirstActivityCompletion) => finish(result)} />;
+    content = <StoneStackingGame {...shared} seed={world.seed + invitation.day} onComplete={(result: FirstActivityCompletion) => finish(result)} />;
   } else if (invitation.kind === 'quiet') {
     content = <QuietVisitScene {...shared} onComplete={finish} />;
   } else if (invitation.kind === 'home') {
