@@ -70,6 +70,7 @@ export function palAppearanceProps(pal: Pal) {
     species: requireRenderableSpecies(pal.speciesId),
     paletteId: pal.appearance.paletteId,
     markingId: pal.appearance.markingId,
-    accessoryId: pal.appearance.accessoryId
+    accessoryId: pal.appearance.accessoryId,
+    artIdentity: pal.artIdentity
   };
 }
