@@ -1,4 +1,5 @@
 import { parseWorld, type World } from '@pixel-pals/content-schema';
+import { getFirstNeighborContext } from './firstNeighbor';
 
 function stableId(prefix: string, seed: number, suffix: string): string {
   return `${prefix}-${seed.toString(36)}-${suffix}`;
@@ -13,14 +14,16 @@ export function completeFirstFriendshipCeremony(world: World): World {
     throw new Error('The first friendship ceremony requires a shared activity memory.');
   }
 
-  const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
-  const fern = world.pals.find((pal) => pal.name === 'Fern');
-  const relationship = world.relationships.find(
-    (candidate) => candidate.fromPalId === firstPal?.id && candidate.toPalId === fern?.id
-  );
+  const { firstPal, neighbor, relationship } = getFirstNeighborContext(world);
+  const village = world.villages.find((candidate) => candidate.id === firstPal.homeVillageId);
+  const tree = world.greatTrees.find((candidate) => candidate.id === village?.greatTreeId);
 
-  if (!firstPal || !fern || !relationship) {
-    throw new Error('The first friendship ceremony requires the first Pal, Fern, and their relationship.');
+  if (!village || !tree) {
+    throw new Error('The first friendship ceremony requires the first Pal’s village and Great Tree.');
+  }
+
+  if (!sharedActivity.participantPalIds.includes(firstPal.id) || !sharedActivity.participantPalIds.includes(neighbor.id)) {
+    throw new Error('The shared activity memory does not belong to the first friendship.');
   }
 
   const ceremonyMemoryId = stableId('memory', world.seed, 'first-friendship-ceremony');
@@ -43,33 +46,33 @@ export function completeFirstFriendshipCeremony(world: World): World {
       ...world.memories,
       {
         id: ceremonyMemoryId,
-        title: `${firstPal.name} and Fern were welcomed as friends`,
-        participantPalIds: [firstPal.id, fern.id],
-        villageId: 'willowmere',
+        title: `${firstPal.name} and ${neighbor.name} were welcomed as friends`,
+        participantPalIds: [firstPal.id, neighbor.id],
+        villageId: village.id,
         eventType: 'first-friendship-ceremony',
         emotionalTone: 'hopeful',
-        summary: `Beneath Willowmere’s Great Tree, ${firstPal.name} and Fern tied a ribbon for the friendship they had begun.`,
+        summary: `Beneath ${village.name}’s Great Tree, ${firstPal.name} and ${neighbor.name} tied a ribbon for the friendship they had begun.`,
         worldDay: world.worldDay,
         significance: 0.85
       }
     ],
-    villages: world.villages.map((village) =>
-      village.id === 'willowmere' && !village.visibleChanges.includes(treeMarkerId)
-        ? { ...village, visibleChanges: [...village.visibleChanges, treeMarkerId] }
-        : village
+    villages: world.villages.map((candidate) =>
+      candidate.id === village.id && !candidate.visibleChanges.includes(treeMarkerId)
+        ? { ...candidate, visibleChanges: [...candidate.visibleChanges, treeMarkerId] }
+        : candidate
     ),
-    greatTrees: world.greatTrees.map((tree) =>
-      tree.id === 'willowmere-great-tree'
+    greatTrees: world.greatTrees.map((candidate) =>
+      candidate.id === tree.id
         ? {
-            ...tree,
-            recognizedMemoryIds: tree.recognizedMemoryIds.includes(ceremonyMemoryId)
-              ? tree.recognizedMemoryIds
-              : [...tree.recognizedMemoryIds, ceremonyMemoryId],
-            visualHistoryMarkers: tree.visualHistoryMarkers.includes(treeMarkerId)
-              ? tree.visualHistoryMarkers
-              : [...tree.visualHistoryMarkers, treeMarkerId]
+            ...candidate,
+            recognizedMemoryIds: candidate.recognizedMemoryIds.includes(ceremonyMemoryId)
+              ? candidate.recognizedMemoryIds
+              : [...candidate.recognizedMemoryIds, ceremonyMemoryId],
+            visualHistoryMarkers: candidate.visualHistoryMarkers.includes(treeMarkerId)
+              ? candidate.visualHistoryMarkers
+              : [...candidate.visualHistoryMarkers, treeMarkerId]
           }
-        : tree
+        : candidate
     )
   });
 }
