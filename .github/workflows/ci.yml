@@ -42,7 +42,9 @@ jobs:
           node --check scripts/viewport-actions.mjs
           node --check scripts/viewport-accessibility-actions.mjs
           node --check scripts/viewport-home-actions.mjs
+          node --check scripts/viewport-lifecycle-actions.mjs
           node --check scripts/verify-tablet-viewports.mjs
+          node --check scripts/verify-tablet-suspension.mjs
           node --check scripts/verify-production-art.mjs
 
       - name: Verify production art planning contract
@@ -60,7 +62,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Verify tablet viewport layouts
+      - name: Verify tablet viewport and suspension behavior
         run: |
           set -o pipefail
           npm run preview --workspace=@pixel-pals/tablet -- --host 127.0.0.1 --port 4173 > /tmp/pixel-pals-preview.log 2>&1 &
@@ -78,6 +80,7 @@ jobs:
           done
           mkdir -p artifacts
           npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
+          npm run verify:suspension 2>&1 | tee artifacts/suspension-verification.log
 
       - name: Upload CI evidence
         if: always()
@@ -88,6 +91,7 @@ jobs:
             artifacts/test-results.log
             artifacts/tablet-viewports
             artifacts/viewport-verification.log
+            artifacts/suspension-verification.log
           if-no-files-found: warn
           retention-days: 14
 
