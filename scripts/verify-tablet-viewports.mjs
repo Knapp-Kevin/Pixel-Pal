@@ -1,6 +1,10 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { startHeadlessChrome } from './cdp-browser.mjs';
+import {
+  applyAccessibilityProfile,
+  assertAccessibilityProfilePersisted
+} from './viewport-accessibility-actions.mjs';
 import { completeHomeVisit } from './viewport-home-actions.mjs';
 import {
   clickButton,
@@ -18,11 +22,26 @@ const origin = new URL(baseUrl).origin;
 const screenshotDirectory = join(process.cwd(), 'artifacts', 'tablet-viewports');
 
 const profiles = [
-  { name: 'compact-landscape', width: 800, height: 600, completion: 'leaf-chase', species: 'Fox', palLabel: 'fox' },
-  { name: 'standard-landscape', width: 1024, height: 768, completion: 'garden-game', species: 'Deer', palLabel: 'deer' },
-  { name: 'large-landscape', width: 1366, height: 1024, completion: 'stone-stacking', species: 'Rabbit', palLabel: 'rabbit' },
-  { name: 'compact-portrait', width: 600, height: 800, completion: 'leaf-chase', species: 'Kitten', palLabel: 'kitten' },
-  { name: 'standard-portrait', width: 768, height: 1024, completion: 'garden-game', species: 'Duckling', palLabel: 'duckling' }
+  {
+    name: 'compact-landscape', width: 800, height: 600, completion: 'leaf-chase', species: 'Fox', palLabel: 'fox',
+    accessibility: { motion: 'system', textSize: 'standard', contrast: 'standard', emulateReducedMotion: true, expectReducedMotion: true }
+  },
+  {
+    name: 'standard-landscape', width: 1024, height: 768, completion: 'garden-game', species: 'Deer', palLabel: 'deer',
+    accessibility: { motion: 'system', textSize: 'standard', contrast: 'strong', emulateReducedMotion: false, expectReducedMotion: false }
+  },
+  {
+    name: 'large-landscape', width: 1366, height: 1024, completion: 'stone-stacking', species: 'Rabbit', palLabel: 'rabbit',
+    accessibility: { motion: 'full', textSize: 'standard', contrast: 'standard', emulateReducedMotion: true, expectReducedMotion: false }
+  },
+  {
+    name: 'compact-portrait', width: 600, height: 800, completion: 'leaf-chase', species: 'Kitten', palLabel: 'kitten',
+    accessibility: { motion: 'system', textSize: 'large', contrast: 'standard', emulateReducedMotion: false, expectReducedMotion: false }
+  },
+  {
+    name: 'standard-portrait', width: 768, height: 1024, completion: 'garden-game', species: 'Duckling', palLabel: 'duckling',
+    accessibility: { motion: 'reduced', textSize: 'large', contrast: 'strong', emulateReducedMotion: false, expectReducedMotion: true }
+  }
 ];
 
 const activities = {
@@ -151,6 +170,7 @@ async function openDay(page, profile, day, verifyReload = true) {
   await page.waitFor("Boolean(document.querySelector('.day-invitation-grid'))");
   const afterReload = await invitationLabels(page);
   if (beforeReload !== afterReload) throw new Error(`${profile.name} changed day-${day} invitations after reload.`);
+  await assertAccessibilityProfilePersisted(page, profile);
   await assertLayout(page, profile, `day-${day}-invitations-after-reload`);
 }
 
@@ -204,6 +224,8 @@ async function runProfile(browser, profile) {
     await page.send('Storage.clearDataForOrigin', { origin, storageTypes: 'all' });
     await page.navigate(baseUrl);
     await page.waitFor("Boolean(document.querySelector('#first-pal-title'))");
+    await applyAccessibilityProfile(page, baseUrl, profile);
+    await assertAccessibilityProfilePersisted(page, profile);
     await assertLayout(page, profile, 'creation');
     await captureScreenshot(page, profile, 'creation');
 
@@ -215,6 +237,7 @@ async function runProfile(browser, profile) {
     await clickButton(page, 'Meet my Pal');
     await page.waitFor("Boolean(document.querySelector('.world-nav'))");
     await page.waitFor(`Boolean(document.querySelector('[aria-label*="a ${profile.palLabel} Pal"]'))`);
+    await assertAccessibilityProfilePersisted(page, profile);
     await assertLayout(page, profile, 'village');
 
     if (profile.name === 'standard-landscape') {
@@ -256,6 +279,7 @@ async function runProfile(browser, profile) {
     await captureScreenshot(page, profile, 'journal');
 
     await completeRepeatableDays(page, profile);
+    await assertAccessibilityProfilePersisted(page, profile);
   } finally {
     page.close();
   }
@@ -267,7 +291,7 @@ await mkdir(screenshotDirectory, { recursive: true });
 const browser = await startHeadlessChrome();
 try {
   for (const profile of profiles) await runProfile(browser, profile);
-  console.log(`Verified ${profiles.length} starter choices and tablet profiles through four repeatable world days.`);
+  console.log(`Verified ${profiles.length} starter choices, accessibility profiles, and tablet profiles through four repeatable world days.`);
 } finally {
   await browser.close();
 }
