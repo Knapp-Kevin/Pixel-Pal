@@ -8,6 +8,7 @@ import { setPendingServiceWorkerUpdate } from './serviceWorkerUpdate';
 import './styles.css';
 import './starter-choice.css';
 import './playtest.css';
+import './update-notice.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,
