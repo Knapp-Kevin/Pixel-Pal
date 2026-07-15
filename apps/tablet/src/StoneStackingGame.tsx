@@ -2,46 +2,23 @@ import { useState, type CSSProperties, type DragEvent } from 'react';
 import type { Pal } from '@pixel-pals/content-schema';
 import { PalArtwork } from '@pixel-pals/renderer';
 import type { FirstActivityCompletion } from '@pixel-pals/simulation';
+import { stoneStackingVariant } from './stoneStackingVariants';
 import { requireRenderableSpecies } from './tabletProfile';
 
 type StoneStackingGameProps = {
   firstPal: Pal;
   friend: Pal;
+  seed?: number;
   onComplete: (result: FirstActivityCompletion) => void;
   onCancel: () => void;
 };
 
 type GamePhase = 'child' | 'friend' | 'finish' | 'celebrate';
 
-type StoneChoice = {
-  size: number;
-  label: string;
-};
-
-const CHILD_TARGETS = [6, 4, 2] as const;
-const FRIEND_STONES = [5, 3] as const;
-const CHOICES: readonly StoneChoice[][] = [
-  [
-    { size: 4, label: 'narrow stone' },
-    { size: 8, label: 'extra-wide stone' },
-    { size: 6, label: 'wide stone' }
-  ],
-  [
-    { size: 2, label: 'little stone' },
-    { size: 6, label: 'wide stone' },
-    { size: 4, label: 'middle stone' }
-  ],
-  [
-    { size: 3, label: 'rounded stone' },
-    { size: 2, label: 'small stone' },
-    { size: 1, label: 'tiny top stone' }
-  ]
-];
-
 function stoneStyle(size: number): CSSProperties {
   return {
-    width: `${34 + size * 8}%`,
-    minWidth: `${42 + size * 5}px`
+    width: `${Math.min(98, 34 + size * 8)}%`,
+    minWidth: `${Math.min(92, 42 + size * 5)}px`
   };
 }
 
@@ -56,18 +33,17 @@ function palArtProps(pal: Pal) {
   };
 }
 
-export function StoneStackingGame({ firstPal, friend, onComplete, onCancel }: StoneStackingGameProps) {
-  const [tower, setTower] = useState<number[]>([7]);
+export function StoneStackingGame({ firstPal, friend, seed = 0, onComplete, onCancel }: StoneStackingGameProps) {
+  const variant = stoneStackingVariant(seed);
+  const [tower, setTower] = useState<number[]>([variant.baseStone]);
   const [round, setRound] = useState(0);
   const [phase, setPhase] = useState<GamePhase>('child');
   const [attempts, setAttempts] = useState(0);
   const [successfulActions, setSuccessfulActions] = useState(0);
-  const [feedback, setFeedback] = useState(
-    `${friend.name} placed a broad base stone. Choose the stone that fits next.`
-  );
+  const [feedback, setFeedback] = useState(variant.opening);
 
-  const target = CHILD_TARGETS[round];
-  const choices = CHOICES[round] ?? [];
+  const target = variant.childTargets[round];
+  const choices = variant.choices[round] ?? [];
 
   function tryStone(size: number): void {
     if (phase !== 'child' || target === undefined) return;
@@ -86,7 +62,7 @@ export function StoneStackingGame({ firstPal, friend, onComplete, onCancel }: St
     setTower((current) => [...current, size]);
     setSuccessfulActions((current) => current + 1);
 
-    if (round < FRIEND_STONES.length) {
+    if (round < variant.friendStones.length) {
       setPhase('friend');
       setFeedback(`${firstPal.name} found a steady fit. Tap ${friend.name} so your friend can add the next stone.`);
     } else {
@@ -104,7 +80,7 @@ export function StoneStackingGame({ firstPal, friend, onComplete, onCancel }: St
 
   function takeFriendTurn(): void {
     if (phase !== 'friend') return;
-    const friendStone = FRIEND_STONES[round];
+    const friendStone = variant.friendStones[round];
     if (friendStone === undefined) return;
 
     setTower((current) => [...current, friendStone]);
@@ -121,7 +97,7 @@ export function StoneStackingGame({ firstPal, friend, onComplete, onCancel }: St
   }
 
   return (
-    <section className="stone-game-shell" aria-labelledby="stone-game-title">
+    <section className="stone-game-shell" aria-labelledby="stone-game-title" data-stone-variant={variant.id}>
       <header className="stone-game-header">
         <div>
           <p className="eyebrow">Play together</p>
@@ -188,6 +164,7 @@ export function StoneStackingGame({ firstPal, friend, onComplete, onCancel }: St
                 type="button"
                 draggable
                 key={`${round}-${choice.size}`}
+                data-target-match={choice.size === target ? 'true' : 'false'}
                 onDragStart={(event) => event.dataTransfer.setData('text/plain', String(choice.size))}
                 onClick={() => tryStone(choice.size)}
                 aria-label={`Try the ${choice.label}`}
