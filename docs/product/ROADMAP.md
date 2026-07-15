@@ -296,8 +296,16 @@ Each milestone must answer:
 
 ## Current Priority
 
-The active target is **M0: Product Foundation**.
+The active implementation target is **M2: Family Tablet Alpha**.
 
-The next target is **M1: Relationship Vertical Slice**.
+The M0 and M1 software scope is implemented and verified through the full offline relationship loop, repeatable world days, deterministic persistence, recovery, and the five-profile tablet browser matrix. Their remaining exit evidence is physical: actual-device accessibility checks and observed child playtesting.
 
-No feature from later milestones should block these two outcomes unless it changes a foundational architecture decision.
+M2 software work proceeds in this order:
+
+1. accessibility preferences and durable local settings;
+2. stable suspension and resume verification;
+3. multiple local child profiles or separate local worlds;
+4. production-quality illustrated adventures and art integration;
+5. installation, performance, and seven-day observed playtesting on the target family tablets.
+
+No M3 system should displace these Family Tablet Alpha outcomes unless it changes a foundational architecture decision.
