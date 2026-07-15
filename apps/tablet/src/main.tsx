@@ -19,6 +19,7 @@ import './stone-stacking.css';
 import './leaf-chase.css';
 import './garden-game.css';
 import './day-cycle.css';
+import './home-day.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,
