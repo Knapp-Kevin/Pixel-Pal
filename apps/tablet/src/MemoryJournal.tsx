@@ -43,6 +43,7 @@ export function MemoryJournal({ world, firstPal }: MemoryJournalProps) {
                   paletteId: firstPal.appearance.paletteId,
                   markingId: firstPal.appearance.markingId,
                   accessoryId: firstPal.appearance.accessoryId,
+                  artIdentity: firstPal.artIdentity,
                   expression: memory.emotionalTone === 'calm' ? 'content' : 'delighted',
                   pose: memory.eventType === 'first-shared-activity' ? 'playful' : 'standing'
                 }}
@@ -53,6 +54,7 @@ export function MemoryJournal({ world, firstPal }: MemoryJournalProps) {
                       paletteId: companion.appearance.paletteId,
                       markingId: companion.appearance.markingId,
                       accessoryId: companion.appearance.accessoryId,
+                      artIdentity: companion.artIdentity,
                       expression: 'delighted',
                       pose: memory.eventType === 'first-shared-activity' ? 'playful' : 'standing'
                     }
