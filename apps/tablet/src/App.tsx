@@ -23,8 +23,16 @@ export function App() {
   const scene = selectWorldScene(save.world);
   if (!scene) return <RepairPanel />;
 
-  if (activeActivity === 'stone-stacking' && !scene.firstMemory) {
-    return <ActivityScreen world={save.world} scene={scene} save={save} onExit={() => setActiveActivity(null)} />;
+  if (activeActivity && !scene.firstMemory) {
+    return (
+      <ActivityScreen
+        activity={activeActivity}
+        world={save.world}
+        scene={scene}
+        save={save}
+        onExit={() => setActiveActivity(null)}
+      />
+    );
   }
 
   return (
