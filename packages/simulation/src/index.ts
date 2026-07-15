@@ -2,7 +2,7 @@ import { parseWorld, type World } from '@pixel-pals/content-schema';
 
 export type FirstPalChoice = {
   name: string;
-  speciesId: 'fox' | 'deer' | 'rabbit';
+  speciesId: 'fox' | 'deer' | 'rabbit' | 'cat' | 'duck';
   paletteId: 'sunleaf' | 'riverstone' | 'berrybloom';
   markingId: 'soft-mask' | 'freckles' | 'tail-tip';
   accessoryId?: 'scarf' | 'satchel' | 'leaf-pin';
@@ -20,7 +20,9 @@ export type FirstActivity = 'leaf-chase' | 'stone-stacking' | 'garden-game';
 const BODY_FAMILY_BY_SPECIES: Record<FirstPalChoice['speciesId'], string> = {
   fox: 'canine',
   deer: 'cervid',
-  rabbit: 'lagomorph'
+  rabbit: 'lagomorph',
+  cat: 'feline',
+  duck: 'waterfowl'
 };
 
 const ACTIVITY_LABELS: Record<FirstActivity, string> = {
@@ -72,7 +74,9 @@ export function createFirstWorld(input: CreateWorldInput): World {
     species: [
       { id: 'fox', name: 'Fox', bodyFamily: 'canine', canonStatus: 'game' },
       { id: 'deer', name: 'Deer', bodyFamily: 'cervid', canonStatus: 'game' },
-      { id: 'rabbit', name: 'Rabbit', bodyFamily: 'lagomorph', canonStatus: 'game' }
+      { id: 'rabbit', name: 'Rabbit', bodyFamily: 'lagomorph', canonStatus: 'game' },
+      { id: 'cat', name: 'Cat', bodyFamily: 'feline', canonStatus: 'game' },
+      { id: 'duck', name: 'Duck', bodyFamily: 'waterfowl', canonStatus: 'game' }
     ],
     lineages: [],
     pals: [
