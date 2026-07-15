@@ -9,7 +9,7 @@ Working design specification for the first playable vertical slice.
 Within the first session, the child MUST:
 
 1. enter the world without creating an online account;
-2. name and visually shape their first Pal;
+2. choose, name, and visually shape their first Pal;
 3. discover at least one part of that Pal's personality through play;
 4. meet another resident;
 5. help create the beginning of a Pal-to-Pal friendship;
@@ -26,7 +26,7 @@ The first Pal is not the player's avatar and is not owned by the player. They ar
 The child chooses:
 
 - the Pal's name;
-- one approved species or body-family option;
+- one species or body family from a meaningful starting selection;
 - one palette or marking option;
 - one simple accessory.
 
@@ -42,6 +42,24 @@ The game determines or gradually reveals:
 
 The first Pal MUST feel partly chosen and partly met.
 
+## Starter Choice Policy
+
+Pixel Pals MUST NOT assign one canonical starter Pal or one canonical starter species.
+
+The first-Pal screen MUST:
+
+- present multiple visually distinct species or body families;
+- begin without a species preselected;
+- require an intentional player choice before world creation;
+- give each starter option equivalent narrative importance;
+- avoid labeling one option as recommended, balanced, easiest, rarest, or best;
+- preserve the chosen species, appearance, and name in the local world;
+- allow every starter option to participate in the same first-session relationship and legacy systems.
+
+The vertical slice MUST support at least Fox, Deer, and Rabbit as equal starting choices. The launch roster SHOULD expand beyond these three after the modular art and animation system is validated.
+
+A focused art-quality pass MAY refine one body family first for production learning, but that internal sequence MUST NOT remove, demote, or narratively privilege the other player-facing choices.
+
 ## First Session Flow
 
 ### 1. Opening image
@@ -50,7 +68,9 @@ A short storybook opening introduces a living village and its Great Tree. It MUS
 
 ### 2. First Pal creation
 
-The child names the Pal before prolonged exposition. Suggested names MAY be offered. Confirmation MUST prevent accidental acceptance and permit later renaming through a gentle local process.
+The child selects a species or body family, then names and visually shapes the Pal before prolonged exposition. Suggested names MAY be offered. Confirmation MUST prevent accidental acceptance and permit later renaming through a gentle local process.
+
+No species is selected automatically.
 
 ### 3. First playful interaction
 
@@ -97,7 +117,9 @@ The first experience does not require:
 ## Acceptance Criteria
 
 - A child can complete the flow without developer intervention.
-- The first Pal's chosen name persists offline.
+- No species is preselected when first-Pal creation opens.
+- Fox, Deer, and Rabbit are presented as equally valid choices.
+- The chosen species and first Pal name persist offline.
 - The first Pal has at least one discovered and one still-hidden personal trait.
 - The first Pal can express preference or refusal.
 - The first Pal and another resident gain an explainable relationship change.
