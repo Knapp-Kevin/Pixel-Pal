@@ -15,7 +15,9 @@ Within the first session, the child MUST:
 5. help create the beginning of a Pal-to-Pal friendship;
 6. create a durable memory;
 7. see a small visible change in the village;
-8. stop safely and resume later.
+8. visit the first Pal's home and make one personal choice there;
+9. revisit meaningful events through a memory journal;
+10. stop safely and resume later.
 
 ## Player and First Pal
 
@@ -96,15 +98,50 @@ The game records a readable memory containing participants, place, activity, emo
 
 The relationship causes one visible, modest change, such as a shared object, decorated meeting place, planted flower, repaired bench, or new recurring activity.
 
-### 8. Safe exit
-
-The world saves automatically. The child is told plainly that the world is safe and will be waiting. No countdown, streak, missed reward, or guilt message appears.
-
-## First Great Tree Moment
+### 8. First Great Tree moment
 
 A full Great Tree friendship ceremony MAY occur at the end of the first session or after several short sessions. It MUST feel earned rather than automatic.
 
 The ceremony recognizes a relationship between Pals. It does not certify player ownership.
+
+### 9. First home
+
+After the friendship ceremony, the child may visit the first Pal's home.
+
+The home MUST:
+
+- belong to the Pal rather than act as a player inventory room;
+- be accessible to every starter species without species-locked furniture;
+- begin simple enough that later household history remains visible;
+- preserve chosen objects and changes in the world save;
+- support future household members without erasing the original resident's history.
+
+The child chooses one first object from equally valid options:
+
+- a window cushion;
+- a memory shelf;
+- a story lantern.
+
+No option is mechanically superior. The choice creates a personal memory and a visible, persistent change inside the home.
+
+### 10. Memory journal
+
+The journal presents meaningful events as world history rather than achievements.
+
+Each entry MUST derive from structured memory data and show:
+
+- title;
+- participants;
+- world day;
+- emotional tone;
+- readable summary;
+- relevant Pal appearance where practical.
+
+The journal MUST be able to grow beyond the first Pal and Fern. Future friends, households, descendants, mentors, departures, and remembrances use the same memory structure.
+
+### 11. Safe exit
+
+The world saves automatically. The child is told plainly that the world is safe and will be waiting. No countdown, streak, missed reward, or guilt message appears.
 
 ## Vertical Slice Boundaries
 
@@ -128,6 +165,9 @@ The first experience does not require:
 - The first Pal has at least one discovered and one still-hidden personal trait.
 - The first Pal can express preference or refusal.
 - The first Pal and another resident gain an explainable relationship change.
-- A memory persists after restart.
+- Activity, ceremony, and home memories persist after restart.
 - The visible village change persists after restart.
+- The chosen home object persists after restart.
+- An earlier save without home data receives a deterministic first home without losing memories or relationships.
+- The journal renders every stored memory without hardcoding the first event sequence.
 - The child can leave after any completed step without penalty.
