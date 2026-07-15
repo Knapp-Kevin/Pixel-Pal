@@ -1,4 +1,4 @@
-import { parseWorld, WorldSchema, type World } from '@pixel-pals/content-schema';
+import { parseWorld, type World } from '@pixel-pals/content-schema';
 
 const DATABASE_NAME = 'pixel-pals';
 const DATABASE_VERSION = 1;
@@ -60,6 +60,14 @@ async function writePair(previous: unknown | undefined, active: World): Promise<
   });
 }
 
+function tryParseWorld(input: unknown): World | null {
+  try {
+    return parseWorld(input);
+  } catch {
+    return null;
+  }
+}
+
 export async function saveWorld(world: World): Promise<void> {
   const validated = parseWorld(world);
   const current = await readRaw(ACTIVE_KEY);
@@ -70,15 +78,14 @@ export async function loadWorld(): Promise<World | null> {
   const active = await readRaw(ACTIVE_KEY);
 
   if (active !== undefined) {
-    const parsed = WorldSchema.safeParse(active);
-    if (parsed.success) return parsed.data;
+    const parsed = tryParseWorld(active);
+    if (parsed) return parsed;
   }
 
   const previous = await readRaw(PREVIOUS_KEY);
   if (previous === undefined) return null;
 
-  const recovered = WorldSchema.safeParse(previous);
-  return recovered.success ? recovered.data : null;
+  return tryParseWorld(previous);
 }
 
 export async function clearWorld(): Promise<void> {
