@@ -1,6 +1,7 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { startHeadlessChrome } from './cdp-browser.mjs';
+import { completeHomeVisit } from './viewport-home-actions.mjs';
 import {
   clickButton,
   completeGardenGame,
@@ -17,11 +18,11 @@ const origin = new URL(baseUrl).origin;
 const screenshotDirectory = join(process.cwd(), 'artifacts', 'tablet-viewports');
 
 const profiles = [
-  { name: 'compact-landscape', width: 800, height: 600, completion: 'leaf-chase', dayPath: 'quiet' },
-  { name: 'standard-landscape', width: 1024, height: 768, completion: 'garden-game', dayPath: 'helping' },
-  { name: 'large-landscape', width: 1366, height: 1024, completion: 'stone-stacking', dayPath: 'quiet' },
-  { name: 'compact-portrait', width: 600, height: 800, completion: 'leaf-chase', dayPath: 'helping' },
-  { name: 'standard-portrait', width: 768, height: 1024, completion: 'garden-game', dayPath: 'quiet' }
+  { name: 'compact-landscape', width: 800, height: 600, completion: 'leaf-chase' },
+  { name: 'standard-landscape', width: 1024, height: 768, completion: 'garden-game' },
+  { name: 'large-landscape', width: 1366, height: 1024, completion: 'stone-stacking' },
+  { name: 'compact-portrait', width: 600, height: 800, completion: 'leaf-chase' },
+  { name: 'standard-portrait', width: 768, height: 1024, completion: 'garden-game' }
 ];
 
 const activities = {
@@ -74,7 +75,8 @@ async function assertLayout(page, profile, state) {
       '.garden-finish-button',
       '.day-finish-button',
       '.quiet-observation:not([disabled])',
-      '.path-care-item:not([disabled])'
+      '.path-care-item:not([disabled])',
+      '.home-day-action:not([disabled])'
     ].join(',');
     const controls = [...document.querySelectorAll(selectors)].filter(visible);
     const clippedControls = controls.filter((element) => {
@@ -135,41 +137,47 @@ async function invitationLabels(page) {
   return page.evaluate(`JSON.stringify([...document.querySelectorAll('.day-invitation-card')].map((card) => card.textContent?.replace(/\s+/g, ' ').trim()))`);
 }
 
-async function completeRepeatableDay(page, profile) {
+async function openDay(page, profile, day, verifyReload = true) {
   await waitForEnabledButton(page, 'Village', true);
   await clickButton(page, 'Village', true);
   await waitForEnabledButton(page, 'See What Willowmere Offers');
   await clickButton(page, 'See What Willowmere Offers');
   await page.waitFor("Boolean(document.querySelector('.day-invitation-grid'))");
-  await assertLayout(page, profile, 'day-one-invitations');
+  await assertLayout(page, profile, `day-${day}-invitations`);
 
-  if (profile.dayPath === 'quiet') {
-    await clickButton(page, 'Sit Quietly with Fern');
-    await page.waitFor("Boolean(document.querySelector('.quiet-visit-shell'))");
-    await assertLayout(page, profile, 'quiet-visit');
-    await captureScreenshot(page, profile, 'quiet-visit');
-    await completeQuietVisit(page);
-  } else {
-    await clickButton(page, 'Care for Willowmere');
-    await page.waitFor("Boolean(document.querySelector('.helping-scene-shell'))");
-    await assertLayout(page, profile, 'village-helping');
-    await captureScreenshot(page, profile, 'village-helping');
-    await completeVillageHelping(page);
-  }
-
-  await page.waitFor("document.body.textContent?.includes('Day 1 in Willowmere')");
-  await assertLayout(page, profile, `day-one-summary-${profile.dayPath}`);
-  await captureScreenshot(page, profile, `day-one-summary-${profile.dayPath}`);
-
-  await waitForEnabledButton(page, 'See What Willowmere Offers');
-  await clickButton(page, 'See What Willowmere Offers');
-  await page.waitFor("Boolean(document.querySelector('.day-invitation-grid'))");
+  if (!verifyReload) return;
   const beforeReload = await invitationLabels(page);
   await page.navigate(baseUrl);
   await page.waitFor("Boolean(document.querySelector('.day-invitation-grid'))");
   const afterReload = await invitationLabels(page);
-  if (beforeReload !== afterReload) throw new Error(`${profile.name} changed day-two invitations after reload.`);
-  await assertLayout(page, profile, 'day-two-invitations-after-reload');
+  if (beforeReload !== afterReload) throw new Error(`${profile.name} changed day-${day} invitations after reload.`);
+  await assertLayout(page, profile, `day-${day}-invitations-after-reload`);
+}
+
+async function completeRepeatableDays(page, profile) {
+  await openDay(page, profile, 1);
+  await clickButton(page, 'Care for Willowmere');
+  await page.waitFor("Boolean(document.querySelector('.helping-scene-shell'))");
+  await assertLayout(page, profile, 'day-one-helping');
+  await completeVillageHelping(page);
+  await page.waitFor("document.body.textContent?.includes('Day 1 in Willowmere')");
+
+  await openDay(page, profile, 2);
+  await clickButton(page, 'Spend time at home');
+  await page.waitFor("Boolean(document.querySelector('.home-day-shell'))");
+  await assertLayout(page, profile, 'day-two-home');
+  await captureScreenshot(page, profile, 'day-two-home');
+  await completeHomeVisit(page);
+  await page.waitFor("document.body.textContent?.includes('Day 2 in Willowmere')");
+
+  await openDay(page, profile, 3);
+  await clickButton(page, 'A quiet visit');
+  await page.waitFor("Boolean(document.querySelector('.quiet-visit-shell'))");
+  await assertLayout(page, profile, 'day-three-quiet');
+  await completeQuietVisit(page);
+  await page.waitFor("document.body.textContent?.includes('Day 3 in Willowmere')");
+  await assertLayout(page, profile, 'day-three-summary');
+  await captureScreenshot(page, profile, 'day-three-summary');
 }
 
 async function runProfile(browser, profile) {
@@ -227,7 +235,7 @@ async function runProfile(browser, profile) {
     await assertLayout(page, profile, 'journal');
     await captureScreenshot(page, profile, 'journal');
 
-    await completeRepeatableDay(page, profile);
+    await completeRepeatableDays(page, profile);
   } finally {
     page.close();
   }
@@ -239,7 +247,7 @@ await mkdir(screenshotDirectory, { recursive: true });
 const browser = await startHeadlessChrome();
 try {
   for (const profile of profiles) await runProfile(browser, profile);
-  console.log(`Verified ${profiles.length} tablet viewport profiles through the first repeatable day.`);
+  console.log(`Verified ${profiles.length} tablet profiles through three repeatable world days.`);
 } finally {
   await browser.close();
 }
