@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { World } from '@pixel-pals/content-schema';
-import { clearWorld, exportWorld } from '@pixel-pals/persistence';
+import { clearWorld, exportWorld, importWorld, saveWorld } from '@pixel-pals/persistence';
 import './playtest.css';
 
 type ParentTestToolsProps = {
@@ -109,6 +109,31 @@ export function ParentTestTools({ world, onResetComplete, onStatus }: ParentTest
           >
             Export world backup
           </button>
+
+          <label className="import-control">
+            <span>Restore a world backup</span>
+            <input
+              type="file"
+              accept="application/json,.json"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+
+                void file.text()
+                  .then((serialized) => importWorld(serialized))
+                  .then(async (imported) => {
+                    await saveWorld(imported);
+                    onStatus('World backup restored. Reopening the imported world…');
+                    window.setTimeout(() => window.location.reload(), 250);
+                  })
+                  .catch(() => {
+                    onStatus('That file is not a valid Pixel Pals world backup. Nothing was replaced.');
+                    event.target.value = '';
+                  });
+              }}
+            />
+          </label>
+          <p className="tool-note">Restoring a valid backup makes the current world the recovery checkpoint.</p>
         </section>
 
         <section aria-labelledby="observation-title">
