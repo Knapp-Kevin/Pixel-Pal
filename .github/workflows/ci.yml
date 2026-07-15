@@ -51,7 +51,10 @@ jobs:
         run: npm run typecheck
 
       - name: Test
-        run: npm test
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          npm test 2>&1 | tee artifacts/test-results.log
 
       - name: Build
         run: npm run build
@@ -75,12 +78,13 @@ jobs:
           mkdir -p artifacts
           npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
 
-      - name: Upload tablet viewport evidence
+      - name: Upload CI evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: tablet-viewport-screenshots
           path: |
+            artifacts/test-results.log
             artifacts/tablet-viewports
             artifacts/viewport-verification.log
           if-no-files-found: warn
