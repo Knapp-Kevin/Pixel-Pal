@@ -1,0 +1,29 @@
+name: Day Cycle Typecheck Diagnostic
+
+on:
+  push:
+    branches: [chore/verify-day-cycle-foundation]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Capture typecheck output
+        run: npm run typecheck > typecheck.log 2>&1 || true
+      - name: Upload diagnostics
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: day-cycle-typecheck
+          path: typecheck.log
+          retention-days: 1
