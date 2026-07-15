@@ -21,7 +21,7 @@ export async function verifyIncompleteStoneSuspension(page) {
   }))()`;
 
   await page.waitFor("Boolean(document.querySelector('.stone-game-shell'))");
-  await page.waitFor("Boolean(document.querySelector('.loose-stone-button[data-target-match=\"true\"]:not([disabled]))")");
+  await page.waitFor("Boolean(document.querySelector('.loose-stone-button[data-target-match=\"true\"]:not([disabled])'))");
   await page.evaluate("document.querySelector('.loose-stone-button[data-target-match=\"true\"]:not([disabled])')?.click()");
   await page.waitFor("document.querySelector('.tower-count')?.textContent?.trim() === '2 stones'");
   await freezeAndResume(page, snapshot, 'Incomplete Stone Stacking state');
