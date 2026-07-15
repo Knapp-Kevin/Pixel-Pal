@@ -1,9 +1,14 @@
 export type WillowmereSceneProps = {
   showPlayMarker?: boolean;
+  showCeremonyMarker?: boolean;
   className?: string;
 };
 
-export function WillowmereScene({ showPlayMarker = false, className }: WillowmereSceneProps) {
+export function WillowmereScene({
+  showPlayMarker = false,
+  showCeremonyMarker = false,
+  className
+}: WillowmereSceneProps) {
   return (
     <svg
       className={className}
@@ -60,6 +65,15 @@ export function WillowmereScene({ showPlayMarker = false, className }: Willowmer
           <path d="M205 100 Q216 92 227 100 Q217 113 205 100" />
           <path d="M158 81 Q169 73 180 81 Q170 94 158 81" />
         </g>
+        {showCeremonyMarker ? (
+          <g>
+            <path d="M111 122 Q158 155 221 120" fill="none" stroke="#F6E2B2" strokeLinecap="round" strokeWidth="6" />
+            <path d="M151 145 Q153 178 143 199" fill="none" stroke="#D47E75" strokeLinecap="round" strokeWidth="9" />
+            <path d="M171 147 Q177 178 190 196" fill="none" stroke="#7191A8" strokeLinecap="round" strokeWidth="9" />
+            <path d="M152 145 L144 159 L161 158 Z" fill="#E7A095" stroke="#5B3E31" strokeWidth="2" />
+            <path d="M171 147 L163 160 L181 159 Z" fill="#8CAFC0" stroke="#5B3E31" strokeWidth="2" />
+          </g>
+        ) : null}
       </g>
 
       <g transform="translate(515 294)">
