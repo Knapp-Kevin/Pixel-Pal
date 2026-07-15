@@ -8,6 +8,7 @@ import {
   type FirstActivity,
   type FirstPalChoice
 } from '@pixel-pals/simulation';
+import { completeFirstFriendshipCeremony } from '@pixel-pals/simulation/ceremony';
 
 const speciesOptions: Array<{ id: FirstPalChoice['speciesId']; label: string }> = [
   { id: 'fox', label: 'Fox' },
@@ -67,6 +68,7 @@ export function App() {
 
   const firstPal = world?.pals.find((pal) => pal.id === world.firstPalId);
   const firstMemory = world?.memories.find((memory) => memory.eventType === 'first-shared-activity');
+  const ceremonyMemory = world?.memories.find((memory) => memory.eventType === 'first-friendship-ceremony');
   const firstPreference = firstPal?.preferences.find((preference) => preference.id === 'first-play-preference');
 
   async function persist(nextWorld: World): Promise<void> {
@@ -150,24 +152,9 @@ export function App() {
                 />
               </label>
 
-              <ChoiceGroup
-                legend="Species"
-                options={speciesOptions}
-                selected={speciesId}
-                onSelect={setSpeciesId}
-              />
-              <ChoiceGroup
-                legend="Colors"
-                options={paletteOptions}
-                selected={paletteId}
-                onSelect={setPaletteId}
-              />
-              <ChoiceGroup
-                legend="Markings"
-                options={markingOptions}
-                selected={markingId}
-                onSelect={setMarkingId}
-              />
+              <ChoiceGroup legend="Species" options={speciesOptions} selected={speciesId} onSelect={setSpeciesId} />
+              <ChoiceGroup legend="Colors" options={paletteOptions} selected={paletteId} onSelect={setPaletteId} />
+              <ChoiceGroup legend="Markings" options={markingOptions} selected={markingId} onSelect={setMarkingId} />
               <ChoiceGroup
                 legend="Something to wear"
                 options={accessoryOptions}
@@ -190,11 +177,17 @@ export function App() {
     return <main className="app-shell"><p>The saved world could not find its first Pal.</p></main>;
   }
 
+  const latestStory = ceremonyMemory?.summary ?? firstMemory?.summary ?? `${firstPal.name} has met Fern, but their first shared memory is still waiting.`;
+
   return (
     <main className="app-shell">
       <section className="storybook-panel world-panel" aria-labelledby="welcome-title">
         <div className="storybook-art world-art">
-          <WillowmereScene className="willowmere-scene" showPlayMarker={Boolean(firstMemory)} />
+          <WillowmereScene
+            className="willowmere-scene"
+            showPlayMarker={Boolean(firstMemory)}
+            showCeremonyMarker={Boolean(ceremonyMemory)}
+          />
           <div className="pal-pair" aria-label={`${firstPal.name} and Fern in Willowmere`}>
             <PalPortrait
               className="scene-pal scene-pal-first"
@@ -223,11 +216,7 @@ export function App() {
           <p className="eyebrow">Welcome to Willowmere</p>
           <h1 id="welcome-title">{firstPal.name}</h1>
           <p className="tagline">Where every friendship changes the world.</p>
-          <p className="intro">
-            {firstMemory
-              ? firstMemory.summary
-              : `${firstPal.name} has met Fern, but their first shared memory is still waiting.`}
-          </p>
+          <p className="intro">{latestStory}</p>
           {firstPreference?.discovered ? (
             <p className="discovery"><strong>Discovered:</strong> {firstPreference.label}</p>
           ) : null}
@@ -259,8 +248,8 @@ export function App() {
             </button>
           ))}
         </section>
-      ) : (
-        <section className="action-grid" aria-label="First memory complete">
+      ) : !ceremonyMemory ? (
+        <section className="action-grid" aria-label="Friendship ready for recognition">
           <article className="action-card action-sun memory-card">
             <span className="action-title">A New Memory</span>
             <span className="action-description">{firstMemory.title}</span>
@@ -269,9 +258,28 @@ export function App() {
             <span className="action-title">A Friendship Began</span>
             <span className="action-description">Fern is now part of this world’s growing legacy.</span>
           </article>
+          <button
+            className="action-card action-clay ceremony-button"
+            type="button"
+            onClick={() => void persist(completeFirstFriendshipCeremony(world))}
+          >
+            <span className="action-title">Visit the Great Tree</span>
+            <span className="action-description">Let Willowmere recognize the friendship they have begun.</span>
+          </button>
+        </section>
+      ) : (
+        <section className="action-grid" aria-label="First friendship ceremony complete">
+          <article className="action-card action-sun memory-card">
+            <span className="action-title">The Tree Remembers</span>
+            <span className="action-description">A ribbon now marks {firstPal.name} and Fern’s friendship.</span>
+          </article>
+          <article className="action-card action-leaf memory-card">
+            <span className="action-title">Legacy Began</span>
+            <span className="action-description">This friendship now belongs to Willowmere’s visible history.</span>
+          </article>
           <article className="action-card action-clay memory-card">
-            <span className="action-title">Willowmere Changed</span>
-            <span className="action-description">Their play stones now rest beside the village path.</span>
+            <span className="action-title">The World Changed</span>
+            <span className="action-description">The play stones and friendship ribbons will remain after the tablet closes.</span>
           </article>
         </section>
       )}
