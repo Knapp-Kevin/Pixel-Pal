@@ -1,5 +1,6 @@
 import type { World } from '@pixel-pals/content-schema';
 import { completeFirstActivity, type FirstActivity } from '@pixel-pals/simulation';
+import { GardenGame } from '../GardenGame';
 import { LeafChaseGame } from '../LeafChaseGame';
 import { StoneStackingGame } from '../StoneStackingGame';
 import type { WorldSave } from './useWorldSave';
@@ -29,6 +30,7 @@ export function ActivityScreen({ activity, world, scene, save, onExit }: Activit
 
   return (
     <main className="app-shell" aria-busy={save.saving} data-saving={save.saving}>
+      {activity === 'garden-game' ? <GardenGame {...sharedProps} seed={world.seed} /> : null}
       {activity === 'leaf-chase' ? <LeafChaseGame {...sharedProps} seed={world.seed} /> : null}
       {activity === 'stone-stacking' ? <StoneStackingGame {...sharedProps} /> : null}
       <footer className="prototype-note" aria-live="polite">
