@@ -1,0 +1,28 @@
+
+> pixel-pals@0.1.0 verify:viewports
+> node scripts/verify-tablet-viewports.mjs
+
+PASS compact-landscape: creation
+PASS compact-landscape: village
+file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/cdp-browser.mjs:124
+    throw new Error(`Timed out waiting for browser condition: ${expression}`);
+          ^
+
+Error: Timed out waiting for browser condition: (() => {
+    const expected = "Stack Stones";
+    const exact = false;
+    return [...document.querySelectorAll('button')].some((candidate) => {
+      const label = candidate.textContent?.replace(/s+/g, ' ').trim() ?? '';
+      const style = getComputedStyle(candidate);
+      const rect = candidate.getBoundingClientRect();
+      const visible = style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+      return visible && !candidate.disabled && (exact ? label === expected : label.includes(expected));
+    });
+  })()
+    at CdpSession.waitFor (file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/cdp-browser.mjs:124:11)
+    at async waitForEnabledButton (file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/viewport-actions.mjs:20:3)
+    at async visitActivity (file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/verify-tablet-viewports.mjs:119:3)
+    at async runProfile (file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/verify-tablet-viewports.mjs:200:7)
+    at async file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/verify-tablet-viewports.mjs:241:35
+
+Node.js v22.23.1
