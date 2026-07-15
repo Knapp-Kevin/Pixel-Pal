@@ -1,3 +1,4 @@
+import { parseWorld } from '@pixel-pals/content-schema';
 import { describe, expect, it } from 'vitest';
 import {
   completeFirstActivity,
@@ -71,13 +72,37 @@ describe('repeatable world day rhythm', () => {
     expect(dayTwoActive?.summary).toMatch(/remembered/i);
   });
 
-  it('rotates the chosen home object into day two', () => {
+  it('rotates the chosen home object into day two without fixing the optional context', () => {
     const firstOffer = offerNextWorldDay(readyWorld());
     const dayOne = completeWorldDay(firstOffer, invitationOfKind(firstOffer, 'helping')!.id, helpingCompletion);
     const dayTwoInvitations = generateDayInvitations(dayOne);
+    const kinds = dayTwoInvitations.map((invitation) => invitation.kind);
     const home = dayTwoInvitations.find((invitation) => invitation.kind === 'home');
-    expect(dayTwoInvitations.map((invitation) => invitation.kind)).toEqual(['active', 'home', 'helping']);
+
+    expect(kinds[0]).toBe('active');
+    expect(kinds).toContain('home');
+    expect(kinds).toHaveLength(3);
     expect(home?.homeObjectId).toBe('story-lantern');
+  });
+
+  it('uses relationship state to select the optional contextual invitation', () => {
+    const firstOffer = offerNextWorldDay(readyWorld());
+    const dayOne = completeWorldDay(firstOffer, invitationOfKind(firstOffer, 'helping')!.id, helpingCompletion);
+    const respectWeighted = parseWorld({
+      ...dayOne,
+      relationships: dayOne.relationships.map((relationship) => ({
+        ...relationship,
+        respect: 1,
+        sharedHistory: 1,
+        trust: 0,
+        warmth: -1
+      }))
+    });
+    const kinds = generateDayInvitations(respectWeighted).map((invitation) => invitation.kind);
+
+    expect(kinds).toContain('home');
+    expect(kinds).toContain('helping');
+    expect(kinds).not.toContain('quiet');
   });
 
   it('offers the next day idempotently', () => {
