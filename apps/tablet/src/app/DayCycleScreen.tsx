@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { World } from '@pixel-pals/content-schema';
 import {
   completeWorldDay,
@@ -38,7 +39,7 @@ export function DayCycleScreen({ invitation, world, scene, save, onExit }: DayCy
     onCancel: cancel
   };
 
-  let content = null;
+  let content: ReactNode = null;
   if (invitation.kind === 'active' && invitation.activityId === 'garden-game') {
     content = <GardenGame {...shared} seed={world.seed + invitation.day} onComplete={(result: FirstActivityCompletion) => finish(result)} />;
   } else if (invitation.kind === 'active' && invitation.activityId === 'leaf-chase') {
