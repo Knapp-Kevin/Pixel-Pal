@@ -1,68 +1,44 @@
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { startHeadlessChrome } from './cdp-browser.mjs';
+import {
+  clickButton,
+  completeGardenGame,
+  completeLeafChase,
+  completeStoneStacking,
+  setPalName,
+  waitForEnabledButton
+} from './viewport-actions.mjs';
 
 const baseUrl = process.env.VIEWPORT_BASE_URL ?? 'http://127.0.0.1:4173';
 const origin = new URL(baseUrl).origin;
+const screenshotDirectory = join(process.cwd(), 'artifacts', 'tablet-viewports');
 
 const profiles = [
-  { name: 'compact-landscape', width: 800, height: 600 },
-  { name: 'standard-landscape', width: 1024, height: 768 },
-  { name: 'large-landscape', width: 1366, height: 1024 },
-  { name: 'compact-portrait', width: 600, height: 800 },
-  { name: 'standard-portrait', width: 768, height: 1024 }
+  { name: 'compact-landscape', width: 800, height: 600, completion: 'leaf-chase' },
+  { name: 'standard-landscape', width: 1024, height: 768, completion: 'garden-game' },
+  { name: 'large-landscape', width: 1366, height: 1024, completion: 'stone-stacking' },
+  { name: 'compact-portrait', width: 600, height: 800, completion: 'leaf-chase' },
+  { name: 'standard-portrait', width: 768, height: 1024, completion: 'garden-game' }
 ];
 
-function quoted(value) {
-  return JSON.stringify(value);
-}
-
-function buttonCondition(text, exact = false) {
-  return `(() => {
-    const expected = ${quoted(text)};
-    const exact = ${exact};
-    return [...document.querySelectorAll('button')].some((candidate) => {
-      const label = candidate.textContent?.replace(/\\s+/g, ' ').trim() ?? '';
-      const style = getComputedStyle(candidate);
-      const rect = candidate.getBoundingClientRect();
-      const visible = style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
-      return visible && !candidate.disabled && (exact ? label === expected : label.includes(expected));
-    });
-  })()`;
-}
-
-async function waitForEnabledButton(page, text, exact = false) {
-  await page.waitFor(buttonCondition(text, exact));
-}
-
-async function clickButton(page, text, exact = false) {
-  await page.evaluate(`(() => {
-    const expected = ${quoted(text)};
-    const exact = ${exact};
-    const visible = (element) => {
-      const style = getComputedStyle(element);
-      const rect = element.getBoundingClientRect();
-      return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
-    };
-    const button = [...document.querySelectorAll('button')].find((candidate) => {
-      const label = candidate.textContent?.replace(/\\s+/g, ' ').trim() ?? '';
-      return visible(candidate) && !candidate.disabled && (exact ? label === expected : label.includes(expected));
-    });
-    if (!button) throw new Error('Could not find enabled button: ' + expected);
-    button.click();
-    return true;
-  })()`);
-}
-
-async function setPalName(page, name) {
-  await page.evaluate(`(() => {
-    const input = document.querySelector('input[aria-label="Pal name"]');
-    if (!(input instanceof HTMLInputElement)) throw new Error('Pal name input is missing.');
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-    if (!setter) throw new Error('Could not set the Pal name.');
-    setter.call(input, ${quoted(name)});
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    return true;
-  })()`);
-}
+const activities = {
+  'stone-stacking': {
+    button: 'Stack Stones',
+    selector: '.stone-game-shell',
+    complete: completeStoneStacking
+  },
+  'garden-game': {
+    button: 'Garden Game',
+    selector: '.garden-game-shell',
+    complete: completeGardenGame
+  },
+  'leaf-chase': {
+    button: 'Chase Leaves',
+    selector: '.leaf-game-shell',
+    complete: completeLeafChase
+  }
+};
 
 async function setViewport(page, width, height) {
   await page.send('Emulation.setDeviceMetricsOverride', {
@@ -76,6 +52,16 @@ async function setViewport(page, width, height) {
     }
   });
   await page.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+}
+
+async function captureScreenshot(page, profile, state) {
+  const result = await page.send('Page.captureScreenshot', {
+    format: 'png',
+    captureBeyondViewport: false,
+    fromSurface: true
+  });
+  const fileName = `${profile.name}-${state}.png`;
+  await writeFile(join(screenshotDirectory, fileName), Buffer.from(result.data, 'base64'));
 }
 
 async function assertLayout(page, profile, state) {
@@ -136,27 +122,20 @@ async function assertLayout(page, profile, state) {
   console.log(`PASS ${profile.name}: ${state}`);
 }
 
-async function completeLeafChase(page) {
-  for (let catchNumber = 1; catchNumber <= 5; catchNumber += 1) {
-    await page.waitFor("document.querySelector('.leaf-target-guide')?.textContent?.trim().startsWith('Find the')");
-    const target = await page.evaluate("document.querySelector('.leaf-target-guide')?.textContent?.trim().replace(/^Find the /, '')");
-    await page.evaluate(`(() => {
-      const expected = ${quoted('Catch the ')} + ${quoted(target)};
-      const button = [...document.querySelectorAll('button')].find((candidate) => candidate.getAttribute('aria-label') === expected);
-      if (!button) throw new Error('Could not find target leaf: ' + expected);
-      button.click();
-      return true;
-    })()`);
-    await page.waitFor(`document.querySelector('.leaf-catch-progress')?.getAttribute('aria-label')?.startsWith('${catchNumber} of 5')`);
+async function visitActivity(page, profile, activityId, complete) {
+  const activity = activities[activityId];
+  await waitForEnabledButton(page, activity.button);
+  await clickButton(page, activity.button);
+  await page.waitFor(`Boolean(document.querySelector('${activity.selector}'))`);
+  await assertLayout(page, profile, activityId);
 
-    const friendTurn = await page.evaluate("Boolean(document.querySelector('.leaf-game-pal-right:not([disabled])'))");
-    if (friendTurn) {
-      await page.evaluate("document.querySelector('.leaf-game-pal-right:not([disabled])')?.click()");
-    }
+  if (complete) {
+    await captureScreenshot(page, profile, activityId);
+    await activity.complete(page);
+    return;
   }
 
-  await waitForEnabledButton(page, 'Remember This Chase');
-  await clickButton(page, 'Remember This Chase');
+  await clickButton(page, 'Return to Willowmere');
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
 }
 
@@ -168,6 +147,7 @@ async function runProfile(browser, profile) {
     await page.navigate(baseUrl);
     await page.waitFor("Boolean(document.querySelector('#first-pal-title'))");
     await assertLayout(page, profile, 'creation');
+    await captureScreenshot(page, profile, 'creation');
 
     await clickButton(page, 'Fox', true);
     await setPalName(page, `Pip-${profile.width}`);
@@ -183,26 +163,17 @@ async function runProfile(browser, profile) {
       await assertLayout(page, profile, 'orientation-change-landscape');
     }
 
-    await waitForEnabledButton(page, 'Stack Stones');
-    await clickButton(page, 'Stack Stones');
-    await page.waitFor("Boolean(document.querySelector('.stone-game-shell'))");
-    await assertLayout(page, profile, 'stone-stacking');
-    await clickButton(page, 'Return to Willowmere');
-    await page.waitFor("Boolean(document.querySelector('.world-nav'))");
+    for (const activityId of Object.keys(activities)) {
+      await visitActivity(page, profile, activityId, activityId === profile.completion);
+      if (activityId === profile.completion) break;
+    }
 
-    await waitForEnabledButton(page, 'Garden Game');
-    await clickButton(page, 'Garden Game');
-    await page.waitFor("Boolean(document.querySelector('.garden-game-shell'))");
-    await assertLayout(page, profile, 'garden-game');
-    await clickButton(page, 'Return to Willowmere');
-    await page.waitFor("Boolean(document.querySelector('.world-nav'))");
+    if (!documentedCompletionReached(profile.completion)) {
+      throw new Error(`Unknown completion activity: ${profile.completion}`);
+    }
 
-    await waitForEnabledButton(page, 'Chase Leaves');
-    await clickButton(page, 'Chase Leaves');
-    await page.waitFor("Boolean(document.querySelector('.leaf-game-shell'))");
-    await assertLayout(page, profile, 'leaf-chase');
-    await completeLeafChase(page);
-    await assertLayout(page, profile, 'friendship-created');
+    await page.waitFor("Boolean(document.querySelector('.world-nav'))");
+    await assertLayout(page, profile, `friendship-created-${profile.completion}`);
 
     await waitForEnabledButton(page, 'Visit the Great Tree');
     await clickButton(page, 'Visit the Great Tree');
@@ -224,15 +195,23 @@ async function runProfile(browser, profile) {
     await clickButton(page, 'Journal', true);
     await page.waitFor("Boolean(document.querySelector('.journal-shell'))");
     await assertLayout(page, profile, 'journal');
+    await captureScreenshot(page, profile, 'journal');
   } finally {
     page.close();
   }
 }
 
+function documentedCompletionReached(activityId) {
+  return Object.hasOwn(activities, activityId);
+}
+
+await rm(screenshotDirectory, { recursive: true, force: true });
+await mkdir(screenshotDirectory, { recursive: true });
+
 const browser = await startHeadlessChrome();
 try {
   for (const profile of profiles) await runProfile(browser, profile);
-  console.log(`Verified ${profiles.length} tablet viewport profiles.`);
+  console.log(`Verified ${profiles.length} tablet viewport profiles with screenshots.`);
 } finally {
   await browser.close();
 }
