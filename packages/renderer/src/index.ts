@@ -13,4 +13,4 @@ export { StorybookMemoryScene } from './StorybookMemoryScene';
 export type { StorybookMemorySceneProps } from './StorybookMemoryScene';
 
 export { WillowmereScene } from './WillowmereScene';
-export type { WillowmereSceneProps } from './WillowmereScene';
+export type { WillowmerePlayMarker, WillowmereSceneProps } from './WillowmereScene';
