@@ -14,6 +14,12 @@ export const ACTIVITY_LABELS: Record<FirstActivity, string> = {
   'garden-game': 'playing a garden guessing game'
 };
 
+export const ACTIVITY_WORLD_MARKERS: Record<FirstActivity, string> = {
+  'leaf-chase': 'shared-play-leaf-garland',
+  'stone-stacking': 'shared-play-stones',
+  'garden-game': 'shared-play-garden-blooms'
+};
+
 const MINIMUM_ACTIVITY_ACTIONS: Record<FirstActivity, number> = {
   'leaf-chase': 5,
   'stone-stacking': 3,
