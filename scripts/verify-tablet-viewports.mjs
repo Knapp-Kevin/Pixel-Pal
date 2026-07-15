@@ -92,7 +92,6 @@ async function assertLayout(page, profile, state) {
       })
       .map((element) => element.className);
     return {
-      viewport: { width: innerWidth, height: innerHeight },
       documentWidth,
       documentHeight,
       scrollX,
@@ -114,10 +113,7 @@ async function assertLayout(page, profile, state) {
   if (snapshot.clippedControls.length) failures.push(`clipped controls: ${snapshot.clippedControls.join(' | ')}`);
   if (snapshot.clippedPanels.length) failures.push(`clipped panels: ${snapshot.clippedPanels.join(' | ')}`);
 
-  if (failures.length) {
-    throw new Error(`${profile.name} ${state} failed: ${failures.join('; ')}`);
-  }
-
+  if (failures.length) throw new Error(`${profile.name} ${state} failed: ${failures.join('; ')}`);
   console.log(`PASS ${profile.name}: ${state}`);
 }
 
@@ -125,14 +121,6 @@ async function completeLeafChase(page) {
   for (let catchNumber = 1; catchNumber <= 5; catchNumber += 1) {
     await page.waitFor("document.querySelector('.leaf-target-guide')?.textContent?.trim().startsWith('Find the')");
     const target = await page.evaluate("document.querySelector('.leaf-target-guide')?.textContent?.trim().replace(/^Find the /, '')");
-    await page.evaluate(`(() => {
-      const label = ${quoted(`Catch the __TARGET__`)}.replace('__TARGET__', ${quoted('PLACEHOLDER')});
-      return label;
-    })()`);
-    await page.evaluate(`(() => {
-      const target = ${quoted('__TARGET__')}.replace('__TARGET__', ${quoted('')});
-      return target;
-    })()`);
     await page.evaluate(`(() => {
       const expected = ${quoted('Catch the ')} + ${quoted(target)};
       const button = [...document.querySelectorAll('button')].find((candidate) => candidate.getAttribute('aria-label') === expected);
@@ -194,7 +182,7 @@ async function runProfile(browser, profile) {
     await assertLayout(page, profile, 'home-exterior');
 
     await clickButton(page, 'Go inside');
-    await page.waitFor("Boolean(document.querySelector('[aria-label="Choose the first home object"]'))");
+    await page.waitFor(`Boolean(document.querySelector('[aria-label="Choose the first home object"]'))`);
     await assertLayout(page, profile, 'home-interior');
     await clickButton(page, 'Window Cushion');
     await page.waitFor("document.body.textContent?.includes('It Feels Like Home')");
