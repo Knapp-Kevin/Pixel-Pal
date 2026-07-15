@@ -113,6 +113,7 @@ export function LeafChaseGame({ firstPal, friend, seed, onComplete, onCancel }: 
           {state.phase === 'child' && round ? round.options.map((leaf) => {
             const style: CSSProperties = {
               top: LANE_TOP[leaf.lane],
+              left: `${12 + leaf.driftOffset * 7}%`,
               animationDelay: `${leaf.driftOffset * -0.43}s`
             };
 
