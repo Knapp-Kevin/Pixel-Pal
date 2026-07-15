@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { completeFirstActivity, createFirstWorld, type FirstPalChoice } from './index';
 import { completeFirstFriendshipCeremony } from './ceremony';
+import { chooseFirstHomeObject } from './home';
 
 const input = {
   worldId: 'kevin-family-world',
@@ -25,6 +26,12 @@ const starterBodyFamilies: Array<{
   { speciesId: 'cat', bodyFamily: 'feline' },
   { speciesId: 'duck', bodyFamily: 'waterfowl' }
 ];
+
+function createCelebratedWorld() {
+  return completeFirstFriendshipCeremony(
+    completeFirstActivity(createFirstWorld(input), 'garden-game')
+  );
+}
 
 describe('createFirstWorld', () => {
   it('creates exactly one matching first Pal', () => {
@@ -52,6 +59,16 @@ describe('createFirstWorld', () => {
     const world = createFirstWorld(input);
 
     expect(world.species.map((species) => species.id)).toEqual(['fox', 'deer', 'rabbit', 'cat', 'duck']);
+  });
+
+  it('creates a stable first home for the chosen Pal', () => {
+    const world = createFirstWorld(input);
+    const home = world.homes.find((candidate) => candidate.residentPalIds.includes(world.firstPalId));
+    const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
+
+    expect(home).toBeDefined();
+    expect(firstPal?.householdId).toBe(home?.id);
+    expect(home?.chosenObjectId).toBeUndefined();
   });
 
   it('is deterministic for the same input', () => {
@@ -127,5 +144,34 @@ describe('completeFirstFriendshipCeremony', () => {
 
     expect(twice).toEqual(once);
     expect(twice.memories.filter((memory) => memory.eventType === 'first-friendship-ceremony')).toHaveLength(1);
+  });
+});
+
+describe('chooseFirstHomeObject', () => {
+  it('persists the chosen object and creates a personal memory', () => {
+    const world = chooseFirstHomeObject(createCelebratedWorld(), 'memory-shelf');
+    const home = world.homes.find((candidate) => candidate.residentPalIds.includes(world.firstPalId));
+    const memory = world.memories.find((candidate) => candidate.eventType === 'first-home-object');
+
+    expect(home?.chosenObjectId).toBe('memory-shelf');
+    expect(home?.visibleChanges).toContain('memory-shelf');
+    expect(memory?.participantPalIds).toEqual([world.firstPalId]);
+    expect(memory?.emotionalTone).toBe('calm');
+  });
+
+  it('requires the friendship ceremony first', () => {
+    const played = completeFirstActivity(createFirstWorld(input), 'garden-game');
+
+    expect(() => chooseFirstHomeObject(played, 'story-lantern')).toThrow(
+      'The first home object becomes available after the friendship ceremony.'
+    );
+  });
+
+  it('does not replace or duplicate the first chosen object', () => {
+    const once = chooseFirstHomeObject(createCelebratedWorld(), 'window-cushion');
+    const twice = chooseFirstHomeObject(once, 'story-lantern');
+
+    expect(twice).toEqual(once);
+    expect(twice.memories.filter((memory) => memory.eventType === 'first-home-object')).toHaveLength(1);
   });
 });
