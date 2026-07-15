@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from 'react';
 import type { Pal } from '@pixel-pals/content-schema';
-import { PalPortrait } from '@pixel-pals/renderer';
+import { PalArtwork } from '@pixel-pals/renderer';
 import type { FirstActivityCompletion } from '@pixel-pals/simulation';
 import {
   chooseLeaf,
@@ -31,6 +31,17 @@ const LANE_TOP: Record<LeafLane, string> = {
   middle: '43%',
   low: '69%'
 };
+
+function palArtProps(pal: Pal) {
+  return {
+    name: pal.name,
+    species: requireRenderableSpecies(pal.speciesId),
+    paletteId: pal.appearance.paletteId,
+    markingId: pal.appearance.markingId,
+    accessoryId: pal.appearance.accessoryId,
+    artIdentity: pal.artIdentity
+  };
+}
 
 export function LeafChaseGame({ firstPal, friend, seed, onComplete, onCancel }: LeafChaseGameProps) {
   const [state, setState] = useState(() => createLeafChaseState(seed));
@@ -83,12 +94,8 @@ export function LeafChaseGame({ firstPal, friend, seed, onComplete, onCancel }: 
 
       <div className="leaf-game-stage">
         <div className="leaf-game-pal leaf-game-pal-left">
-          <PalPortrait
-            name={firstPal.name}
-            species={requireRenderableSpecies(firstPal.speciesId)}
-            paletteId={firstPal.appearance.paletteId}
-            markingId={firstPal.appearance.markingId}
-            accessoryId={firstPal.appearance.accessoryId}
+          <PalArtwork
+            {...palArtProps(firstPal)}
             expression={state.phase === 'celebrate' ? 'delighted' : 'curious'}
             pose="playful"
           />
@@ -145,12 +152,8 @@ export function LeafChaseGame({ firstPal, friend, seed, onComplete, onCancel }: 
           onClick={friendTurn}
           aria-label={state.phase === 'friend' ? `Let ${friend.name} catch the next leaf` : `${friend.name} is watching the path`}
         >
-          <PalPortrait
-            name={friend.name}
-            species={requireRenderableSpecies(friend.speciesId)}
-            paletteId={friend.appearance.paletteId}
-            markingId={friend.appearance.markingId}
-            accessoryId={friend.appearance.accessoryId}
+          <PalArtwork
+            {...palArtProps(friend)}
             expression={state.phase === 'friend' || state.phase === 'celebrate' ? 'delighted' : 'content'}
             pose="playful"
           />
