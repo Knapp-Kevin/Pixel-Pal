@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { completeFirstActivity, createFirstWorld } from './index';
+import { completeFirstFriendshipCeremony } from './ceremony';
 
 const input = {
   worldId: 'kevin-family-world',
@@ -61,5 +62,32 @@ describe('completeFirstActivity', () => {
 
     expect(twice).toEqual(once);
     expect(twice.memories).toHaveLength(1);
+  });
+});
+
+describe('completeFirstFriendshipCeremony', () => {
+  it('adds a ceremony memory and visible Great Tree marker', () => {
+    const played = completeFirstActivity(createFirstWorld(input), 'garden-game');
+    const celebrated = completeFirstFriendshipCeremony(played);
+    const tree = celebrated.greatTrees.find((candidate) => candidate.id === 'willowmere-great-tree');
+
+    expect(celebrated.memories.some((memory) => memory.eventType === 'first-friendship-ceremony')).toBe(true);
+    expect(tree?.visualHistoryMarkers).toContain('first-friendship-ribbon');
+    expect(tree?.recognizedMemoryIds).toHaveLength(1);
+  });
+
+  it('requires a shared activity first', () => {
+    expect(() => completeFirstFriendshipCeremony(createFirstWorld(input))).toThrow(
+      'The first friendship ceremony requires a shared activity memory.'
+    );
+  });
+
+  it('does not duplicate the ceremony', () => {
+    const played = completeFirstActivity(createFirstWorld(input), 'leaf-chase');
+    const once = completeFirstFriendshipCeremony(played);
+    const twice = completeFirstFriendshipCeremony(once);
+
+    expect(twice).toEqual(once);
+    expect(twice.memories.filter((memory) => memory.eventType === 'first-friendship-ceremony')).toHaveLength(1);
   });
 });
