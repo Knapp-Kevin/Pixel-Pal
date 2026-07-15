@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { World } from '@pixel-pals/content-schema';
 import { clearWorld, exportWorld } from '@pixel-pals/persistence';
+import './playtest.css';
 
 type ParentTestToolsProps = {
   world: World;
