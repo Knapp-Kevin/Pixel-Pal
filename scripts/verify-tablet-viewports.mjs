@@ -154,6 +154,20 @@ async function openDay(page, profile, day, verifyReload = true) {
   await assertLayout(page, profile, `day-${day}-invitations-after-reload`);
 }
 
+async function completeActiveDay(page, profile, day) {
+  const activityId = await page.evaluate("document.querySelector('[data-invitation-kind=\"active\"]')?.getAttribute('data-activity-id')");
+  const activity = activities[activityId];
+  if (!activity) throw new Error(`${profile.name} offered an unknown repeatable activity: ${activityId}`);
+
+  await clickButton(page, 'Play together');
+  await page.waitFor(`Boolean(document.querySelector('${activity.selector}'))`);
+  await assertLayout(page, profile, `day-${day}-active-${activityId}`);
+  await captureScreenshot(page, profile, `day-${day}-active-${activityId}`);
+  await activity.complete(page);
+  await page.waitFor(`document.body.textContent?.includes('Day ${day} in Willowmere')`);
+  await assertLayout(page, profile, `day-${day}-active-summary`);
+}
+
 async function completeRepeatableDays(page, profile) {
   await openDay(page, profile, 1);
   await clickButton(page, 'Care for Willowmere');
@@ -178,6 +192,9 @@ async function completeRepeatableDays(page, profile) {
   await page.waitFor("document.body.textContent?.includes('Day 3 in Willowmere')");
   await assertLayout(page, profile, 'day-three-summary');
   await captureScreenshot(page, profile, 'day-three-summary');
+
+  await openDay(page, profile, 4);
+  await completeActiveDay(page, profile, 4);
 }
 
 async function runProfile(browser, profile) {
@@ -250,7 +267,7 @@ await mkdir(screenshotDirectory, { recursive: true });
 const browser = await startHeadlessChrome();
 try {
   for (const profile of profiles) await runProfile(browser, profile);
-  console.log(`Verified ${profiles.length} starter choices and tablet profiles through three repeatable world days.`);
+  console.log(`Verified ${profiles.length} starter choices and tablet profiles through four repeatable world days.`);
 } finally {
   await browser.close();
 }
