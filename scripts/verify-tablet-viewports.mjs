@@ -18,11 +18,11 @@ const origin = new URL(baseUrl).origin;
 const screenshotDirectory = join(process.cwd(), 'artifacts', 'tablet-viewports');
 
 const profiles = [
-  { name: 'compact-landscape', width: 800, height: 600, completion: 'leaf-chase' },
-  { name: 'standard-landscape', width: 1024, height: 768, completion: 'garden-game' },
-  { name: 'large-landscape', width: 1366, height: 1024, completion: 'stone-stacking' },
-  { name: 'compact-portrait', width: 600, height: 800, completion: 'leaf-chase' },
-  { name: 'standard-portrait', width: 768, height: 1024, completion: 'garden-game' }
+  { name: 'compact-landscape', width: 800, height: 600, completion: 'leaf-chase', species: 'Fox', palLabel: 'fox' },
+  { name: 'standard-landscape', width: 1024, height: 768, completion: 'garden-game', species: 'Deer', palLabel: 'deer' },
+  { name: 'large-landscape', width: 1366, height: 1024, completion: 'stone-stacking', species: 'Rabbit', palLabel: 'rabbit' },
+  { name: 'compact-portrait', width: 600, height: 800, completion: 'leaf-chase', species: 'Kitten', palLabel: 'kitten' },
+  { name: 'standard-portrait', width: 768, height: 1024, completion: 'garden-game', species: 'Duckling', palLabel: 'duckling' }
 ];
 
 const activities = {
@@ -82,7 +82,7 @@ async function assertLayout(page, profile, state) {
     const clippedControls = controls.filter((element) => {
       const rect = element.getBoundingClientRect();
       return rect.left < -1 || rect.top < -1 || rect.right > innerWidth + 1 || rect.bottom > innerHeight + 1;
-    }).map((element) => element.textContent?.replace(/\s+/g, ' ').trim() || element.getAttribute('aria-label'));
+    }).map((element) => element.innerText?.trim() || element.getAttribute('aria-label'));
     const panels = [...document.querySelectorAll('.storybook-panel, .action-grid, .leaf-game-shell, .stone-game-shell, .garden-game-shell, .day-scene-shell, .journal-shell')]
       .filter(visible)
       .filter((element) => {
@@ -134,7 +134,7 @@ async function visitActivity(page, profile, activityId, complete) {
 }
 
 async function invitationLabels(page) {
-  return page.evaluate(`JSON.stringify([...document.querySelectorAll('.day-invitation-card')].map((card) => card.textContent?.replace(/\s+/g, ' ').trim()))`);
+  return page.evaluate(`JSON.stringify([...document.querySelectorAll('.day-invitation-card')].map((card) => card.innerText?.trim()))`);
 }
 
 async function openDay(page, profile, day, verifyReload = true) {
@@ -190,11 +190,14 @@ async function runProfile(browser, profile) {
     await assertLayout(page, profile, 'creation');
     await captureScreenshot(page, profile, 'creation');
 
-    await clickButton(page, 'Fox', true);
-    await setPalName(page, `Pip-${profile.width}`);
+    await clickButton(page, profile.species, true);
+    await page.waitFor(`document.querySelector('button[aria-pressed="true"]')?.innerText?.trim() === ${JSON.stringify(profile.species)}`);
+    await page.waitFor(`Boolean(document.querySelector('[aria-label*="a ${profile.palLabel} Pal"]'))`);
+    await setPalName(page, `Pal-${profile.palLabel}`);
     await waitForEnabledButton(page, 'Meet my Pal');
     await clickButton(page, 'Meet my Pal');
     await page.waitFor("Boolean(document.querySelector('.world-nav'))");
+    await page.waitFor(`Boolean(document.querySelector('[aria-label*="a ${profile.palLabel} Pal"]'))`);
     await assertLayout(page, profile, 'village');
 
     if (profile.name === 'standard-landscape') {
@@ -247,7 +250,7 @@ await mkdir(screenshotDirectory, { recursive: true });
 const browser = await startHeadlessChrome();
 try {
   for (const profile of profiles) await runProfile(browser, profile);
-  console.log(`Verified ${profiles.length} tablet profiles through three repeatable world days.`);
+  console.log(`Verified ${profiles.length} starter choices and tablet profiles through three repeatable world days.`);
 } finally {
   await browser.close();
 }
