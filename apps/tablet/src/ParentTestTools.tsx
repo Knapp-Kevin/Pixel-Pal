@@ -7,6 +7,7 @@ import {
   MAX_WORLD_BACKUP_BYTES,
   saveWorld
 } from '@pixel-pals/persistence';
+import { ParentAccessGate } from './ParentAccessGate';
 
 type ParentTestToolsProps = {
   world: World;
@@ -106,8 +107,7 @@ export function ParentTestTools({ world, onResetComplete, onStatus }: ParentTest
   }
 
   return (
-    <details className="parent-tools">
-      <summary>Parent and Playtest Tools</summary>
+    <ParentAccessGate>
       <div className="parent-tools-panel">
         <section aria-labelledby="world-backup-title">
           <h2 id="world-backup-title">World backup</h2>
@@ -266,7 +266,7 @@ export function ParentTestTools({ world, onResetComplete, onStatus }: ParentTest
           </button>
         </section>
       </div>
-    </details>
+    </ParentAccessGate>
   );
 }
 
