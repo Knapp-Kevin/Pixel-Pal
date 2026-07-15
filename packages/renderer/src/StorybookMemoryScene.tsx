@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { PalPortrait, type PalPortraitProps } from './PalPortrait';
 
 export type StorybookMemorySceneProps = {
@@ -47,21 +48,25 @@ export function StorybookMemoryScene({
   firstPal,
   companion
 }: StorybookMemorySceneProps) {
+  const resourceId = useId().replace(/:/g, '');
+  const skyId = `memory-sky-${resourceId}`;
+  const textureId = `paper-texture-${resourceId}`;
+
   return (
     <div className={["storybook-memory-scene", `storybook-memory-${emotionalTone}`, className].filter(Boolean).join(' ')}>
       <svg className="storybook-memory-background" viewBox="0 0 480 270" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id={`memory-sky-${eventType}`} x1="0" x2="0" y1="0" y2="1">
+          <linearGradient id={skyId} x1="0" x2="0" y1="0" y2="1">
             <stop offset="0" stopColor={emotionalTone === 'calm' ? '#D9E7E8' : '#F9E7B9'} />
             <stop offset="1" stopColor={emotionalTone === 'hopeful' ? '#C8DFC4' : '#D7E6CB'} />
           </linearGradient>
-          <filter id={`paper-texture-${eventType}`} x="-10%" y="-10%" width="120%" height="120%">
+          <filter id={textureId} x="-10%" y="-10%" width="120%" height="120%">
             <feTurbulence baseFrequency="0.9" numOctaves="2" seed="7" type="fractalNoise" />
             <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .045 0" />
           </filter>
         </defs>
 
-        <rect width="480" height="270" rx="28" fill={`url(#memory-sky-${eventType})`} />
+        <rect width="480" height="270" rx="28" fill={`url(#${skyId})`} />
         <circle cx="402" cy="54" r="30" fill="#F4C75D" opacity="0.86" />
         <path d="M0 190 Q90 134 190 182 T480 166 V270 H0 Z" fill="#8FB484" />
         <path d="M0 220 Q118 166 240 210 T480 194 V270 H0 Z" fill="#5F8B68" />
@@ -70,7 +75,7 @@ export function StorybookMemoryScene({
         <circle cx="442" cy="143" r="43" fill="#5A9365" />
         <rect x="403" y="158" width="22" height="69" rx="10" fill="#80583B" />
         <SceneDetails eventType={eventType} />
-        <rect width="480" height="270" rx="28" fill="#6A5137" filter={`url(#paper-texture-${eventType})`} />
+        <rect width="480" height="270" rx="28" fill="#6A5137" filter={`url(#${textureId})`} />
         <rect x="5" y="5" width="470" height="260" rx="24" fill="none" stroke="#6B563F" strokeWidth="7" opacity="0.58" />
       </svg>
 
