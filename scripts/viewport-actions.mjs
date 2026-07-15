@@ -2,6 +2,13 @@ function quoted(value) {
   return JSON.stringify(value);
 }
 
+const INVITATION_SELECTOR_BY_LABEL = {
+  'Care for Willowmere': '[data-invitation-kind="helping"]',
+  'Spend time at home': '[data-invitation-kind="home"]',
+  'A quiet visit': '[data-invitation-kind="quiet"]',
+  'Play together': '[data-invitation-kind="active"]'
+};
+
 function buttonCondition(text, exact = false) {
   return `(() => {
     const expected = ${quoted(text)};
@@ -17,10 +24,28 @@ function buttonCondition(text, exact = false) {
 }
 
 export async function waitForEnabledButton(page, text, exact = false) {
+  const invitationSelector = exact ? undefined : INVITATION_SELECTOR_BY_LABEL[text];
+  if (invitationSelector) {
+    const encodedSelector = quoted(invitationSelector);
+    await page.waitFor(`(() => {
+      const element = document.querySelector(${encodedSelector});
+      if (!(element instanceof HTMLButtonElement)) return false;
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return !element.disabled && style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+    })()`);
+    return;
+  }
   await page.waitFor(buttonCondition(text, exact));
 }
 
 export async function clickButton(page, text, exact = false) {
+  const invitationSelector = exact ? undefined : INVITATION_SELECTOR_BY_LABEL[text];
+  if (invitationSelector) {
+    await clickEnabledSelector(page, invitationSelector);
+    return;
+  }
+
   await waitForEnabledButton(page, text, exact);
   await page.evaluate(`(() => {
     const expected = ${quoted(text)};
