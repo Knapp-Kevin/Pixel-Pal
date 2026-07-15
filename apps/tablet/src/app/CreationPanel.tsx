@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { World } from '@pixel-pals/content-schema';
-import { PalPortrait } from '@pixel-pals/renderer';
+import { PalArtwork } from '@pixel-pals/renderer';
 import { createFirstWorld, type FirstPalChoice } from '@pixel-pals/simulation';
 import { ChoiceGroup } from './ChoiceGroup';
 import { accessoryOptions, markingOptions, paletteOptions, speciesOptions } from './options';
@@ -56,7 +56,7 @@ function CreationPreview({ draft }: { draft: CreationDraft }) {
     <div className="storybook-art creation-art">
       <div className="preview-glow" aria-hidden="true" />
       {draft.speciesId ? (
-        <PalPortrait
+        <PalArtwork
           className="first-pal-preview"
           name={draft.name.trim() || 'Your new Pal'}
           species={draft.speciesId}
