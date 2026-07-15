@@ -1,6 +1,8 @@
 import { CURRENT_SCHEMA_VERSION, parseWorld, type World } from '@pixel-pals/content-schema';
 
 export { completeFirstActivity } from './completeActivity';
+export { completeWorldDay, currentOfferedDay, generateDayInvitations, offerNextWorldDay } from './dayCycle';
+export type { WorldDayCompletion, WorldDayInvitation, WorldDaySession } from './dayCycle';
 export type { FirstActivity, FirstActivityCompletion } from './activities';
 
 export type FirstPalChoice = {
@@ -19,11 +21,7 @@ export type CreateWorldInput = {
 };
 
 const BODY_FAMILY_BY_SPECIES: Record<FirstPalChoice['speciesId'], string> = {
-  fox: 'canine',
-  deer: 'cervid',
-  rabbit: 'lagomorph',
-  cat: 'feline',
-  duck: 'waterfowl'
+  fox: 'canine', deer: 'cervid', rabbit: 'lagomorph', cat: 'feline', duck: 'waterfowl'
 };
 
 const FIRST_PAL_PROFILES = [
@@ -90,9 +88,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
           markingId: input.firstPal.markingId,
           accessoryId: input.firstPal.accessoryId
         },
-        preferences: [
-          { id: 'first-play-preference', kind: 'activity', label: 'A favorite way to play is still unknown', discovered: false }
-        ],
+        preferences: [{ id: 'first-play-preference', kind: 'activity', label: 'A favorite way to play is still unknown', discovered: false }],
         characteristics: firstPalCharacteristics(input.seed),
         skills: [],
         createdBy: 'player'
@@ -106,66 +102,37 @@ export function createFirstWorld(input: CreateWorldInput): World {
         homeVillageId: villageId,
         storyRole: 'first-neighbor',
         artIdentity: 'fern',
-        appearance: {
-          bodyFamily: 'lagomorph',
-          paletteId: 'mosscream',
-          markingId: 'ear-dapple'
-        },
-        preferences: [
-          { id: 'garden-games', kind: 'activity', label: 'Garden games', discovered: true }
-        ],
-        characteristics: [
-          { id: 'generosity', value: 0.45, confidence: 0.6 }
-        ],
-        skills: [
-          { id: 'gardening', practice: 20, demonstratedLevel: 1 }
-        ],
+        appearance: { bodyFamily: 'lagomorph', paletteId: 'mosscream', markingId: 'ear-dapple' },
+        preferences: [{ id: 'garden-games', kind: 'activity', label: 'Garden games', discovered: true }],
+        characteristics: [{ id: 'generosity', value: 0.45, confidence: 0.6 }],
+        skills: [{ id: 'gardening', practice: 20, demonstratedLevel: 1 }],
         createdBy: 'game'
       }
     ],
-    relationships: [
-      {
-        id: stableId('relationship', input.seed, 'first-neighbor'),
-        fromPalId: firstPalId,
-        toPalId: residentId,
-        label: 'acquaintance',
-        familiarity: 0.1,
-        trust: 0.05,
-        warmth: 0.1,
-        respect: 0.05,
-        tension: 0,
-        sharedHistory: 0
-      }
-    ],
+    relationships: [{
+      id: stableId('relationship', input.seed, 'first-neighbor'),
+      fromPalId: firstPalId,
+      toPalId: residentId,
+      label: 'acquaintance',
+      familiarity: 0.1,
+      trust: 0.05,
+      warmth: 0.1,
+      respect: 0.05,
+      tension: 0,
+      sharedHistory: 0
+    }],
     memories: [],
-    homes: [
-      {
-        id: homeId,
-        villageId,
-        residentPalIds: [firstPalId],
-        styleId: 'willowmere-roundhouse',
-        visibleChanges: []
-      }
-    ],
-    villages: [
-      {
-        id: villageId,
-        name: 'Willowmere',
-        regionId: 'willowmere-wood',
-        greatTreeId: treeId,
-        canonStatus: 'game',
-        residentPalIds: [firstPalId, residentId],
-        visibleChanges: []
-      }
-    ],
-    greatTrees: [
-      {
-        id: treeId,
-        villageId,
-        recognizedMemoryIds: [],
-        visualHistoryMarkers: []
-      }
-    ],
+    homes: [{ id: homeId, villageId, residentPalIds: [firstPalId], styleId: 'willowmere-roundhouse', visibleChanges: [] }],
+    villages: [{
+      id: villageId,
+      name: 'Willowmere',
+      regionId: 'willowmere-wood',
+      greatTreeId: treeId,
+      canonStatus: 'game',
+      residentPalIds: [firstPalId, residentId],
+      visibleChanges: []
+    }],
+    greatTrees: [{ id: treeId, villageId, recognizedMemoryIds: [], visualHistoryMarkers: [] }],
     daySessions: []
   });
 }
