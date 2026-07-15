@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ProductionArtProvider } from '@pixel-pals/renderer';
 import { registerSW } from 'virtual:pwa-register';
+import { AccessibilitySettingsProvider } from './AccessibilitySettingsProvider';
 import { App } from './App';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ServiceWorkerUpdateNotice } from './ServiceWorkerUpdateNotice';
@@ -12,6 +13,7 @@ import './styles.css';
 import './starter-choice.css';
 import './playtest.css';
 import './parent-access.css';
+import './accessibility-settings.css';
 import './compatibility.css';
 import './update-notice.css';
 import './viewport-layout.css';
@@ -37,12 +39,14 @@ if (!root) {
 createRoot(root).render(
   <StrictMode>
     <ErrorBoundary>
-      <ProductionArtProvider registry={productionArtRegistry} minimumStatus={productionArtMinimumStatus}>
-        <TabletProfileBoundary>
-          <App />
-        </TabletProfileBoundary>
-      </ProductionArtProvider>
-      <ServiceWorkerUpdateNotice />
+      <AccessibilitySettingsProvider>
+        <ProductionArtProvider registry={productionArtRegistry} minimumStatus={productionArtMinimumStatus}>
+          <TabletProfileBoundary>
+            <App />
+          </TabletProfileBoundary>
+        </ProductionArtProvider>
+        <ServiceWorkerUpdateNotice />
+      </AccessibilitySettingsProvider>
     </ErrorBoundary>
   </StrictMode>
 );
