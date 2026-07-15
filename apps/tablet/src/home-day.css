@@ -1,0 +1,54 @@
+.day-invitation-home {
+  background: linear-gradient(150deg, #f3e7d8, #d9bea4);
+}
+
+.home-day-stage {
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255,230,164,.48), transparent 27%),
+    linear-gradient(180deg, rgba(246,233,210,.98), rgba(221,196,166,.96));
+}
+
+.home-day-action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.45rem, 1.1vw, .85rem);
+  align-content: center;
+}
+
+.home-day-action {
+  display: grid;
+  place-items: center;
+  gap: .35rem;
+  min-height: clamp(6rem, 20vh, 10rem);
+  padding: clamp(.55rem, 1.4vw, 1rem);
+  border: .14rem solid rgba(99,75,57,.3);
+  border-radius: 1rem;
+  background: rgba(255,249,235,.95);
+  color: inherit;
+  text-align: center;
+}
+
+.home-day-action > span {
+  font-size: clamp(1.6rem, 5vw, 3.4rem);
+  line-height: 1;
+}
+
+.home-day-action.chosen {
+  background: rgba(226,210,183,.98);
+  border-color: rgba(121,88,62,.58);
+}
+
+.home-day-action:disabled { opacity: 1; }
+
+@media (orientation: portrait) {
+  .home-day-action-grid { grid-template-columns: 1fr; gap: .35rem; }
+  .home-day-action {
+    grid-template-columns: auto 1fr;
+    min-height: clamp(3.5rem, 8vh, 5rem);
+    text-align: left;
+  }
+}
+
+@media (max-height: 650px) {
+  .home-day-action { min-height: 4.5rem; }
+}
