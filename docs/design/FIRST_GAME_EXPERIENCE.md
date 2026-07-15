@@ -56,7 +56,11 @@ The first-Pal screen MUST:
 - preserve the chosen species, appearance, and name in the local world;
 - allow every starter option to participate in the same first-session relationship and legacy systems.
 
-The vertical slice MUST support at least Fox, Deer, and Rabbit as equal starting choices. The launch roster SHOULD expand beyond these three after the modular art and animation system is validated.
+The vertical slice MUST support Fox, Deer, Rabbit, Kitten, and Duckling as equal starting choices.
+
+The player-facing labels **Kitten** and **Duckling** describe the young starter life stage. Their persistent biological species identifiers remain **Cat** and **Duck**, allowing the same Pals to mature without changing species records later.
+
+The launch roster SHOULD expand beyond these five after the modular art and animation system is validated.
 
 A focused art-quality pass MAY refine one body family first for production learning, but that internal sequence MUST NOT remove, demote, or narratively privilege the other player-facing choices.
 
@@ -118,8 +122,9 @@ The first experience does not require:
 
 - A child can complete the flow without developer intervention.
 - No species is preselected when first-Pal creation opens.
-- Fox, Deer, and Rabbit are presented as equally valid choices.
+- Fox, Deer, Rabbit, Kitten, and Duckling are presented as equally valid choices.
 - The chosen species and first Pal name persist offline.
+- Cat and Duck remain the underlying species records for the Kitten and Duckling starter labels.
 - The first Pal has at least one discovered and one still-hidden personal trait.
 - The first Pal can express preference or refusal.
 - The first Pal and another resident gain an explainable relationship change.
