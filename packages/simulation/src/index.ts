@@ -63,6 +63,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
   const residentId = stableId('pal', input.seed, 'neighbor');
   const villageId = 'willowmere';
   const treeId = 'willowmere-great-tree';
+  const homeId = stableId('home', input.seed, 'first');
 
   return parseWorld({
     schemaVersion: 1,
@@ -87,6 +88,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
         lifeStage: 'youth',
         speciesId: input.firstPal.speciesId,
         homeVillageId: villageId,
+        householdId: homeId,
         appearance: {
           bodyFamily: BODY_FAMILY_BY_SPECIES[input.firstPal.speciesId],
           paletteId: input.firstPal.paletteId,
@@ -139,6 +141,15 @@ export function createFirstWorld(input: CreateWorldInput): World {
       }
     ],
     memories: [],
+    homes: [
+      {
+        id: homeId,
+        villageId,
+        residentPalIds: [firstPalId],
+        styleId: 'willowmere-roundhouse',
+        visibleChanges: []
+      }
+    ],
     villages: [
       {
         id: villageId,
