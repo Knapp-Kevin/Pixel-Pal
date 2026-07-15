@@ -17,7 +17,9 @@
     "lint": "npm run lint --workspaces --if-present",
     "verify:artifacts": "node scripts/verify-build-artifacts.mjs apps/tablet/dist",
     "verify:deployment": "node scripts/verify-deployment.mjs",
-    "verify:viewports": "node scripts/verify-tablet-viewports.mjs"
+    "verify:viewports": "node scripts/verify-tablet-viewports.mjs",
+    "verify:art-plan": "node scripts/verify-production-art.mjs",
+    "verify:production-art": "node scripts/verify-production-art.mjs --release"
   },
   "engines": {
     "node": ">=22.0.0"
