@@ -58,6 +58,7 @@ jobs:
 
       - name: Verify tablet viewport layouts
         run: |
+          set -o pipefail
           npm run preview --workspace=@pixel-pals/tablet -- --host 127.0.0.1 --port 4173 > /tmp/pixel-pals-preview.log 2>&1 &
           PREVIEW_PID=$!
           trap 'kill $PREVIEW_PID' EXIT
@@ -71,7 +72,8 @@ jobs:
             fi
             sleep 0.25
           done
-          npm run verify:viewports
+          mkdir -p artifacts/tablet-viewports
+          npm run verify:viewports 2>&1 | tee artifacts/tablet-viewports/verification.log
 
       - name: Upload tablet viewport screenshots
         if: always()
