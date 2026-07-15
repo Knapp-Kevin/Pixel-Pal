@@ -102,10 +102,28 @@ art/
 
 The manifest is the authoritative mapping between stable asset IDs and files. Runtime code must refer to stable asset IDs rather than guessing paths from Pal names.
 
+## Runtime resolution
+
+The application-level production-art boundary is `ProductionArtProvider`. Its registry is mounted once at the tablet root and supplies character and scene assets to every first-session surface.
+
+Normal builds require `production` status. Art-review builds may explicitly set `VITE_PIXEL_PALS_ART_STATUS` to `approved` or `benchmark`. Lowering the threshold is an intentional review action and must not alter the release manifest.
+
+Character requests may include species, stable `artIdentity`, palette, marking, accessory, expression, and pose. Resolution uses the most specific eligible asset. A stable individual identity such as `fern` takes precedence over generic Rabbit-family art. Player-created Pals remain species-driven and do not receive a canonical individual identity.
+
+`Pal.artIdentity` is optional and backward compatible. It is reserved for characters with canonical visual identity. It must not be derived from display names or world-specific Pal IDs.
+
+Scene requests use stable scene IDs and state variants. Examples include Willowmere base, stones, leaf garland, garden blooms, ceremony combinations, home exterior, empty home interior, and each personalized home-object state. A missing exact variant may use an approved base scene only when the remaining state is still represented by composited runtime layers. It may not silently erase a persistent world change.
+
+When no eligible production asset exists, the alpha SVG renderer remains the explicit fallback. This allows incremental integration without allowing benchmark art to ship accidentally. The fallback is acceptable for development, automated tests, and incomplete art review. It remains a live-release blocker.
+
+Storybook illustrations are resolved separately from living-world characters and scenes. A finished storybook illustration may include authored characters and composition, while living-world surfaces remain modular and stateful. These asset classes must not be treated as interchangeable files.
+
 ## Automated verification
 
 `npm run verify:art-plan` validates the manifest structure while planned slots remain allowed.
 
 `npm run verify:production-art` is the release gate. It requires every release-required asset to be in `production` state, checks that each file exists, verifies its size budget, and requires complete provenance metadata.
+
+Resolver tests must prove approval thresholds, stable individual identity precedence, expression and pose specificity, scene variant selection, and alpha fallback behavior.
 
 A strict verification failure blocks production release. The alpha renderer may remain available only as an explicit development and automated-test fallback.
