@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { World } from '@pixel-pals/content-schema';
+import { importWorld } from '@pixel-pals/persistence';
 import { createFirstWorld } from '@pixel-pals/simulation';
 import {
   assertTabletProfileCompatible,
@@ -58,5 +59,12 @@ describe('tablet art profile compatibility', () => {
     expect(compatibility.unsupportedSpeciesIds).toEqual(['owl']);
     expect(compatibility.affectedPalIds).toEqual([world.firstPalId]);
     expect(() => assertTabletProfileCompatible(world)).toThrow(/artwork/i);
+  });
+
+  it('blocks a structurally valid imported backup before restore', () => {
+    const imported = importWorld(JSON.stringify(worldWithUnsupportedPal()));
+
+    expect(imported.pals.find((pal) => pal.id === imported.firstPalId)?.speciesId).toBe('owl');
+    expect(() => assertTabletProfileCompatible(imported)).toThrow(/artwork/i);
   });
 });
