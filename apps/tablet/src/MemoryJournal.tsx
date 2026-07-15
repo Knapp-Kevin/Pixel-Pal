@@ -1,18 +1,11 @@
 import type { Memory, Pal, World } from '@pixel-pals/content-schema';
-import { StorybookMemoryScene, type PalSpecies } from '@pixel-pals/renderer';
+import { StorybookMemoryScene } from '@pixel-pals/renderer';
+import { requireRenderableSpecies } from './tabletProfile';
 
 export type MemoryJournalProps = {
   world: World;
   firstPal: Pal;
 };
-
-function renderableSpecies(speciesId: string): PalSpecies {
-  if (speciesId === 'deer' || speciesId === 'rabbit' || speciesId === 'cat' || speciesId === 'duck') {
-    return speciesId;
-  }
-
-  return 'fox';
-}
 
 function participantNames(world: World, memory: Memory): string {
   return memory.participantPalIds
@@ -46,7 +39,7 @@ export function MemoryJournal({ world, firstPal }: MemoryJournalProps) {
                 emotionalTone={memory.emotionalTone}
                 firstPal={{
                   name: firstPal.name,
-                  species: renderableSpecies(firstPal.speciesId),
+                  species: requireRenderableSpecies(firstPal.speciesId),
                   paletteId: firstPal.appearance.paletteId,
                   markingId: firstPal.appearance.markingId,
                   accessoryId: firstPal.appearance.accessoryId,
@@ -56,7 +49,7 @@ export function MemoryJournal({ world, firstPal }: MemoryJournalProps) {
                 companion={companion
                   ? {
                       name: companion.name,
-                      species: renderableSpecies(companion.speciesId),
+                      species: requireRenderableSpecies(companion.speciesId),
                       paletteId: companion.appearance.paletteId,
                       markingId: companion.appearance.markingId,
                       accessoryId: companion.appearance.accessoryId,
