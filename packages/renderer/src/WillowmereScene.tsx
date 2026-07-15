@@ -1,11 +1,55 @@
+export type WillowmerePlayMarker = 'stones' | 'leaves' | 'garden';
+
 export type WillowmereSceneProps = {
-  showPlayMarker?: boolean;
+  playMarker?: WillowmerePlayMarker;
   showCeremonyMarker?: boolean;
   className?: string;
 };
 
+function PlayMarker({ marker }: { marker: WillowmerePlayMarker }) {
+  if (marker === 'leaves') {
+    return (
+      <g transform="translate(438 321)">
+        <ellipse cx="5" cy="28" rx="62" ry="12" fill="#315B4C" opacity="0.1" />
+        <path d="M-45 17 Q-5 -4 52 15" fill="none" stroke="#D9B95F" strokeLinecap="round" strokeWidth="5" />
+        <path d="M-32 10 Q-19 -2 -8 9 Q-21 22 -32 10" fill="#D98758" stroke="#5F5849" strokeWidth="2" />
+        <path d="M-2 3 Q11 -8 23 4 Q9 17 -2 3" fill="#8EAA58" stroke="#5F5849" strokeWidth="2" />
+        <path d="M29 8 Q42 -4 54 8 Q41 21 29 8" fill="#A7799F" stroke="#5F5849" strokeWidth="2" />
+      </g>
+    );
+  }
+
+  if (marker === 'garden') {
+    return (
+      <g transform="translate(255 318)">
+        <path d="M2 53 Q53 31 105 53" fill="#82654A" stroke="#5F4A39" strokeWidth="7" />
+        <g stroke="#4C754F" strokeLinecap="round" strokeWidth="5">
+          <path d="M25 48 V21" />
+          <path d="M54 45 V14" />
+          <path d="M82 48 V23" />
+        </g>
+        <g stroke="#5F5849" strokeWidth="2">
+          <circle cx="25" cy="17" r="11" fill="#E7C85D" />
+          <path d="M43 17 L54 3 L65 17 L61 32 L47 32 Z" fill="#9E72A5" />
+          <path d="M72 20 Q82 5 92 20 L89 35 L75 35 Z" fill="#78AFC0" />
+        </g>
+      </g>
+    );
+  }
+
+  return (
+    <g transform="translate(444 321)">
+      <ellipse cx="0" cy="28" rx="58" ry="12" fill="#315B4C" opacity="0.12" />
+      <ellipse cx="-25" cy="18" rx="18" ry="12" fill="#A99B7C" stroke="#5F5849" strokeWidth="4" />
+      <ellipse cx="0" cy="8" rx="22" ry="14" fill="#C2B38F" stroke="#5F5849" strokeWidth="4" />
+      <ellipse cx="26" cy="19" rx="17" ry="11" fill="#8E8979" stroke="#5F5849" strokeWidth="4" />
+      <path d="M-34 7 Q-4 -16 35 5" fill="none" stroke="#D7B85E" strokeDasharray="5 8" strokeLinecap="round" strokeWidth="5" />
+    </g>
+  );
+}
+
 export function WillowmereScene({
-  showPlayMarker = false,
+  playMarker,
   showCeremonyMarker = false,
   className
 }: WillowmereSceneProps) {
@@ -53,12 +97,8 @@ export function WillowmereScene({
         <path d="M171 183 Q145 139 119 119 M178 180 Q207 141 233 126" fill="none" stroke="#70503A" strokeLinecap="round" strokeWidth="12" />
         <path d="M141 300 Q174 270 207 300" fill="none" stroke="#5B3E31" strokeLinecap="round" strokeWidth="11" />
         <g fill="#F0C967">
-          <circle cx="106" cy="74" r="7" />
-          <circle cx="143" cy="47" r="6" />
-          <circle cx="205" cy="54" r="7" />
-          <circle cx="242" cy="99" r="6" />
-          <circle cx="129" cy="131" r="7" />
-          <circle cx="219" cy="141" r="7" />
+          <circle cx="106" cy="74" r="7" /><circle cx="143" cy="47" r="6" /><circle cx="205" cy="54" r="7" />
+          <circle cx="242" cy="99" r="6" /><circle cx="129" cy="131" r="7" /><circle cx="219" cy="141" r="7" />
         </g>
         <g fill="#F0E2A8" opacity="0.9">
           <path d="M115 152 Q126 144 137 152 Q127 165 115 152" />
@@ -83,35 +123,15 @@ export function WillowmereScene({
 
       <g transform="translate(245 324)">
         <rect width="105" height="48" rx="18" fill="#7F9D60" stroke="#486747" strokeWidth="5" />
-        <g fill="#E9C968">
-          <circle cx="18" cy="15" r="5" />
-          <circle cx="44" cy="27" r="6" />
-          <circle cx="75" cy="15" r="5" />
-          <circle cx="91" cy="31" r="5" />
-        </g>
-        <g fill="#D9878A">
-          <circle cx="29" cy="31" r="5" />
-          <circle cx="62" cy="14" r="5" />
-        </g>
+        <g fill="#E9C968"><circle cx="18" cy="15" r="5" /><circle cx="44" cy="27" r="6" /><circle cx="75" cy="15" r="5" /><circle cx="91" cy="31" r="5" /></g>
+        <g fill="#D9878A"><circle cx="29" cy="31" r="5" /><circle cx="62" cy="14" r="5" /></g>
       </g>
 
-      {showPlayMarker ? (
-        <g transform="translate(444 321)">
-          <ellipse cx="0" cy="28" rx="58" ry="12" fill="#315B4C" opacity="0.12" />
-          <ellipse cx="-25" cy="18" rx="18" ry="12" fill="#A99B7C" stroke="#5F5849" strokeWidth="4" />
-          <ellipse cx="0" cy="8" rx="22" ry="14" fill="#C2B38F" stroke="#5F5849" strokeWidth="4" />
-          <ellipse cx="26" cy="19" rx="17" ry="11" fill="#8E8979" stroke="#5F5849" strokeWidth="4" />
-          <path d="M-34 7 Q-4 -16 35 5" fill="none" stroke="#D7B85E" strokeDasharray="5 8" strokeLinecap="round" strokeWidth="5" />
-        </g>
-      ) : null}
+      {playMarker ? <PlayMarker marker={playMarker} /> : null}
 
       <g fill="#F4E8B2" opacity="0.85">
-        <circle cx="52" cy="341" r="5" />
-        <circle cx="78" cy="361" r="4" />
-        <circle cx="196" cy="348" r="5" />
-        <circle cx="721" cy="346" r="5" />
-        <circle cx="782" cy="332" r="4" />
-        <circle cx="837" cy="354" r="5" />
+        <circle cx="52" cy="341" r="5" /><circle cx="78" cy="361" r="4" /><circle cx="196" cy="348" r="5" />
+        <circle cx="721" cy="346" r="5" /><circle cx="782" cy="332" r="4" /><circle cx="837" cy="354" r="5" />
       </g>
     </svg>
   );
