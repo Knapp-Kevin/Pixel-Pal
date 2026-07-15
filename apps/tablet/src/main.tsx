@@ -18,6 +18,7 @@ import './viewport-layout.css';
 import './stone-stacking.css';
 import './leaf-chase.css';
 import './garden-game.css';
+import './day-cycle.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,
