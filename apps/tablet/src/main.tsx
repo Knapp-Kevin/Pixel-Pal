@@ -3,11 +3,18 @@ import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import { App } from './App';
 import { ErrorBoundary } from './ErrorBoundary';
+import { ServiceWorkerUpdateNotice } from './ServiceWorkerUpdateNotice';
+import { setPendingServiceWorkerUpdate } from './serviceWorkerUpdate';
 import './styles.css';
 import './starter-choice.css';
 import './playtest.css';
 
-registerSW({ immediate: true });
+const updateServiceWorker = registerSW({
+  immediate: true,
+  onNeedRefresh: () => {
+    setPendingServiceWorkerUpdate(() => updateServiceWorker(true));
+  }
+});
 
 const root = document.getElementById('root');
 
@@ -19,6 +26,7 @@ createRoot(root).render(
   <StrictMode>
     <ErrorBoundary>
       <App />
+      <ServiceWorkerUpdateNotice />
     </ErrorBoundary>
   </StrictMode>
 );
