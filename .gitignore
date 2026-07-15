@@ -16,3 +16,4 @@ Thumbs.db
 .codex/
 .agent/
 .qor/
+*.tsbuildinfo
