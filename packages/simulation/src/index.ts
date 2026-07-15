@@ -1,4 +1,5 @@
-import { parseWorld, type World } from '@pixel-pals/content-schema';
+import { CURRENT_SCHEMA_VERSION, parseWorld, type World } from '@pixel-pals/content-schema';
+import { getFirstNeighborContext } from './firstNeighbor';
 
 export type FirstPalChoice = {
   name: string;
@@ -26,10 +27,16 @@ const BODY_FAMILY_BY_SPECIES: Record<FirstPalChoice['speciesId'], string> = {
 };
 
 const ACTIVITY_LABELS: Record<FirstActivity, string> = {
-  'leaf-chase': 'Chasing windblown leaves',
-  'stone-stacking': 'Stacking smooth stones',
-  'garden-game': 'Playing a garden guessing game'
+  'leaf-chase': 'chasing windblown leaves',
+  'stone-stacking': 'stacking smooth stones',
+  'garden-game': 'playing a garden guessing game'
 };
+
+const FIRST_ACTIVITY_PREFERENCES: readonly FirstActivity[] = [
+  'leaf-chase',
+  'stone-stacking',
+  'garden-game'
+];
 
 const FIRST_PAL_PROFILES = [
   [
@@ -58,6 +65,10 @@ function firstPalCharacteristics(seed: number) {
   return profile.map((characteristic) => ({ ...characteristic }));
 }
 
+function preferredFirstActivity(seed: number): FirstActivity {
+  return FIRST_ACTIVITY_PREFERENCES[seed % FIRST_ACTIVITY_PREFERENCES.length] ?? 'garden-game';
+}
+
 export function createFirstWorld(input: CreateWorldInput): World {
   const firstPalId = stableId('pal', input.seed, 'first');
   const residentId = stableId('pal', input.seed, 'neighbor');
@@ -66,7 +77,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
   const homeId = stableId('home', input.seed, 'first');
 
   return parseWorld({
-    schemaVersion: 1,
+    schemaVersion: CURRENT_SCHEMA_VERSION,
     worldId: input.worldId,
     worldName: input.worldName,
     seed: input.seed,
@@ -96,7 +107,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
           accessoryId: input.firstPal.accessoryId
         },
         preferences: [
-          { id: 'first-play-preference', kind: 'activity', label: 'Unknown favorite game', discovered: false }
+          { id: 'first-play-preference', kind: 'activity', label: 'A favorite way to play is still unknown', discovered: false }
         ],
         characteristics: firstPalCharacteristics(input.seed),
         skills: [],
@@ -109,6 +120,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
         lifeStage: 'youth',
         speciesId: 'rabbit',
         homeVillageId: villageId,
+        storyRole: 'first-neighbor',
         appearance: {
           bodyFamily: 'lagomorph',
           paletteId: 'mosscream',
@@ -177,20 +189,20 @@ export function completeFirstActivity(world: World, activity: FirstActivity): Wo
     return world;
   }
 
-  const firstPal = world.pals.find((pal) => pal.id === world.firstPalId);
-  const fern = world.pals.find((pal) => pal.name === 'Fern');
-  const relationship = world.relationships.find(
-    (candidate) => candidate.fromPalId === world.firstPalId && candidate.toPalId === fern?.id
-  );
+  const { firstPal, neighbor, relationship } = getFirstNeighborContext(world);
+  const village = world.villages.find((candidate) => candidate.id === firstPal.homeVillageId);
 
-  if (!firstPal || !fern || !relationship) {
-    throw new Error('The first activity requires the first Pal, Fern, and their relationship.');
+  if (!village) {
+    throw new Error('The first activity requires the first Pal’s home village.');
   }
 
   const memoryId = stableId('memory', world.seed, 'first-shared-activity');
-  const preferred = activity === 'garden-game';
+  const preferred = preferredFirstActivity(world.seed) === activity;
+  const preferenceLabel = preferred
+    ? `Especially loves ${ACTIVITY_LABELS[activity]}`
+    : `Enjoys ${ACTIVITY_LABELS[activity]} more with a friend`;
 
-  const nextWorld: World = {
+  return parseWorld({
     ...world,
     pals: world.pals.map((pal) =>
       pal.id === firstPal.id
@@ -198,7 +210,7 @@ export function completeFirstActivity(world: World, activity: FirstActivity): Wo
             ...pal,
             preferences: pal.preferences.map((preference) =>
               preference.id === 'first-play-preference'
-                ? { ...preference, label: ACTIVITY_LABELS[activity], discovered: true }
+                ? { ...preference, label: preferenceLabel, discovered: true }
                 : preference
             ),
             characteristics: pal.characteristics.map((characteristic) =>
@@ -230,22 +242,20 @@ export function completeFirstActivity(world: World, activity: FirstActivity): Wo
       ...world.memories,
       {
         id: memoryId,
-        title: `${firstPal.name} and Fern played together`,
-        participantPalIds: [firstPal.id, fern.id],
-        villageId: 'willowmere',
+        title: `${firstPal.name} and ${neighbor.name} played together`,
+        participantPalIds: [firstPal.id, neighbor.id],
+        villageId: village.id,
         eventType: 'first-shared-activity',
         emotionalTone: preferred ? 'joyful' : 'playful',
-        summary: `${firstPal.name} and Fern tried ${ACTIVITY_LABELS[activity].toLowerCase()}. They left knowing each other a little better.`,
+        summary: `${firstPal.name} and ${neighbor.name} tried ${ACTIVITY_LABELS[activity]}. They left knowing each other a little better.`,
         worldDay: world.worldDay,
         significance: 0.6
       }
     ],
-    villages: world.villages.map((village) =>
-      village.id === 'willowmere'
-        ? { ...village, visibleChanges: [...village.visibleChanges, 'shared-play-stones'] }
-        : village
+    villages: world.villages.map((candidate) =>
+      candidate.id === village.id && !candidate.visibleChanges.includes('shared-play-stones')
+        ? { ...candidate, visibleChanges: [...candidate.visibleChanges, 'shared-play-stones'] }
+        : candidate
     )
-  };
-
-  return parseWorld(nextWorld);
+  });
 }
