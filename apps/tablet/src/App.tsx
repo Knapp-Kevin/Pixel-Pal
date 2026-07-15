@@ -1,5 +1,12 @@
-import { useMemo, useState } from 'react';
-import { createFirstWorld, type FirstPalChoice } from '@pixel-pals/simulation';
+import { useEffect, useState } from 'react';
+import type { World } from '@pixel-pals/content-schema';
+import { loadWorld, saveWorld } from '@pixel-pals/persistence';
+import {
+  completeFirstActivity,
+  createFirstWorld,
+  type FirstActivity,
+  type FirstPalChoice
+} from '@pixel-pals/simulation';
 
 const speciesOptions: Array<{ id: FirstPalChoice['speciesId']; label: string }> = [
   { id: 'fox', label: 'Fox' },
@@ -7,31 +14,57 @@ const speciesOptions: Array<{ id: FirstPalChoice['speciesId']; label: string }> 
   { id: 'rabbit', label: 'Rabbit' }
 ];
 
+const activityOptions: Array<{ id: FirstActivity; title: string; description: string }> = [
+  { id: 'leaf-chase', title: 'Chase Leaves', description: 'Race the wind through Willowmere.' },
+  { id: 'stone-stacking', title: 'Stack Stones', description: 'Build something small together.' },
+  { id: 'garden-game', title: 'Garden Game', description: 'Play Fern’s favorite guessing game.' }
+];
+
 export function App() {
   const [name, setName] = useState('');
   const [speciesId, setSpeciesId] = useState<FirstPalChoice['speciesId']>('fox');
-  const [worldCreated, setWorldCreated] = useState(false);
+  const [world, setWorld] = useState<World | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saveStatus, setSaveStatus] = useState('Your world is safe on this tablet.');
 
-  const world = useMemo(() => {
-    if (!worldCreated) return null;
-
-    return createFirstWorld({
-      worldId: 'local-family-world',
-      worldName: 'Our Pixel Pals',
-      seed: 42,
-      firstPal: {
-        name: name.trim(),
-        speciesId,
-        paletteId: 'sunleaf',
-        markingId: 'tail-tip',
-        accessoryId: 'scarf'
-      }
-    });
-  }, [name, speciesId, worldCreated]);
+  useEffect(() => {
+    void loadWorld()
+      .then((savedWorld) => setWorld(savedWorld))
+      .catch(() => setSaveStatus('We could not open the saved world yet.'))
+      .finally(() => setLoading(false));
+  }, []);
 
   const firstPal = world?.pals.find((pal) => pal.id === world.firstPalId);
+  const firstMemory = world?.memories.find((memory) => memory.eventType === 'first-shared-activity');
+  const firstPreference = firstPal?.preferences.find((preference) => preference.id === 'first-play-preference');
 
-  if (!worldCreated) {
+  async function persist(nextWorld: World): Promise<void> {
+    setWorld(nextWorld);
+    setSaveStatus('Saving your world…');
+
+    try {
+      await saveWorld(nextWorld);
+      setSaveStatus('Saved. Your world will remember this.');
+    } catch {
+      setSaveStatus('The world changed, but the save needs another try.');
+    }
+  }
+
+  if (loading) {
+    return (
+      <main className="app-shell">
+        <section className="storybook-panel">
+          <div className="welcome-copy">
+            <p className="eyebrow">Opening your story</p>
+            <h1>Pixel Pals</h1>
+            <p className="intro">Finding the world this tablet remembers…</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!world) {
     return (
       <main className="app-shell">
         <section className="storybook-panel" aria-labelledby="first-pal-title">
@@ -55,7 +88,22 @@ export function App() {
             <form
               onSubmit={(event) => {
                 event.preventDefault();
-                if (name.trim().length > 0) setWorldCreated(true);
+                if (name.trim().length === 0) return;
+
+                const nextWorld = createFirstWorld({
+                  worldId: 'local-family-world',
+                  worldName: 'Our Pixel Pals',
+                  seed: 42,
+                  firstPal: {
+                    name: name.trim(),
+                    speciesId,
+                    paletteId: 'sunleaf',
+                    markingId: 'tail-tip',
+                    accessoryId: 'scarf'
+                  }
+                });
+
+                void persist(nextWorld);
               }}
             >
               <label>
@@ -115,32 +163,53 @@ export function App() {
 
         <div className="welcome-copy">
           <p className="eyebrow">Welcome to Willowmere</p>
-          <h1 id="welcome-title">Meet {firstPal?.name}</h1>
+          <h1 id="welcome-title">{firstPal?.name}</h1>
           <p className="tagline">Where every friendship changes the world.</p>
           <p className="intro">
-            {firstPal?.name} is your first companion, but not a character you already know completely. Their favorite game is still waiting to be discovered.
+            {firstMemory
+              ? firstMemory.summary
+              : `${firstPal?.name} has met Fern, but their first shared memory is still waiting.`}
           </p>
+          {firstPreference?.discovered ? (
+            <p className="intro"><strong>Discovered:</strong> {firstPreference.label}</p>
+          ) : null}
         </div>
       </section>
 
-      <section className="action-grid" aria-label="First activities">
-        <button className="action-card action-sun" type="button">
-          <span className="action-title">Play Together</span>
-          <span className="action-description">Try a small game and discover what {firstPal?.name} enjoys.</span>
-        </button>
-        <button className="action-card action-leaf" type="button">
-          <span className="action-title">Meet Fern</span>
-          <span className="action-description">Begin the first friendship in your world.</span>
-        </button>
-        <button className="action-card action-clay" type="button">
-          <span className="action-title">Find a Home</span>
-          <span className="action-description">Choose a place where {firstPal?.name} can feel comfortable.</span>
-        </button>
-      </section>
+      {!firstMemory ? (
+        <section className="action-grid" aria-label="Choose a first shared activity">
+          {activityOptions.map((activity) => (
+            <button
+              className="action-card action-leaf"
+              type="button"
+              key={activity.id}
+              onClick={() => void persist(completeFirstActivity(world, activity.id))}
+            >
+              <span className="action-title">{activity.title}</span>
+              <span className="action-description">{activity.description}</span>
+            </button>
+          ))}
+        </section>
+      ) : (
+        <section className="action-grid" aria-label="First memory complete">
+          <article className="action-card action-sun">
+            <span className="action-title">A New Memory</span>
+            <span className="action-description">{firstMemory.title}</span>
+          </article>
+          <article className="action-card action-leaf">
+            <span className="action-title">A Friendship Began</span>
+            <span className="action-description">Fern is now part of this world’s growing legacy.</span>
+          </article>
+          <article className="action-card action-clay">
+            <span className="action-title">Willowmere Changed</span>
+            <span className="action-description">Their shared play left a small mark near the village path.</span>
+          </article>
+        </section>
+      )}
 
-      <footer className="prototype-note">
-        <span>Foundation build</span>
-        <span>Local world created and schema validated</span>
+      <footer className="prototype-note" aria-live="polite">
+        <span>{saveStatus}</span>
+        <span>{world.memories.length} remembered moment{world.memories.length === 1 ? '' : 's'}</span>
       </footer>
     </main>
   );
