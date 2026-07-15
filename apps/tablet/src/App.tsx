@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { World } from '@pixel-pals/content-schema';
 import { loadWorld, saveWorld } from '@pixel-pals/persistence';
+import { PalPortrait, WillowmereScene, type PalSpecies } from '@pixel-pals/renderer';
 import {
   completeFirstActivity,
   createFirstWorld,
@@ -14,15 +15,45 @@ const speciesOptions: Array<{ id: FirstPalChoice['speciesId']; label: string }> 
   { id: 'rabbit', label: 'Rabbit' }
 ];
 
-const activityOptions: Array<{ id: FirstActivity; title: string; description: string }> = [
-  { id: 'leaf-chase', title: 'Chase Leaves', description: 'Race the wind through Willowmere.' },
-  { id: 'stone-stacking', title: 'Stack Stones', description: 'Build something small together.' },
-  { id: 'garden-game', title: 'Garden Game', description: 'Play Fern’s favorite guessing game.' }
+const paletteOptions: Array<{ id: FirstPalChoice['paletteId']; label: string }> = [
+  { id: 'sunleaf', label: 'Sunleaf' },
+  { id: 'riverstone', label: 'Riverstone' },
+  { id: 'berrybloom', label: 'Berrybloom' }
 ];
+
+const markingOptions: Array<{ id: FirstPalChoice['markingId']; label: string }> = [
+  { id: 'soft-mask', label: 'Soft Mask' },
+  { id: 'freckles', label: 'Freckles' },
+  { id: 'tail-tip', label: 'Light Tail Tip' }
+];
+
+const accessoryOptions: Array<{ id: NonNullable<FirstPalChoice['accessoryId']>; label: string }> = [
+  { id: 'scarf', label: 'Scarf' },
+  { id: 'satchel', label: 'Satchel' },
+  { id: 'leaf-pin', label: 'Leaf Pin' }
+];
+
+const activityOptions: Array<{
+  id: FirstActivity;
+  title: string;
+  description: string;
+  expression: 'curious' | 'thoughtful' | 'delighted';
+}> = [
+  { id: 'leaf-chase', title: 'Chase Leaves', description: 'Race the wind through Willowmere.', expression: 'delighted' },
+  { id: 'stone-stacking', title: 'Stack Stones', description: 'Build something small together.', expression: 'thoughtful' },
+  { id: 'garden-game', title: 'Garden Game', description: 'Play Fern’s favorite guessing game.', expression: 'curious' }
+];
+
+function renderableSpecies(speciesId: string): PalSpecies {
+  return speciesId === 'deer' || speciesId === 'rabbit' ? speciesId : 'fox';
+}
 
 export function App() {
   const [name, setName] = useState('');
   const [speciesId, setSpeciesId] = useState<FirstPalChoice['speciesId']>('fox');
+  const [paletteId, setPaletteId] = useState<FirstPalChoice['paletteId']>('sunleaf');
+  const [markingId, setMarkingId] = useState<FirstPalChoice['markingId']>('tail-tip');
+  const [accessoryId, setAccessoryId] = useState<NonNullable<FirstPalChoice['accessoryId']>>('scarf');
   const [world, setWorld] = useState<World | null>(null);
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('Your world is safe on this tablet.');
@@ -53,7 +84,7 @@ export function App() {
   if (loading) {
     return (
       <main className="app-shell">
-        <section className="storybook-panel">
+        <section className="storybook-panel loading-panel">
           <div className="welcome-copy">
             <p className="eyebrow">Opening your story</p>
             <h1>Pixel Pals</h1>
@@ -67,23 +98,24 @@ export function App() {
   if (!world) {
     return (
       <main className="app-shell">
-        <section className="storybook-panel" aria-labelledby="first-pal-title">
-          <div className="landscape" aria-hidden="true">
-            <div className="sun-disc" />
-            <div className="hill hill-back" />
-            <div className="hill hill-front" />
-            <div className="great-tree">
-              <div className="tree-crown crown-one" />
-              <div className="tree-crown crown-two" />
-              <div className="tree-crown crown-three" />
-              <div className="tree-trunk" />
-            </div>
+        <section className="storybook-panel creation-panel" aria-labelledby="first-pal-title">
+          <div className="storybook-art creation-art">
+            <div className="preview-glow" aria-hidden="true" />
+            <PalPortrait
+              className="first-pal-preview"
+              name={name.trim() || 'Your new Pal'}
+              species={speciesId}
+              paletteId={paletteId}
+              markingId={markingId}
+              accessoryId={accessoryId}
+              expression="curious"
+            />
           </div>
 
-          <div className="welcome-copy">
+          <div className="welcome-copy creation-copy">
             <p className="eyebrow">Your story begins with a Pal</p>
             <h1 id="first-pal-title">Who did you meet?</h1>
-            <p className="intro">Choose their kind and give them a name. You will discover the rest together.</p>
+            <p className="intro">Choose a few things you can see. Their personality will reveal itself through the life you share.</p>
 
             <form
               onSubmit={(event) => {
@@ -97,47 +129,55 @@ export function App() {
                   firstPal: {
                     name: name.trim(),
                     speciesId,
-                    paletteId: 'sunleaf',
-                    markingId: 'tail-tip',
-                    accessoryId: 'scarf'
+                    paletteId,
+                    markingId,
+                    accessoryId
                   }
                 });
 
                 void persist(nextWorld);
               }}
             >
-              <label>
+              <label className="field-label">
                 <span className="action-title">Pal name</span>
                 <input
+                  className="name-input"
                   aria-label="Pal name"
                   maxLength={32}
                   required
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  style={{ minHeight: 52, width: '100%', padding: 12, borderRadius: 14, fontSize: '1.1rem' }}
                 />
               </label>
 
-              <fieldset style={{ border: 0, padding: 0, margin: '20px 0' }}>
-                <legend className="action-title">Choose a species</legend>
-                <div className="action-grid">
-                  {speciesOptions.map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      className={`action-card ${speciesId === option.id ? 'action-leaf' : 'action-clay'}`}
-                      aria-pressed={speciesId === option.id}
-                      onClick={() => setSpeciesId(option.id)}
-                    >
-                      <span className="action-title">{option.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
+              <ChoiceGroup
+                legend="Species"
+                options={speciesOptions}
+                selected={speciesId}
+                onSelect={setSpeciesId}
+              />
+              <ChoiceGroup
+                legend="Colors"
+                options={paletteOptions}
+                selected={paletteId}
+                onSelect={setPaletteId}
+              />
+              <ChoiceGroup
+                legend="Markings"
+                options={markingOptions}
+                selected={markingId}
+                onSelect={setMarkingId}
+              />
+              <ChoiceGroup
+                legend="Something to wear"
+                options={accessoryOptions}
+                selected={accessoryId}
+                onSelect={setAccessoryId}
+              />
 
-              <button className="action-card action-sun" type="submit" disabled={name.trim().length === 0}>
+              <button className="action-card action-sun meet-button" type="submit" disabled={name.trim().length === 0}>
                 <span className="action-title">Meet my Pal</span>
-                <span className="action-description">This name stays in your local world.</span>
+                <span className="action-description">This name and appearance stay in your local world.</span>
               </button>
             </form>
           </div>
@@ -146,32 +186,50 @@ export function App() {
     );
   }
 
+  if (!firstPal) {
+    return <main className="app-shell"><p>The saved world could not find its first Pal.</p></main>;
+  }
+
   return (
     <main className="app-shell">
-      <section className="storybook-panel" aria-labelledby="welcome-title">
-        <div className="landscape" aria-hidden="true">
-          <div className="sun-disc" />
-          <div className="hill hill-back" />
-          <div className="hill hill-front" />
-          <div className="great-tree">
-            <div className="tree-crown crown-one" />
-            <div className="tree-crown crown-two" />
-            <div className="tree-crown crown-three" />
-            <div className="tree-trunk" />
+      <section className="storybook-panel world-panel" aria-labelledby="welcome-title">
+        <div className="storybook-art world-art">
+          <WillowmereScene className="willowmere-scene" showPlayMarker={Boolean(firstMemory)} />
+          <div className="pal-pair" aria-label={`${firstPal.name} and Fern in Willowmere`}>
+            <PalPortrait
+              className="scene-pal scene-pal-first"
+              name={firstPal.name}
+              species={renderableSpecies(firstPal.speciesId)}
+              paletteId={firstPal.appearance.paletteId}
+              markingId={firstPal.appearance.markingId}
+              accessoryId={firstPal.appearance.accessoryId}
+              expression={firstMemory ? 'delighted' : 'curious'}
+              pose={firstMemory ? 'playful' : 'standing'}
+            />
+            <PalPortrait
+              className="scene-pal scene-pal-fern"
+              name="Fern"
+              species="rabbit"
+              paletteId="mosscream"
+              markingId="ear-dapple"
+              accessoryId="leaf-pin"
+              expression={firstMemory ? 'delighted' : 'content'}
+              pose={firstMemory ? 'playful' : 'standing'}
+            />
           </div>
         </div>
 
-        <div className="welcome-copy">
+        <div className="welcome-copy world-copy">
           <p className="eyebrow">Welcome to Willowmere</p>
-          <h1 id="welcome-title">{firstPal?.name}</h1>
+          <h1 id="welcome-title">{firstPal.name}</h1>
           <p className="tagline">Where every friendship changes the world.</p>
           <p className="intro">
             {firstMemory
               ? firstMemory.summary
-              : `${firstPal?.name} has met Fern, but their first shared memory is still waiting.`}
+              : `${firstPal.name} has met Fern, but their first shared memory is still waiting.`}
           </p>
           {firstPreference?.discovered ? (
-            <p className="intro"><strong>Discovered:</strong> {firstPreference.label}</p>
+            <p className="discovery"><strong>Discovered:</strong> {firstPreference.label}</p>
           ) : null}
         </div>
       </section>
@@ -180,11 +238,22 @@ export function App() {
         <section className="action-grid" aria-label="Choose a first shared activity">
           {activityOptions.map((activity) => (
             <button
-              className="action-card action-leaf"
+              className="action-card activity-card"
               type="button"
               key={activity.id}
               onClick={() => void persist(completeFirstActivity(world, activity.id))}
             >
+              <span className="activity-portrait" aria-hidden="true">
+                <PalPortrait
+                  name={firstPal.name}
+                  species={renderableSpecies(firstPal.speciesId)}
+                  paletteId={firstPal.appearance.paletteId}
+                  markingId={firstPal.appearance.markingId}
+                  accessoryId={firstPal.appearance.accessoryId}
+                  expression={activity.expression}
+                  pose={activity.id === 'leaf-chase' ? 'playful' : 'standing'}
+                />
+              </span>
               <span className="action-title">{activity.title}</span>
               <span className="action-description">{activity.description}</span>
             </button>
@@ -192,17 +261,17 @@ export function App() {
         </section>
       ) : (
         <section className="action-grid" aria-label="First memory complete">
-          <article className="action-card action-sun">
+          <article className="action-card action-sun memory-card">
             <span className="action-title">A New Memory</span>
             <span className="action-description">{firstMemory.title}</span>
           </article>
-          <article className="action-card action-leaf">
+          <article className="action-card action-leaf memory-card">
             <span className="action-title">A Friendship Began</span>
             <span className="action-description">Fern is now part of this world’s growing legacy.</span>
           </article>
-          <article className="action-card action-clay">
+          <article className="action-card action-clay memory-card">
             <span className="action-title">Willowmere Changed</span>
-            <span className="action-description">Their shared play left a small mark near the village path.</span>
+            <span className="action-description">Their play stones now rest beside the village path.</span>
           </article>
         </section>
       )}
@@ -212,5 +281,33 @@ export function App() {
         <span>{world.memories.length} remembered moment{world.memories.length === 1 ? '' : 's'}</span>
       </footer>
     </main>
+  );
+}
+
+type ChoiceGroupProps<T extends string> = {
+  legend: string;
+  options: Array<{ id: T; label: string }>;
+  selected: T;
+  onSelect: (value: T) => void;
+};
+
+function ChoiceGroup<T extends string>({ legend, options, selected, onSelect }: ChoiceGroupProps<T>) {
+  return (
+    <fieldset className="choice-group">
+      <legend className="action-title">{legend}</legend>
+      <div className="choice-row">
+        {options.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            className="choice-button"
+            aria-pressed={selected === option.id}
+            onClick={() => onSelect(option.id)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </fieldset>
   );
 }
