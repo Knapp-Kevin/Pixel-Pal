@@ -1,0 +1,21 @@
+
+> pixel-pals@0.1.0 verify:viewports
+> node scripts/verify-tablet-viewports-v2.mjs
+
+PASS compact-landscape: creation
+PASS compact-landscape: village
+PASS compact-landscape: stone-stacking
+PASS compact-landscape: garden-game
+PASS compact-landscape: leaf-chase
+PASS compact-landscape: friendship-created-leaf-chase
+file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/cdp-browser.mjs:113
+      throw new Error(response.exceptionDetails.text ?? 'Browser evaluation failed.');
+            ^
+
+Error: Uncaught
+    at CdpSession.evaluate (file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/cdp-browser.mjs:113:13)
+    at async clickButton (file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/viewport-actions-v2.mjs:24:3)
+    at async runProfile (file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/verify-tablet-viewports-v2.mjs:202:5)
+    at async file:///home/runner/work/Pixel-Pal/Pixel-Pal/scripts/verify-tablet-viewports-v2.mjs:228:35
+
+Node.js v22.23.1
