@@ -29,8 +29,31 @@ const ACTIVITY_LABELS: Record<FirstActivity, string> = {
   'garden-game': 'Playing a garden guessing game'
 };
 
+const FIRST_PAL_PROFILES = [
+  [
+    { id: 'curiosity', value: 0.55, confidence: 0.15 },
+    { id: 'confidence', value: -0.05, confidence: 0.1 },
+    { id: 'patience', value: 0.2, confidence: 0.1 }
+  ],
+  [
+    { id: 'curiosity', value: 0.2, confidence: 0.15 },
+    { id: 'confidence', value: 0.4, confidence: 0.15 },
+    { id: 'playfulness', value: 0.35, confidence: 0.1 }
+  ],
+  [
+    { id: 'curiosity', value: 0.35, confidence: 0.15 },
+    { id: 'confidence', value: 0.1, confidence: 0.1 },
+    { id: 'patience', value: 0.55, confidence: 0.15 }
+  ]
+] as const;
+
 function stableId(prefix: string, seed: number, suffix: string): string {
   return `${prefix}-${seed.toString(36)}-${suffix}`;
+}
+
+function firstPalCharacteristics(seed: number) {
+  const profile = FIRST_PAL_PROFILES[seed % FIRST_PAL_PROFILES.length] ?? FIRST_PAL_PROFILES[0];
+  return profile.map((characteristic) => ({ ...characteristic }));
 }
 
 export function createFirstWorld(input: CreateWorldInput): World {
@@ -69,10 +92,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
         preferences: [
           { id: 'first-play-preference', kind: 'activity', label: 'Unknown favorite game', discovered: false }
         ],
-        characteristics: [
-          { id: 'curiosity', value: 0.25, confidence: 0.15 },
-          { id: 'confidence', value: 0, confidence: 0.1 }
-        ],
+        characteristics: firstPalCharacteristics(input.seed),
         skills: [],
         createdBy: 'player'
       },
