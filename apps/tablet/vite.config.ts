@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: [],
+      includeAssets: ['pixel-pals-icon.svg', 'pixel-pals-maskable.svg'],
       manifest: {
         name: 'Pixel Pals',
         short_name: 'Pixel Pals',
@@ -18,7 +18,21 @@ export default defineConfig({
         orientation: 'landscape',
         start_url: '/',
         scope: '/',
-        categories: ['games', 'education', 'kids']
+        categories: ['games', 'education', 'kids'],
+        icons: [
+          {
+            src: '/pixel-pals-icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any'
+          },
+          {
+            src: '/pixel-pals-maskable.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'maskable'
+          }
+        ]
       },
       workbox: {
         cleanupOutdatedCaches: true,
