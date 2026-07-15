@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseWorld } from './index';
+import { CURRENT_SCHEMA_VERSION, parseWorld } from './index';
 
 const earlierSave = {
   schemaVersion: 1 as const,
@@ -54,17 +54,18 @@ const earlierSave = {
   ]
 };
 
-describe('parseWorld home migration', () => {
-  it('adds a deterministic first home to an earlier save', () => {
+describe('parseWorld versioned migration', () => {
+  it('adds a deterministic first home to a version 1 save', () => {
     const world = parseWorld(earlierSave);
 
+    expect(world.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(world.homes).toHaveLength(1);
     expect(world.homes[0]?.id).toBe('home-16-first');
     expect(world.homes[0]?.residentPalIds).toEqual(['pal-16-first']);
     expect(world.pals[0]?.householdId).toBe('home-16-first');
   });
 
-  it('does not replace an existing home', () => {
+  it('preserves an existing home and repairs the household link', () => {
     const withHome = parseWorld({
       ...earlierSave,
       homes: [
@@ -82,5 +83,84 @@ describe('parseWorld home migration', () => {
     expect(withHome.homes).toHaveLength(1);
     expect(withHome.homes[0]?.id).toBe('custom-home');
     expect(withHome.homes[0]?.chosenObjectId).toBe('story-lantern');
+    expect(withHome.pals[0]?.householdId).toBe('custom-home');
+  });
+
+  it('rejects unsupported schema versions', () => {
+    expect(() => parseWorld({ ...earlierSave, schemaVersion: 999 })).toThrow();
+  });
+});
+
+describe('WorldSchema adversarial invariants', () => {
+  const validWorld = parseWorld(earlierSave);
+
+  it('rejects duplicate entity identities', () => {
+    expect(() => parseWorld({
+      ...validWorld,
+      pals: [...validWorld.pals, { ...validWorld.pals[0], isFirstPal: false }]
+    })).toThrow(/duplicate/i);
+  });
+
+  it('rejects memories with missing participants', () => {
+    expect(() => parseWorld({
+      ...validWorld,
+      memories: [
+        {
+          id: 'memory-broken',
+          title: 'A broken memory',
+          participantPalIds: ['missing-pal'],
+          villageId: 'willowmere',
+          eventType: 'broken-event',
+          emotionalTone: 'uncertain',
+          summary: 'This memory points at someone who is not in the world.',
+          worldDay: 0,
+          significance: 0.2
+        }
+      ]
+    })).toThrow(/unknown Pal/i);
+  });
+
+  it('rejects Great Tree recognition of nonexistent memories', () => {
+    expect(() => parseWorld({
+      ...validWorld,
+      greatTrees: validWorld.greatTrees.map((tree) => ({
+        ...tree,
+        recognizedMemoryIds: ['missing-memory']
+      }))
+    })).toThrow(/unknown memory/i);
+  });
+
+  it('rejects a chosen home object that is not visibly present', () => {
+    expect(() => parseWorld({
+      ...validWorld,
+      homes: validWorld.homes.map((home) => ({
+        ...home,
+        chosenObjectId: 'story-lantern',
+        visibleChanges: []
+      }))
+    })).toThrow(/chosen object/i);
+  });
+
+  it('rejects duplicate story roles', () => {
+    const secondPal = {
+      ...validWorld.pals[0],
+      id: 'pal-second',
+      name: 'Second',
+      isFirstPal: false,
+      householdId: undefined,
+      storyRole: 'first-neighbor'
+    };
+
+    expect(() => parseWorld({
+      ...validWorld,
+      pals: [
+        { ...validWorld.pals[0], storyRole: 'first-neighbor' },
+        secondPal
+      ],
+      villages: validWorld.villages.map((village) => ({
+        ...village,
+        residentPalIds: [...village.residentPalIds, secondPal.id]
+      }))
+    })).toThrow(/story roles/i);
   });
 });
