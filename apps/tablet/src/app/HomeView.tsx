@@ -1,5 +1,5 @@
 import type { World } from '@pixel-pals/content-schema';
-import { HomeScene, PalPortrait } from '@pixel-pals/renderer';
+import { HomeScene, PalArtwork, SceneArtwork } from '@pixel-pals/renderer';
 import { chooseFirstHomeObject } from '@pixel-pals/simulation/home';
 import { homeObjectOptions, homeObjectSymbols, type HomeView as HomeViewMode } from './options';
 import { palAppearanceProps, type WorldScene } from './worldQueries';
@@ -20,13 +20,20 @@ function HomePanel({ scene, firstHome, saving, homeView, setHomeView }: HomeView
   const { firstPal, village, homeMemory } = scene;
   const interiorIntro = homeMemory?.summary
     ?? 'Choose one object that feels right. There is no best choice, only the beginning of a home.';
+  const sceneId = homeView === 'exterior' ? 'first-home-exterior' : 'first-home-interior';
+  const variant = homeView === 'exterior' ? 'base' : (firstHome.chosenObjectId ?? 'empty');
 
   return (
     <section className="storybook-panel home-panel" aria-labelledby="home-title">
       <div className="storybook-art home-art">
-        <HomeScene className="home-scene" view={homeView} chosenObjectId={firstHome.chosenObjectId} />
+        <SceneArtwork
+          sceneId={sceneId}
+          variant={variant}
+          className="home-scene"
+          fallback={<HomeScene className="home-scene" view={homeView} chosenObjectId={firstHome.chosenObjectId} />}
+        />
         {homeView === 'interior' ? (
-          <PalPortrait
+          <PalArtwork
             className="home-pal"
             {...palAppearanceProps(firstPal)}
             expression={firstHome.chosenObjectId ? 'content' : 'curious'}
