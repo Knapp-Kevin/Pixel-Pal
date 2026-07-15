@@ -51,7 +51,7 @@ function renderableSpecies(speciesId: string): PalSpecies {
 
 export function App() {
   const [name, setName] = useState('');
-  const [speciesId, setSpeciesId] = useState<FirstPalChoice['speciesId']>('fox');
+  const [speciesId, setSpeciesId] = useState<FirstPalChoice['speciesId'] | null>(null);
   const [paletteId, setPaletteId] = useState<FirstPalChoice['paletteId']>('sunleaf');
   const [markingId, setMarkingId] = useState<FirstPalChoice['markingId']>('tail-tip');
   const [accessoryId, setAccessoryId] = useState<NonNullable<FirstPalChoice['accessoryId']>>('scarf');
@@ -103,26 +103,36 @@ export function App() {
         <section className="storybook-panel creation-panel" aria-labelledby="first-pal-title">
           <div className="storybook-art creation-art">
             <div className="preview-glow" aria-hidden="true" />
-            <PalPortrait
-              className="first-pal-preview"
-              name={name.trim() || 'Your new Pal'}
-              species={speciesId}
-              paletteId={paletteId}
-              markingId={markingId}
-              accessoryId={accessoryId}
-              expression="curious"
-            />
+            {speciesId ? (
+              <PalPortrait
+                className="first-pal-preview"
+                name={name.trim() || 'Your new Pal'}
+                species={speciesId}
+                paletteId={paletteId}
+                markingId={markingId}
+                accessoryId={accessoryId}
+                expression="curious"
+              />
+            ) : (
+              <div className="unselected-pal" role="status">
+                <span className="unselected-pal-shapes" aria-hidden="true">
+                  <span>◇</span><span>○</span><span>△</span>
+                </span>
+                <strong>Choose who you meet</strong>
+                <span>Fox, Deer, and Rabbit are all waiting.</span>
+              </div>
+            )}
           </div>
 
           <div className="welcome-copy creation-copy">
             <p className="eyebrow">Your story begins with a Pal</p>
             <h1 id="first-pal-title">Who did you meet?</h1>
-            <p className="intro">Choose a few things you can see. Their personality will reveal itself through the life you share.</p>
+            <p className="intro">Choose their species and a few things you can see. Their personality will reveal itself through the life you share.</p>
 
             <form
               onSubmit={(event) => {
                 event.preventDefault();
-                if (name.trim().length === 0) return;
+                if (name.trim().length === 0 || !speciesId) return;
 
                 const nextWorld = createFirstWorld({
                   worldId: 'local-family-world',
@@ -140,6 +150,13 @@ export function App() {
                 void persist(nextWorld);
               }}
             >
+              <ChoiceGroup
+                legend="Choose a species"
+                options={speciesOptions}
+                selected={speciesId}
+                onSelect={setSpeciesId}
+              />
+
               <label className="field-label">
                 <span className="action-title">Pal name</span>
                 <input
@@ -152,7 +169,6 @@ export function App() {
                 />
               </label>
 
-              <ChoiceGroup legend="Species" options={speciesOptions} selected={speciesId} onSelect={setSpeciesId} />
               <ChoiceGroup legend="Colors" options={paletteOptions} selected={paletteId} onSelect={setPaletteId} />
               <ChoiceGroup legend="Markings" options={markingOptions} selected={markingId} onSelect={setMarkingId} />
               <ChoiceGroup
@@ -162,9 +178,17 @@ export function App() {
                 onSelect={setAccessoryId}
               />
 
-              <button className="action-card action-sun meet-button" type="submit" disabled={name.trim().length === 0}>
+              <button
+                className="action-card action-sun meet-button"
+                type="submit"
+                disabled={name.trim().length === 0 || !speciesId}
+              >
                 <span className="action-title">Meet my Pal</span>
-                <span className="action-description">This name and appearance stay in your local world.</span>
+                <span className="action-description">
+                  {speciesId
+                    ? 'This name and appearance stay in your local world.'
+                    : 'Choose a species first. None is selected for you.'}
+                </span>
               </button>
             </form>
           </div>
@@ -295,7 +319,7 @@ export function App() {
 type ChoiceGroupProps<T extends string> = {
   legend: string;
   options: Array<{ id: T; label: string }>;
-  selected: T;
+  selected: T | null;
   onSelect: (value: T) => void;
 };
 
