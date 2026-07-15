@@ -1,3 +1,6 @@
+export { HomeScene } from './HomeScene';
+export type { HomeSceneProps } from './HomeScene';
+
 export { PalPortrait } from './PalPortrait';
 export type {
   PalExpression,
@@ -6,8 +9,8 @@ export type {
   PalSpecies
 } from './PalPortrait';
 
+export { StorybookMemoryScene } from './StorybookMemoryScene';
+export type { StorybookMemorySceneProps } from './StorybookMemoryScene';
+
 export { WillowmereScene } from './WillowmereScene';
 export type { WillowmereSceneProps } from './WillowmereScene';
-
-export { HomeScene } from './HomeScene';
-export type { HomeSceneProps } from './HomeScene';
