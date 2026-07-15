@@ -4,7 +4,7 @@
 
 The repository now contains a functional living-world art prototype for the first vertical slice.
 
-This is production-structured prototype art. It is suitable for validating composition, customization, readability, interaction, and technical integration. It is not the final polished storybook art set.
+This is production-structured prototype art. It is suitable for validating composition, customization, readability, interaction, persistence, and technical integration. It is not the final polished storybook art set.
 
 ## Implemented Living-World Art
 
@@ -72,6 +72,34 @@ The current scene includes:
 - persistent shared-play stone marker;
 - persistent Great Tree friendship ribbons.
 
+### First home
+
+The renderer now includes:
+
+- a Willowmere roundhouse exterior;
+- a warm roundhouse interior;
+- bed and seating areas;
+- storage furniture;
+- a large village-facing window;
+- an empty-room state showing available personal-object locations;
+- a persistent window cushion;
+- a persistent memory shelf;
+- a persistent story lantern;
+- first-Pal placement inside the home.
+
+The home objects share the same room anchors for every starter species. No option is presented as the correct object for a particular body family.
+
+### Memory journal
+
+The journal now includes illustrated entry panels that:
+
+- render the saved first Pal with their chosen appearance;
+- render Fern when she participated in the memory;
+- vary the background treatment by emotional tone;
+- distinguish playful, hopeful, and calm memories;
+- retain readable space for title, participants, day, and summary;
+- derive entries from structured world memories rather than fixed story cards.
+
 ## Implemented Integration
 
 The tablet app now visually supports:
@@ -87,7 +115,11 @@ The tablet app now visually supports:
 - activity-specific expressions;
 - playful and standing poses;
 - visible village change after the first activity;
-- visible Great Tree change after the friendship ceremony.
+- visible Great Tree change after the friendship ceremony;
+- navigation between Village, Home, and Journal;
+- home exterior and interior views;
+- three persistent first-home object choices;
+- illustrated journal entries generated from saved memories.
 
 ## Not Yet Final
 
@@ -100,7 +132,7 @@ The current art does not yet include:
 - child, adult, and elder body-stage variants for every species;
 - mature Cat and Duck proportions derived from the Kitten and Duckling prototypes;
 - sitting, sleeping, walking, carrying, hugging, swimming, flying, or working poses;
-- home interiors;
+- final home interior materials, props, and lighting;
 - animated transitions;
 - seasonal variants;
 - regional lineage variants;
@@ -121,7 +153,10 @@ The prototype art is successful when children can:
 5. understand the emotional difference between expressions;
 6. notice the play stones after the first activity;
 7. notice the friendship ribbons after the Great Tree ceremony;
-8. remember both Pals and the scene the following day.
+8. understand that the exterior and interior represent the same home;
+9. notice and remember the personal object they chose;
+10. connect journal illustrations to the events they just experienced;
+11. remember both Pals, the home, and the scene the following day.
 
 ## Production Recommendation
 
@@ -134,8 +169,8 @@ The next art investment should refine one complete **quality reference path** wh
 - Fern;
 - Willowmere village scene;
 - Great Tree ceremony scene;
-- one home exterior and interior;
-- one storybook memory illustration.
+- first-home exterior and interior;
+- one painterly storybook memory illustration based on the structured journal entry.
 
 The benchmark body family exists to validate line quality, materials, expression, animation anchors, and tablet performance. It does not become the canonical starter.
 
