@@ -27,7 +27,9 @@ const requiredAssetIds = new Set([
   'first-meeting-storybook',
   'first-shared-activity-storybook',
   'friendship-ceremony-storybook',
-  'home-personalization-storybook'
+  'home-personalization-storybook',
+  'lanterns-in-the-rain-adventure',
+  'humming-bridge-adventure'
 ]);
 
 const requiredViewportCrops = new Set([
