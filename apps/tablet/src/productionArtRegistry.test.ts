@@ -63,6 +63,9 @@ const registry: ProductionArtRegistry = {
       src: '/art/willowmere-base.webp',
       width: 1600,
       height: 900,
+      portraitSrc: '/art/willowmere-base-portrait.webp',
+      portraitWidth: 900,
+      portraitHeight: 1600,
       sceneId: 'willowmere-village',
       alt: 'Willowmere village'
     },
@@ -97,6 +100,13 @@ describe('production art resolution', () => {
   it('prefers an exact scene variant but can fall back to the base scene', () => {
     expect(resolveSceneArtwork(registry, 'willowmere-village', 'garden')?.id).toBe('willowmere-garden');
     expect(resolveSceneArtwork(registry, 'willowmere-village', 'stones')?.id).toBe('willowmere-base');
+  });
+
+  it('keeps responsive portrait scene sources attached to the resolved scene', () => {
+    const scene = resolveSceneArtwork(registry, 'willowmere-village', 'stones');
+    expect(scene?.portraitSrc).toBe('/art/willowmere-base-portrait.webp');
+    expect(scene?.portraitWidth).toBe(900);
+    expect(scene?.portraitHeight).toBe(1600);
   });
 
   it('assigns Fern a stable art identity without assigning one to the player-created Pal', () => {
