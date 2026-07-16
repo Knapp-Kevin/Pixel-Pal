@@ -19,6 +19,7 @@
     "verify:deployment": "node scripts/verify-deployment.mjs",
     "verify:viewports": "node scripts/verify-tablet-viewports.mjs",
     "verify:suspension": "node scripts/verify-tablet-suspension.mjs",
+    "verify:worlds": "node scripts/verify-multiple-worlds.mjs",
     "verify:art-plan": "node scripts/verify-production-art.mjs",
     "verify:production-art": "node scripts/verify-production-art.mjs --release"
   },
