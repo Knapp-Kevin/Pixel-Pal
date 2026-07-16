@@ -9,7 +9,7 @@ type AdventureIllustrationProps = {
   scene: WorldScene;
 };
 
-function LanternFallback({ scene, variant }: { scene: WorldScene; variant: string }) {
+function LanternEnvironmentFallback({ variant }: { variant: string }) {
   return (
     <div className={`adventure-fallback adventure-lantern-fallback adventure-variant-${variant}`} aria-hidden="true">
       <span className="adventure-cloud adventure-cloud-one" />
@@ -19,12 +19,11 @@ function LanternFallback({ scene, variant }: { scene: WorldScene; variant: strin
       <span className="adventure-lantern adventure-lantern-one" />
       <span className="adventure-lantern adventure-lantern-two" />
       <span className="adventure-lantern adventure-lantern-three" />
-      <AdventurePals scene={scene} />
     </div>
   );
 }
 
-function BridgeFallback({ scene, variant }: { scene: WorldScene; variant: string }) {
+function BridgeEnvironmentFallback({ variant }: { variant: string }) {
   return (
     <div className={`adventure-fallback adventure-bridge-fallback adventure-variant-${variant}`} aria-hidden="true">
       <span className="adventure-hill adventure-hill-back" />
@@ -34,14 +33,13 @@ function BridgeFallback({ scene, variant }: { scene: WorldScene; variant: string
       <span className="adventure-note adventure-note-one">♪</span>
       <span className="adventure-note adventure-note-two">·</span>
       <span className="adventure-note adventure-note-three">♫</span>
-      <AdventurePals scene={scene} />
     </div>
   );
 }
 
 function AdventurePals({ scene }: { scene: WorldScene }) {
   return (
-    <div className="adventure-pal-pair">
+    <div className="adventure-pal-pair" data-adventure-live-pal-overlay>
       <PalArtwork
         className="adventure-pal adventure-pal-first"
         {...palAppearanceProps(scene.firstPal)}
@@ -59,9 +57,9 @@ function AdventurePals({ scene }: { scene: WorldScene }) {
 }
 
 export function AdventureIllustration({ definition, stage, scene }: AdventureIllustrationProps) {
-  const fallback = definition.id === 'lanterns-in-the-rain'
-    ? <LanternFallback scene={scene} variant={stage.illustrationVariant} />
-    : <BridgeFallback scene={scene} variant={stage.illustrationVariant} />;
+  const environmentFallback = definition.id === 'lanterns-in-the-rain'
+    ? <LanternEnvironmentFallback variant={stage.illustrationVariant} />
+    : <BridgeEnvironmentFallback variant={stage.illustrationVariant} />;
 
   return (
     <div className="adventure-illustration" aria-label={`${scene.firstPal.name} and ${scene.firstNeighbor.name}: ${stage.title}`}>
@@ -69,8 +67,9 @@ export function AdventureIllustration({ definition, stage, scene }: AdventureIll
         sceneId={definition.sceneId}
         variant={stage.illustrationVariant}
         className="adventure-production-scene"
-        fallback={fallback}
+        fallback={environmentFallback}
       />
+      <AdventurePals scene={scene} />
     </div>
   );
 }
