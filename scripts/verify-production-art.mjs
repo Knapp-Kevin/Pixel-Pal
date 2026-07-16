@@ -2,6 +2,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { extname, isAbsolute, normalize, resolve } from 'node:path';
 
 const manifestPath = resolve('art/production-manifest.json');
+const adventureManifestPath = resolve('art/adventure-production-manifest.json');
 const releaseMode = process.argv.includes('--release');
 
 const requiredAssetIds = new Set([
@@ -104,11 +105,16 @@ async function validatePhysicalAsset(asset) {
 
 const raw = await readFile(manifestPath, 'utf8');
 const manifest = JSON.parse(raw);
+const adventureRaw = await readFile(adventureManifestPath, 'utf8');
+const adventureManifest = JSON.parse(adventureRaw);
 
 if (manifest.schemaVersion !== 1) fail('schemaVersion must be 1.');
 if (manifest.product !== 'Pixel Pals') fail('product must be Pixel Pals.');
 if (!Array.isArray(manifest.allowedStatuses) || !Array.isArray(manifest.assets)) {
   fail('allowedStatuses and assets must be arrays.');
+}
+if (adventureManifest.schemaVersion !== 1 || adventureManifest.product !== 'Pixel Pals' || !Array.isArray(adventureManifest.assets)) {
+  fail('adventure-production-manifest.json must be a Pixel Pals schemaVersion 1 asset supplement.');
 }
 
 const statuses = new Set(manifest.allowedStatuses);
@@ -125,11 +131,12 @@ for (const [name, value] of Object.entries(manifest.performanceBudgets ?? {})) {
   requirePositiveInteger(value, `performanceBudgets.${name}`);
 }
 
+const assets = [...manifest.assets, ...adventureManifest.assets];
 const seenIds = new Set();
 let plannedCount = 0;
 let productionCount = 0;
 
-for (const asset of manifest.assets) {
+for (const asset of assets) {
   requireNonEmptyString(asset.id, 'asset.id');
   requireNonEmptyString(asset.subject, `${asset.id}.subject`);
   requirePositiveInteger(asset.maxBytes, `${asset.id}.maxBytes`);
@@ -165,9 +172,10 @@ for (const assetId of requiredAssetIds) {
 
 if (releaseMode) {
   if (manifest.manifestStatus !== 'production-ready') fail('manifestStatus must be production-ready in release mode.');
-  requireNonEmptyString(manifest.benchmarkFamily, 'benchmarkFamily');
+  if (adventureManifest.manifestStatus !== 'production-ready') fail('adventure manifest must be production-ready in release mode.');
+  requireNonEmptyString(manifest.benchmarkFamily, 'manifest.benchmarkFamily');
 }
 
 console.log(
-  `Production art manifest valid: ${manifest.assets.length} slots, ${plannedCount} planned, ${productionCount} production, mode=${releaseMode ? 'release' : 'planning'}.`
+  `Production art manifests valid: ${assets.length} slots, ${plannedCount} planned, ${productionCount} production, mode=${releaseMode ? 'release' : 'planning'}.`
 );
