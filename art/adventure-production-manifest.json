@@ -1,49 +1,212 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "product": "Pixel Pals",
   "manifestStatus": "alpha-blocked",
+  "compositionContract": {
+    "mode": "environment-with-live-pal-overlay",
+    "charactersBakedIntoScene": false,
+    "requiredLivePalRoles": ["first-pal", "first-neighbor"],
+    "landscapeCharacterSafeArea": {
+      "leftPercent": 4,
+      "rightPercent": 4,
+      "bottomPercent": 1,
+      "heightPercent": 66
+    },
+    "portraitCharacterSafeArea": {
+      "leftPercent": 4,
+      "rightPercent": 4,
+      "bottomPercent": 2,
+      "heightPercent": 58
+    }
+  },
   "assets": [
     {
       "id": "lanterns-in-the-rain-adventure",
       "category": "storybook-illustration",
       "subject": "The Lanterns in the Rain",
-      "status": "planned",
       "releaseRequired": true,
       "benchmarkCandidate": true,
-      "filePath": null,
-      "format": "webp",
-      "maxBytes": 1900000,
       "sceneId": "adventure-lanterns-in-the-rain",
-      "requiredViews": [
-        "rain-path",
-        "lantern-colors",
-        "welcoming-path",
-        "landscape-crop",
-        "portrait-crop",
-        "reduced-motion"
-      ],
-      "provenance": null
+      "compositionMode": "environment-with-live-pal-overlay",
+      "livePalRoles": ["first-pal", "first-neighbor"],
+      "accessibility": {
+        "reducedMotion": "static-compatible",
+        "colorOnlyCommunication": false
+      },
+      "views": [
+        {
+          "id": "rain-path-landscape",
+          "variant": "rain-path",
+          "orientation": "landscape",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1600,
+          "height": 1000,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "rain-path-portrait",
+          "variant": "rain-path",
+          "orientation": "portrait",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1000,
+          "height": 1600,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "lantern-colors-landscape",
+          "variant": "lantern-colors",
+          "orientation": "landscape",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1600,
+          "height": 1000,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "lantern-colors-portrait",
+          "variant": "lantern-colors",
+          "orientation": "portrait",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1000,
+          "height": 1600,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "welcoming-path-landscape",
+          "variant": "welcoming-path",
+          "orientation": "landscape",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1600,
+          "height": 1000,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "welcoming-path-portrait",
+          "variant": "welcoming-path",
+          "orientation": "portrait",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1000,
+          "height": 1600,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        }
+      ]
     },
     {
       "id": "humming-bridge-adventure",
       "category": "storybook-illustration",
       "subject": "The Humming Bridge",
-      "status": "planned",
       "releaseRequired": true,
       "benchmarkCandidate": true,
-      "filePath": null,
-      "format": "webp",
-      "maxBytes": 1900000,
       "sceneId": "adventure-humming-bridge",
-      "requiredViews": [
-        "bridge-listening",
-        "bridge-patterns",
-        "bridge-gathering",
-        "landscape-crop",
-        "portrait-crop",
-        "reduced-motion"
-      ],
-      "provenance": null
+      "compositionMode": "environment-with-live-pal-overlay",
+      "livePalRoles": ["first-pal", "first-neighbor"],
+      "accessibility": {
+        "reducedMotion": "static-compatible",
+        "colorOnlyCommunication": false
+      },
+      "views": [
+        {
+          "id": "bridge-listening-landscape",
+          "variant": "bridge-listening",
+          "orientation": "landscape",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1600,
+          "height": 1000,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "bridge-listening-portrait",
+          "variant": "bridge-listening",
+          "orientation": "portrait",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1000,
+          "height": 1600,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "bridge-patterns-landscape",
+          "variant": "bridge-patterns",
+          "orientation": "landscape",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1600,
+          "height": 1000,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "bridge-patterns-portrait",
+          "variant": "bridge-patterns",
+          "orientation": "portrait",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1000,
+          "height": 1600,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "bridge-gathering-landscape",
+          "variant": "bridge-gathering",
+          "orientation": "landscape",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1600,
+          "height": 1000,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        },
+        {
+          "id": "bridge-gathering-portrait",
+          "variant": "bridge-gathering",
+          "orientation": "portrait",
+          "status": "planned",
+          "filePath": null,
+          "format": "webp",
+          "maxBytes": 1100000,
+          "width": 1000,
+          "height": 1600,
+          "objectPosition": "50% 50%",
+          "provenance": null
+        }
+      ]
     }
   ]
 }
