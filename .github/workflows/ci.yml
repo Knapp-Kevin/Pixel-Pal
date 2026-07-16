@@ -49,11 +49,18 @@ jobs:
           node --check scripts/verify-multiple-worlds.mjs
           node --check scripts/verify-emulated-tablet-performance.mjs
           node --check scripts/verify-production-art.mjs
+          node --check scripts/verify-human-art-reviews.mjs
           node --check scripts/generate-production-art-registry.mjs
           node --check scripts/generate-art-review-report.mjs
 
       - name: Verify production art planning contract
         run: npm run verify:art-plan
+
+      - name: Verify human art review decisions
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          npm run verify:art-reviews 2>&1 | tee artifacts/art-review-decision-verification.log
 
       - name: Verify generated production art registry
         run: |
@@ -135,6 +142,8 @@ jobs:
           name: tablet-viewport-screenshots
           path: |
             artifacts/art-review
+            artifacts/art-review-decisions
+            artifacts/art-review-decision-verification.log
             artifacts/benchmark-art-review
             artifacts/benchmark-art-verification.log
             artifacts/performance

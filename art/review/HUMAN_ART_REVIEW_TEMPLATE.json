@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "product": "Pixel Pals",
+  "assetPair": {
+    "manifestAssetId": "lanterns-in-the-rain-adventure",
+    "variant": "rain-path",
+    "landscapeViewId": "rain-path-landscape",
+    "portraitViewId": "rain-path-portrait"
+  },
+  "decision": "pending",
+  "reviewer": {
+    "kind": "human",
+    "name": null
+  },
+  "reviewedAt": null,
+  "assetDigests": {
+    "landscapeSha256": null,
+    "portraitSha256": null
+  },
+  "criteria": {
+    "visualQuality": "pending",
+    "storybookIdentity": "pending",
+    "environmentalDepth": "pending",
+    "livePalSafeAreas": "pending",
+    "portraitAndLandscapeContinuity": "pending",
+    "childSuitability": "pending",
+    "accessibility": "pending",
+    "sourceSimilarity": "pending",
+    "ownershipAndRights": "pending",
+    "tabletReadability": "pending",
+    "performanceEvidence": "pending"
+  },
+  "requiredRevisions": [],
+  "notes": "Copy this template into art/review/decisions. Approval requires a named human reviewer, an ISO-8601 review time, every criterion set to pass, no required revisions, exact SHA-256 digests for both files, matching approved manifest provenance, and both responsive files remaining within their declared budgets."
+}

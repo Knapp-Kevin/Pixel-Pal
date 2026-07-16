@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "product": "Pixel Pals",
+  "assetPair": {
+    "manifestAssetId": "lanterns-in-the-rain-adventure",
+    "variant": "rain-path",
+    "landscapeViewId": "rain-path-landscape",
+    "portraitViewId": "rain-path-portrait"
+  },
+  "decision": "pending",
+  "reviewer": {
+    "kind": "human",
+    "name": null
+  },
+  "reviewedAt": null,
+  "assetDigests": {
+    "landscapeSha256": null,
+    "portraitSha256": null
+  },
+  "criteria": {
+    "visualQuality": "pending",
+    "storybookIdentity": "pending",
+    "environmentalDepth": "pending",
+    "livePalSafeAreas": "pending",
+    "portraitAndLandscapeContinuity": "pending",
+    "childSuitability": "pending",
+    "accessibility": "pending",
+    "sourceSimilarity": "pending",
+    "ownershipAndRights": "pending",
+    "tabletReadability": "pending",
+    "performanceEvidence": "pass"
+  },
+  "requiredRevisions": [
+    "Replace the programmatic technical benchmark with a human-reviewed painterly environment pair.",
+    "Preserve the live first-Pal and Fern overlay safe areas in landscape and portrait.",
+    "Confirm visual continuity, child suitability, source originality, ownership, and tablet readability before promotion."
+  ],
+  "notes": "The current responsive pair proves registry, crop, decode, offline packaging, and performance behavior only. It is not visually approved and must remain benchmark status with humanArtApproval false."
+}

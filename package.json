@@ -24,6 +24,7 @@
     "verify:performance": "node scripts/verify-emulated-tablet-performance.mjs",
     "verify:art-plan": "node scripts/verify-production-art.mjs",
     "verify:production-art": "node scripts/verify-production-art.mjs --release",
+    "verify:art-reviews": "node scripts/verify-human-art-reviews.mjs",
     "generate:art-registry": "node scripts/generate-production-art-registry.mjs",
     "verify:art-registry": "node scripts/generate-production-art-registry.mjs --check",
     "generate:art-review": "node scripts/generate-art-review-report.mjs"
