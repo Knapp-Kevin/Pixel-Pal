@@ -25,27 +25,33 @@ const emptyDraft: CreationDraft = {
 type CreationPanelProps = {
   saving: boolean;
   saveStatus: string;
-  persist: (world: World) => Promise<void>;
+  persist: (world: World) => Promise<boolean>;
   onCreateError: (message: string) => void;
+  existingWorldCount?: number;
+  onCreated?: () => void;
+  onCancel?: () => void;
 };
 
-function submitCreation(draft: CreationDraft, props: CreationPanelProps): void {
+async function submitCreation(draft: CreationDraft, props: CreationPanelProps): Promise<void> {
   if (draft.name.trim().length === 0 || !draft.speciesId || props.saving) return;
 
   try {
     const seed = createLocalWorldSeed();
-    void props.persist(createFirstWorld({
+    const firstPalName = draft.name.trim();
+    const saved = await props.persist(createFirstWorld({
       worldId: `local-family-world-${seed.toString(36)}`,
-      worldName: 'Our Pixel Pals',
+      worldName: `${firstPalName}’s Willowmere`,
       seed,
       firstPal: {
-        name: draft.name.trim(),
+        name: firstPalName,
         speciesId: draft.speciesId,
         paletteId: draft.paletteId,
         markingId: draft.markingId,
         accessoryId: draft.accessoryId
       }
     }));
+
+    if (saved) props.onCreated?.();
   } catch {
     props.onCreateError('That Pal could not be created. Nothing was saved.');
   }
@@ -111,7 +117,7 @@ function CreationFields({ draft, update, saving }: CreationFieldsProps) {
       <button className="action-card action-sun meet-button" type="submit" disabled={saving || !ready}>
         <span className="action-title">Meet my Pal</span>
         <span className="action-description">
-          {draft.speciesId ? 'This name and appearance stay in your local world.' : 'Choose a species first. None is selected for you.'}
+          {draft.speciesId ? 'This name and appearance stay in this local world.' : 'Choose a species first. None is selected for you.'}
         </span>
       </button>
     </>
@@ -121,6 +127,7 @@ function CreationFields({ draft, update, saving }: CreationFieldsProps) {
 export function CreationPanel(props: CreationPanelProps) {
   const [draft, setDraft] = useState<CreationDraft>(emptyDraft);
   const update = (patch: Partial<CreationDraft>) => setDraft((current) => ({ ...current, ...patch }));
+  const isAdditionalWorld = (props.existingWorldCount ?? 0) > 0;
 
   return (
     <main className="app-shell" aria-busy={props.saving} data-saving={props.saving}>
@@ -128,18 +135,27 @@ export function CreationPanel(props: CreationPanelProps) {
         <CreationPreview draft={draft} />
 
         <div className="welcome-copy creation-copy">
-          <p className="eyebrow">Your story begins with a Pal</p>
+          <p className="eyebrow">{isAdditionalWorld ? 'Another local story' : 'Your story begins with a Pal'}</p>
           <h1 id="first-pal-title">Who did you meet?</h1>
-          <p className="intro">Choose their species and a few things you can see. Their personality will reveal itself through the life you share.</p>
+          <p className="intro">
+            Choose their species and a few things you can see. Their personality will reveal itself through the life you share.
+            {isAdditionalWorld ? ' Existing worlds remain safely stored on this tablet.' : ''}
+          </p>
 
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              submitCreation(draft, props);
+              void submitCreation(draft, props);
             }}
           >
             <CreationFields draft={draft} update={update} saving={props.saving} />
           </form>
+
+          {props.onCancel ? (
+            <button className="inline-action creation-cancel" type="button" disabled={props.saving} onClick={props.onCancel}>
+              Return to the current world
+            </button>
+          ) : null}
         </div>
       </section>
       <footer className="prototype-note" aria-live="polite"><span>{props.saveStatus}</span></footer>
