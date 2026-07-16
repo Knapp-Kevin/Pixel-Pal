@@ -1,0 +1,1 @@
+Temporary CI trigger after hardening Chrome startup cleanup and retry behavior. This file exists only on the verification branch and must not be merged.
