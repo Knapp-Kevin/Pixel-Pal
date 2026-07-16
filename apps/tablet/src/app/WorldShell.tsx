@@ -1,5 +1,6 @@
-import type { World } from '@pixel-pals/content-schema';
+import type { AdventureId, World } from '@pixel-pals/content-schema';
 import type { FirstActivity } from '@pixel-pals/simulation';
+import { AdventureLibrary } from '../AdventureLibrary';
 import { LocalWorldChooser } from '../LocalWorldChooser';
 import { MemoryJournal } from '../MemoryJournal';
 import { ParentTestTools } from '../ParentTestTools';
@@ -20,6 +21,8 @@ type WorldShellProps = {
   setHomeView: (view: HomeViewMode) => void;
   onStartActivity: (activity: FirstActivity) => void;
   onChooseDayInvitation: (invitationId: string) => void;
+  onOpenAdventure: (adventureId: AdventureId) => void;
+  onStartAdventure: (adventureId: AdventureId) => Promise<void>;
   onSwitchWorld: (worldId: string) => Promise<void>;
   onStartNewWorld: () => void;
   onDeleteWorld: () => Promise<void>;
@@ -34,7 +37,19 @@ function WorldFooter({ saveStatus, memoryCount, worldDay }: { saveStatus: string
   );
 }
 
-function WorldViews({ world, scene, save, view, setView, homeView, setHomeView, onStartActivity, onChooseDayInvitation }: WorldShellProps) {
+function WorldViews({
+  world,
+  scene,
+  save,
+  view,
+  setView,
+  homeView,
+  setHomeView,
+  onStartActivity,
+  onChooseDayInvitation,
+  onOpenAdventure,
+  onStartAdventure
+}: WorldShellProps) {
   const showHome = view === 'home' && Boolean(scene.ceremonyMemory) && scene.firstHome !== undefined;
 
   if (view === 'village') {
@@ -71,6 +86,18 @@ function WorldViews({ world, scene, save, view, setView, homeView, setHomeView, 
     );
   }
 
+  if (view === 'adventures') {
+    return (
+      <AdventureLibrary
+        world={world}
+        scene={scene}
+        saving={save.saving}
+        onOpen={onOpenAdventure}
+        onStart={onStartAdventure}
+      />
+    );
+  }
+
   if (view === 'journal') return <MemoryJournal world={world} firstPal={scene.firstPal} />;
   return null;
 }
@@ -94,6 +121,7 @@ export function WorldShell(props: WorldShellProps) {
         <WorldNav
           view={view}
           hasHome={Boolean(scene.ceremonyMemory)}
+          hasAdventures={Boolean(scene.homeMemory)}
           hasJournal={world.memories.length > 0}
           disabled={save.saving}
           onChange={(nextView) => {
