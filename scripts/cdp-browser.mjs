@@ -151,7 +151,7 @@ class CdpSession {
   }
 }
 
-export async function startHeadlessChrome({ port = 9222 } = {}) {
+export async function startHeadlessChrome({ port = 9222, startupTimeoutMs = 15_000 } = {}) {
   const chromePath = findChrome();
   const userDataDirectory = await mkdtemp(join(tmpdir(), 'pixel-pals-chrome-'));
   const processHandle = spawn(chromePath, [
@@ -169,8 +169,9 @@ export async function startHeadlessChrome({ port = 9222 } = {}) {
   const started = Date.now();
   let ready = false;
 
-  while (Date.now() - started < 10_000) {
+  while (Date.now() - started < startupTimeoutMs) {
     if (processHandle.exitCode !== null) {
+      await stopChrome(processHandle, userDataDirectory);
       throw new Error(`Chrome exited before its DevTools endpoint started (${processHandle.exitCode}).`);
     }
 
@@ -186,7 +187,10 @@ export async function startHeadlessChrome({ port = 9222 } = {}) {
     await delay(100);
   }
 
-  if (!ready) throw new Error('Chrome DevTools endpoint did not start.');
+  if (!ready) {
+    await stopChrome(processHandle, userDataDirectory);
+    throw new Error(`Chrome DevTools endpoint did not start within ${startupTimeoutMs}ms.`);
+  }
 
   return {
     async newPage() {
