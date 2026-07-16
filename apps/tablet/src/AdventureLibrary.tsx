@@ -18,6 +18,7 @@ type AdventureLibraryProps = {
 export function AdventureLibrary({ world, scene, saving, onOpen, onStart }: AdventureLibraryProps) {
   const definitions = availableAdventures(world);
   const active = activeAdventureSession(world);
+  const waitingDay = world.daySessions.some((session) => session.status === 'offered');
 
   return (
     <section className="adventure-library" aria-labelledby="adventure-library-title">
@@ -31,17 +32,26 @@ export function AdventureLibrary({ world, scene, saving, onOpen, onStart }: Adve
         </div>
       </header>
 
+      {waitingDay ? (
+        <p className="adventure-return-note" role="status">
+          Willowmere is already holding a world-day invitation. Return to the Village and finish or leave that saved choice before beginning another story.
+        </p>
+      ) : null}
+
       <div className="adventure-card-grid">
         {definitions.map((definition) => {
           const session = adventureSession(world, definition.id);
           const blockedByAnother = Boolean(active && active.adventureId !== definition.id);
+          const blockedByDay = Boolean(waitingDay && !session);
           const state = session?.status === 'completed'
             ? 'Remembered'
             : session?.status === 'active'
               ? `Stage ${session.stageIndex + 1} of 3`
               : blockedByAnother
                 ? 'Another adventure is waiting'
-                : 'Ready to begin';
+                : blockedByDay
+                  ? 'A world-day invitation is waiting'
+                  : 'Ready to begin';
 
           return (
             <article
@@ -60,7 +70,7 @@ export function AdventureLibrary({ world, scene, saving, onOpen, onStart }: Adve
                 className="adult-action adventure-open-button"
                 data-adventure-action={definition.id}
                 type="button"
-                disabled={saving || blockedByAnother}
+                disabled={saving || blockedByAnother || blockedByDay}
                 onClick={() => {
                   if (session) {
                     onOpen(definition.id);
