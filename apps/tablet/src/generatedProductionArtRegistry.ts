@@ -17,7 +17,7 @@ export const generatedProductionArtRegistry: ProductionArtRegistry = {
       portraitHeight: 1600,
       sceneId: "adventure-lanterns-in-the-rain",
       variant: "rain-path",
-      alt: "A gentle rainy woodland path with a stream, flowers, and three displaced lanterns.",
+      alt: "A simplified rainy woodland path with a stream, distant homes, and three glowing lanterns.",
       objectPosition: "50% 50%",
       portraitObjectPosition: "50% 50%"
     }

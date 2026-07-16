@@ -16,9 +16,17 @@ const baseUrl = process.env.VIEWPORT_BASE_URL ?? 'http://127.0.0.1:4173';
 const origin = new URL(baseUrl).origin;
 const screenshotSubdirectory = process.env.ADVENTURE_SCREENSHOT_SUBDIR ?? 'tablet-viewports';
 const screenshotDirectory = join(process.cwd(), 'artifacts', screenshotSubdirectory);
+const performanceDirectory = join(process.cwd(), 'artifacts', 'performance');
 const expectedRainPathStatus = process.env.EXPECT_RAIN_PATH_ART_STATUS;
 const expectRainPathFallback = process.env.EXPECT_RAIN_PATH_FALLBACK === 'true';
 const rainPathAssetId = 'lanterns-in-the-rain-adventure-rain-path';
+const artPerformanceMeasurements = [];
+const artPerformanceBudgets = {
+  decodeMs: 1000,
+  resourceDurationMs: 2000,
+  encodedBodySize: 1100000,
+  heapGrowthBytes: 16 * 1024 * 1024
+};
 
 const profiles = [
   {
@@ -61,6 +69,19 @@ async function setViewport(page, profile) {
     }
   });
   await page.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+}
+
+async function heapUsed(page) {
+  const result = await page.send('Performance.getMetrics');
+  const metric = result.metrics.find((candidate) => candidate.name === 'JSHeapUsedSize');
+  if (!metric) throw new Error('Chrome did not report JSHeapUsedSize for adventure art verification.');
+  return metric.value;
+}
+
+function assertBudget(profile, name, value, budget) {
+  if (value > budget) {
+    throw new Error(`${profile.name} Rain Path ${name} was ${value}, above the provisional budget ${budget}.`);
+  }
 }
 
 async function assertLayout(page, profile, state) {
@@ -108,21 +129,34 @@ async function capture(page, profile, state) {
   await writeFile(join(screenshotDirectory, `${profile.name}-${state}.png`), Buffer.from(result.data, 'base64'));
 }
 
-async function assertRainPathArt(page, profile) {
+async function assertRainPathArt(page, profile, heapBefore) {
   if (profile.adventure !== 'lanterns-in-the-rain') return;
   const selector = `img[data-art-asset-id="${rainPathAssetId}"]`;
 
   if (expectedRainPathStatus) {
     await page.waitFor(`Boolean(document.querySelector(${JSON.stringify(selector)}))`);
-    const snapshot = JSON.parse(await page.evaluate(`JSON.stringify((() => {
+    const snapshot = await page.evaluate(`(async () => {
       const image = document.querySelector(${JSON.stringify(selector)});
-      const picture = image?.closest('picture');
-      return image ? {
+      if (!(image instanceof HTMLImageElement)) return null;
+      const decodeStarted = performance.now();
+      await image.decode();
+      const decodeMs = Math.round((performance.now() - decodeStarted) * 100) / 100;
+      const entries = performance.getEntriesByName(image.currentSrc);
+      const resource = entries.at(-1);
+      const picture = image.closest('picture');
+      return {
         status: image.getAttribute('data-art-status'),
         currentSrc: image.currentSrc,
-        responsiveId: picture?.getAttribute('data-responsive-art-asset-id') ?? null
-      } : null;
-    })())`));
+        responsiveId: picture?.getAttribute('data-responsive-art-asset-id') ?? null,
+        decodeMs,
+        resourceDurationMs: resource ? Math.round(resource.duration * 100) / 100 : null,
+        transferSize: resource?.transferSize ?? null,
+        encodedBodySize: resource?.encodedBodySize ?? null,
+        decodedBodySize: resource?.decodedBodySize ?? null,
+        naturalWidth: image.naturalWidth,
+        naturalHeight: image.naturalHeight
+      };
+    })()`);
     if (!snapshot) throw new Error(`${profile.name} did not render Rain Path benchmark art.`);
     if (snapshot.status !== expectedRainPathStatus) {
       throw new Error(`${profile.name} rendered Rain Path status ${snapshot.status}, expected ${expectedRainPathStatus}.`);
@@ -134,7 +168,35 @@ async function assertRainPathArt(page, profile) {
     if (!snapshot.currentSrc.endsWith(expectedFile)) {
       throw new Error(`${profile.name} selected ${snapshot.currentSrc}, expected ${expectedFile}.`);
     }
-    console.log(`PASS ${profile.name}: Rain Path ${expectedRainPathStatus} art selected ${expectedFile}`);
+    if (snapshot.resourceDurationMs === null || snapshot.encodedBodySize === null) {
+      throw new Error(`${profile.name} did not expose resource timing for ${expectedFile}.`);
+    }
+
+    const heapAfter = await heapUsed(page);
+    const heapGrowthBytes = Math.max(0, heapAfter - heapBefore);
+    const measurement = {
+      profile: profile.name,
+      species: profile.species,
+      viewport: `${profile.width}x${profile.height}`,
+      orientation: profile.width < profile.height ? 'portrait' : 'landscape',
+      file: expectedFile,
+      ...snapshot,
+      heapBefore,
+      heapAfter,
+      heapGrowthBytes
+    };
+    artPerformanceMeasurements.push(measurement);
+
+    assertBudget(profile, 'decodeMs', measurement.decodeMs, artPerformanceBudgets.decodeMs);
+    assertBudget(profile, 'resourceDurationMs', measurement.resourceDurationMs, artPerformanceBudgets.resourceDurationMs);
+    assertBudget(profile, 'encodedBodySize', measurement.encodedBodySize, artPerformanceBudgets.encodedBodySize);
+    assertBudget(profile, 'heapGrowthBytes', measurement.heapGrowthBytes, artPerformanceBudgets.heapGrowthBytes);
+
+    console.log(
+      `PASS ${profile.name}: Rain Path ${expectedRainPathStatus} art selected ${expectedFile}; ` +
+      `resource=${measurement.resourceDurationMs}ms decode=${measurement.decodeMs}ms ` +
+      `encoded=${measurement.encodedBodySize}B heapGrowth=${measurement.heapGrowthBytes}B`
+    );
     return;
   }
 
@@ -172,9 +234,12 @@ async function openAdventure(page, profile) {
   await clickButton(page, 'Adventures', true);
   await page.waitFor("Boolean(document.querySelector('.adventure-library'))");
   await assertLayout(page, profile, 'adventure-library');
+  const heapBefore = expectedRainPathStatus && profile.adventure === 'lanterns-in-the-rain'
+    ? await heapUsed(page)
+    : null;
   await clickEnabledSelector(page, `[data-adventure-action="${profile.adventure}"]`);
   await page.waitFor(`document.querySelector('.adventure-stage-shell')?.getAttribute('data-adventure-id') === '${profile.adventure}'`);
-  await assertRainPathArt(page, profile);
+  await assertRainPathArt(page, profile, heapBefore);
 }
 
 async function chooseCurrentStage(page, expectedStage) {
@@ -224,6 +289,7 @@ try {
   for (const profile of profiles) {
     const page = await browser.newPage();
     try {
+      if (expectedRainPathStatus) await page.send('Performance.enable');
       await setViewport(page, profile);
       await page.send('Storage.clearDataForOrigin', { origin, storageTypes: 'all' });
       await prepareWorld(page, profile);
@@ -232,7 +298,31 @@ try {
       page.close();
     }
   }
-  console.log('Verified both illustrated adventures across five starter species, accessibility profiles, tablet viewports, and configured art status expectations.');
+
+  if (expectedRainPathStatus) {
+    if (artPerformanceMeasurements.length !== 3) {
+      throw new Error(`Expected 3 Rain Path performance measurements, received ${artPerformanceMeasurements.length}.`);
+    }
+    await mkdir(performanceDirectory, { recursive: true });
+    await writeFile(
+      join(performanceDirectory, 'rain-path-benchmark.json'),
+      `${JSON.stringify({
+        generatedAt: new Date().toISOString(),
+        evidenceClass: 'benchmark-art-browser-performance',
+        status: expectedRainPathStatus,
+        budgets: artPerformanceBudgets,
+        measurements: artPerformanceMeasurements,
+        limitations: [
+          'CI browser evidence is not physical tablet evidence.',
+          'The Rain Path pair is a technical benchmark and lacks human production-art approval.',
+          'Battery, thermal behavior, and operating-system memory pressure remain physical-device gates.'
+        ]
+      }, null, 2)}\n`,
+      'utf8'
+    );
+  }
+
+  console.log('Verified both illustrated adventures across five starter species, accessibility profiles, tablet viewports, configured art status expectations, and benchmark art performance budgets.');
 } finally {
   await browser.close();
 }
