@@ -3,8 +3,7 @@ import {
   clickButton,
   clickEnabledSelector,
   completeLeafChase,
-  setPalName,
-  waitForEnabledButton
+  setPalName
 } from './viewport-actions.mjs';
 
 const baseUrl = process.env.VIEWPORT_BASE_URL ?? 'http://127.0.0.1:4173';
@@ -30,15 +29,19 @@ async function waitForSaved(page) {
   await page.waitFor("document.body.textContent?.includes('Saved. Your world will remember this.')");
 }
 
+async function waitForPal(page, palLabel) {
+  await page.waitFor(`Boolean(document.querySelector('[aria-label*="a ${palLabel} Pal"]'))`);
+}
+
 async function createWorld(page, species, palLabel, name) {
   await page.waitFor("Boolean(document.querySelector('#first-pal-title'))");
   await clickButton(page, species, true);
   await page.waitFor(`document.querySelector('button[aria-pressed="true"]')?.innerText?.trim() === ${quoted(species)}`);
-  await page.waitFor(`Boolean(document.querySelector('[aria-label*="a ${palLabel} Pal"]'))`);
+  await waitForPal(page, palLabel);
   await setPalName(page, name);
   await clickButton(page, 'Meet my Pal');
   await page.waitFor("Boolean(document.querySelector('.world-nav'))");
-  await page.waitFor(`Boolean(document.querySelector('[aria-label*="a ${palLabel} Pal"]'))`);
+  await waitForPal(page, palLabel);
   await waitForSaved(page);
 }
 
@@ -72,7 +75,7 @@ async function assertWorldCards(page) {
 async function switchToWorld(page, firstPalName, palLabel) {
   await openWorldChooser(page);
   await clickButton(page, firstPalName);
-  await page.waitFor(`Boolean(document.querySelector('[aria-label*="a ${palLabel} Pal"]'))`);
+  await waitForPal(page, palLabel);
   await page.waitFor(`document.body.textContent?.includes(${quoted(firstPalName)})`);
 }
 
@@ -123,25 +126,25 @@ try {
   await switchToWorld(page, 'Pip', 'fox');
   await page.waitFor("document.body.textContent?.includes('1 remembered moment')");
   await page.navigate(baseUrl);
-  await page.waitFor("Boolean(document.querySelector('[aria-label*=" + quoted('a fox Pal') + "]'))");
+  await waitForPal(page, 'fox');
   await page.waitFor("document.body.textContent?.includes('1 remembered moment')");
 
   await switchToWorld(page, 'Moss', 'deer');
   await page.waitFor("document.body.textContent?.includes('0 remembered moments')");
   await page.navigate(baseUrl);
-  await page.waitFor("Boolean(document.querySelector('[aria-label*=" + quoted('a deer Pal') + "]'))");
+  await waitForPal(page, 'deer');
   await page.waitFor("document.body.textContent?.includes('0 remembered moments')");
 
   await verifyDeleteAuthorizationIsWorldScoped(page);
   await clickEnabledSelector(page, '.dangerous-action');
-  await page.waitFor("Boolean(document.querySelector('[aria-label*=" + quoted('a fox Pal') + "]'))");
+  await waitForPal(page, 'fox');
   await page.waitFor("document.body.textContent?.includes('1 remembered moment')");
 
   const chooserStillPresent = await page.evaluate("Boolean(document.querySelector('.world-chooser-trigger'))");
   if (chooserStillPresent) throw new Error('The world chooser remained after only one local world was left.');
 
   await page.navigate(baseUrl);
-  await page.waitFor("Boolean(document.querySelector('[aria-label*=" + quoted('a fox Pal') + "]'))");
+  await waitForPal(page, 'fox');
   await page.waitFor("document.body.textContent?.includes('1 remembered moment')");
 
   console.log('Verified isolated creation, switching, reload, backup authorization, and deletion for multiple local worlds.');
