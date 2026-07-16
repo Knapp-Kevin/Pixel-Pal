@@ -1,0 +1,1 @@
+Temporary CI trigger for illustrated adventure verification after completion action sizing correction. Do not merge.
