@@ -32,7 +32,12 @@ export function AdventureScreen({ adventureId, world, scene, save, onExit }: Adv
   if (session.status === 'completed') {
     return (
       <main className="app-shell" aria-busy={save.saving} data-saving={save.saving}>
-        <section className={`adventure-completion-panel adventure-completion-${adventureId}`} aria-labelledby="adventure-completion-title">
+        <section
+          className={`adventure-completion-panel adventure-completion-${adventureId}`}
+          data-adventure-id={adventureId}
+          data-adventure-status="completed"
+          aria-labelledby="adventure-completion-title"
+        >
           <p className="eyebrow">Adventure remembered</p>
           <h1 id="adventure-completion-title">{definition.memoryTitle}</h1>
           <p className="adventure-completion-summary">{session.summary}</p>
@@ -57,7 +62,13 @@ export function AdventureScreen({ adventureId, world, scene, save, onExit }: Adv
 
   return (
     <main className="app-shell" aria-busy={save.saving} data-saving={save.saving}>
-      <section className="adventure-stage-shell" aria-labelledby="adventure-stage-title">
+      <section
+        className="adventure-stage-shell"
+        data-adventure-id={adventureId}
+        data-adventure-status="active"
+        data-stage-index={session.stageIndex}
+        aria-labelledby="adventure-stage-title"
+      >
         <header className="adventure-stage-header">
           <div>
             <p className="eyebrow">{definition.title} · Part {session.stageIndex + 1} of 3</p>
@@ -75,6 +86,7 @@ export function AdventureScreen({ adventureId, world, scene, save, onExit }: Adv
           {stage.choices.map((choice, index) => (
             <button
               className={`action-card adventure-choice ${CHOICE_TONES[index] ?? 'action-leaf'}`}
+              data-adventure-choice-id={choice.id}
               type="button"
               key={choice.id}
               disabled={save.saving}
