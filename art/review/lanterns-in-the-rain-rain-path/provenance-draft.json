@@ -1,0 +1,24 @@
+{
+  "assetId": "lanterns-in-the-rain-adventure/rain-path-landscape",
+  "status": "draft-unapproved",
+  "creator": "OpenAI image generation service under user and ChatGPT art direction",
+  "method": "AI-assisted concept generation from an original Pixel Pals scene brief, followed by pending human visual review and revision",
+  "sourceReferenceIds": [
+    "docs/art/ART_BIBLE.md",
+    "art/briefs/lanterns-in-the-rain-rain-path.md",
+    "packages/simulation/src/adventures.ts",
+    "art/adventure-production-manifest.json"
+  ],
+  "ownershipBasis": "Original project-directed concept generated for MythologIQ Labs, LLC; applicable service terms and release rights require human review before approval or production use",
+  "createdAt": "2026-07-16",
+  "modificationHistory": [],
+  "reviewer": null,
+  "approvedAt": null,
+  "restrictions": [
+    "Not approved for production or release",
+    "Must not contain fixed Pal characters",
+    "Must not imitate a named artist, studio, franchise, or copyrighted character style",
+    "Must be reviewed for source similarity, ownership, child suitability, accessibility, crop safety, and tablet performance"
+  ],
+  "notes": "This is a draft provenance shell prepared before the first concept image. Complete the generated asset identifier, modification history, reviewer, rights review, and approval date only after visual review. Do not copy this record into a production manifest while reviewer or approvedAt is null."
+}
