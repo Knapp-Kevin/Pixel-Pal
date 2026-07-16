@@ -38,27 +38,51 @@
           "id": "rain-path-landscape",
           "variant": "rain-path",
           "orientation": "landscape",
-          "status": "planned",
-          "filePath": null,
+          "status": "benchmark",
+          "filePath": "art/production/adventures/lanterns-in-the-rain/rain-path-landscape.webp",
+          "runtimePath": "apps/tablet/public/art/adventures/lanterns-in-the-rain/rain-path-landscape.webp",
           "format": "webp",
           "maxBytes": 1100000,
           "width": 1600,
           "height": 1000,
           "objectPosition": "50% 50%",
-          "provenance": null
+          "alt": "A gentle rainy woodland path with a stream, flowers, and three displaced lanterns.",
+          "provenance": {
+            "creator": "OpenAI image generation with OpenAI assistant extraction and compositing",
+            "method": "AI-generated concept extraction, responsive crop, rain and lantern compositing, and WebP optimization",
+            "ownershipBasis": "User-directed work product for MythologIQ Labs, LLC; technical benchmark use only pending human art approval",
+            "createdAt": "2026-07-16T13:30:00Z",
+            "reviewer": "OpenAI assistant technical benchmark intake",
+            "approvedAt": "2026-07-16T13:30:00Z",
+            "sourceReferenceIds": ["image_gen:2c0f9568-00d9-4ab9-84ca-8a1696e4d73a"],
+            "approvalScope": "Technical pipeline benchmark only; not approved or production art",
+            "humanArtApproval": false
+          }
         },
         {
           "id": "rain-path-portrait",
           "variant": "rain-path",
           "orientation": "portrait",
-          "status": "planned",
-          "filePath": null,
+          "status": "benchmark",
+          "filePath": "art/production/adventures/lanterns-in-the-rain/rain-path-portrait.webp",
+          "runtimePath": "apps/tablet/public/art/adventures/lanterns-in-the-rain/rain-path-portrait.webp",
           "format": "webp",
           "maxBytes": 1100000,
           "width": 1000,
           "height": 1600,
           "objectPosition": "50% 50%",
-          "provenance": null
+          "alt": "A vertical view of a gentle rainy woodland stream with flowers and three displaced lanterns.",
+          "provenance": {
+            "creator": "OpenAI image generation with OpenAI assistant extraction and compositing",
+            "method": "AI-generated concept extraction, responsive crop, rain and lantern compositing, and WebP optimization",
+            "ownershipBasis": "User-directed work product for MythologIQ Labs, LLC; technical benchmark use only pending human art approval",
+            "createdAt": "2026-07-16T13:30:00Z",
+            "reviewer": "OpenAI assistant technical benchmark intake",
+            "approvedAt": "2026-07-16T13:30:00Z",
+            "sourceReferenceIds": ["image_gen:2c0f9568-00d9-4ab9-84ca-8a1696e4d73a"],
+            "approvalScope": "Technical pipeline benchmark only; not approved or production art",
+            "humanArtApproval": false
+          }
         },
         {
           "id": "lantern-colors-landscape",

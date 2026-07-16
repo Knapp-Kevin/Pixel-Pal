@@ -16,8 +16,8 @@ function requireString(value, label) {
   return value;
 }
 
-function publicUrl(filePath, label) {
-  const path = requireString(filePath, label).replaceAll('\\', '/');
+function publicUrl(runtimePath, label) {
+  const path = requireString(runtimePath, label).replaceAll('\\', '/');
   const prefix = 'apps/tablet/public/';
   if (!path.startsWith(prefix)) fail(`${label} must live under ${prefix}.`);
   return `/${path.slice(prefix.length)}`;
@@ -109,10 +109,10 @@ for (const asset of manifest.assets) {
     sceneAssets.push({
       id: `${asset.id}-${variant}`,
       status: pair.landscape.status,
-      src: publicUrl(pair.landscape.filePath, `${asset.id}.${pair.landscape.id}.filePath`),
+      src: publicUrl(pair.landscape.runtimePath, `${asset.id}.${pair.landscape.id}.runtimePath`),
       width: pair.landscape.width,
       height: pair.landscape.height,
-      portraitSrc: publicUrl(pair.portrait.filePath, `${asset.id}.${pair.portrait.id}.filePath`),
+      portraitSrc: publicUrl(pair.portrait.runtimePath, `${asset.id}.${pair.portrait.id}.runtimePath`),
       portraitWidth: pair.portrait.width,
       portraitHeight: pair.portrait.height,
       sceneId: asset.sceneId,

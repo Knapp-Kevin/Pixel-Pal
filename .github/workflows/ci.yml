@@ -15,7 +15,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
 
     steps:
       - name: Check out repository
@@ -76,10 +76,10 @@ jobs:
           mkdir -p artifacts
           npm test 2>&1 | tee artifacts/test-results.log
 
-      - name: Build
+      - name: Build production-only application
         run: npm run build
 
-      - name: Verify tablet performance, viewport, suspension, adventures, and local worlds
+      - name: Verify production-only tablet routes
         run: |
           set -o pipefail
           npm run preview --workspace=@pixel-pals/tablet -- --host 127.0.0.1 --port 4173 > /tmp/pixel-pals-preview.log 2>&1 &
@@ -99,8 +99,34 @@ jobs:
           npm run verify:performance 2>&1 | tee artifacts/performance-verification.log
           npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
           npm run verify:suspension 2>&1 | tee artifacts/suspension-verification.log
-          npm run verify:adventures 2>&1 | tee artifacts/adventure-verification.log
+          EXPECT_RAIN_PATH_FALLBACK=true npm run verify:adventures 2>&1 | tee artifacts/adventure-verification.log
           npm run verify:worlds 2>&1 | tee artifacts/world-catalog-verification.log
+
+      - name: Build benchmark art review application
+        env:
+          VITE_PIXEL_PALS_ART_STATUS: benchmark
+        run: npm run build --workspace=@pixel-pals/tablet -- --outDir dist-benchmark
+
+      - name: Verify benchmark art across five starter species
+        run: |
+          set -o pipefail
+          python3 -m http.server 4174 --directory apps/tablet/dist-benchmark > /tmp/pixel-pals-benchmark-preview.log 2>&1 &
+          BENCHMARK_PID=$!
+          trap 'kill $BENCHMARK_PID' EXIT
+          for attempt in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4174/ > /dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 40 ]; then
+              cat /tmp/pixel-pals-benchmark-preview.log
+              exit 1
+            fi
+            sleep 0.25
+          done
+          VIEWPORT_BASE_URL=http://127.0.0.1:4174 \
+          EXPECT_RAIN_PATH_ART_STATUS=benchmark \
+          ADVENTURE_SCREENSHOT_SUBDIR=benchmark-art-review \
+          npm run verify:adventures 2>&1 | tee artifacts/benchmark-art-verification.log
 
       - name: Upload CI evidence
         if: always()
@@ -109,6 +135,8 @@ jobs:
           name: tablet-viewport-screenshots
           path: |
             artifacts/art-review
+            artifacts/benchmark-art-review
+            artifacts/benchmark-art-verification.log
             artifacts/performance
             artifacts/performance-verification.log
             artifacts/art-registry-verification.log
@@ -122,5 +150,5 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Verify installable build artifacts
+      - name: Verify installable production build artifacts
         run: npm run verify:artifacts
