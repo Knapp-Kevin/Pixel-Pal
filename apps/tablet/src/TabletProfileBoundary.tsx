@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import type { World } from '@pixel-pals/content-schema';
-import { loadWorld } from '@pixel-pals/persistence';
+import { deleteWorld, listWorlds, loadWorld, type WorldSummary } from '@pixel-pals/persistence';
 import { ParentTestTools } from './ParentTestTools';
 import { inspectTabletProfileCompatibility } from './tabletProfile';
 
@@ -10,13 +10,20 @@ type TabletProfileBoundaryProps = {
 
 export function TabletProfileBoundary({ children }: TabletProfileBoundaryProps) {
   const [world, setWorld] = useState<World | null>(null);
+  const [worlds, setWorlds] = useState<WorldSummary[]>([]);
   const [checked, setChecked] = useState(false);
   const [status, setStatus] = useState('The saved world remains unchanged.');
 
   useEffect(() => {
     void loadWorld()
-      .then((savedWorld) => setWorld(savedWorld))
-      .catch(() => setWorld(null))
+      .then(async (savedWorld) => {
+        setWorld(savedWorld);
+        setWorlds(await listWorlds());
+      })
+      .catch(() => {
+        setWorld(null);
+        setWorlds([]);
+      })
       .finally(() => setChecked(true));
   }, []);
 
@@ -52,14 +59,19 @@ export function TabletProfileBoundary({ children }: TabletProfileBoundaryProps) 
           <p className="intro">
             Every Pal and memory is still saved exactly as it was. This tablet build will not show the wrong kind of Pal just to open the story.
           </p>
-          <p className="intro">A parent can export the world below or restore a compatible backup.</p>
+          <p className="intro">A parent can export this world, restore a compatible backup, or remove only this local world below.</p>
         </div>
       </section>
 
       <ParentTestTools
         world={world}
+        worlds={worlds}
         onStatus={setStatus}
-        onResetComplete={() => window.location.reload()}
+        onStartNewWorld={() => setStatus('Install a compatible tablet build before beginning another local world.')}
+        onDeleteWorld={async () => {
+          await deleteWorld(world.worldId);
+          window.location.reload();
+        }}
       />
 
       <footer className="prototype-note" aria-live="polite">
