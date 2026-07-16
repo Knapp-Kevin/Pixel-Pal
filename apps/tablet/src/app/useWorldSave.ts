@@ -17,7 +17,7 @@ export type WorldSave = {
   saveStatus: string;
   setSaveStatus: (message: string) => void;
   setWorldDirect: (world: World | null) => void;
-  persist: (nextWorld: World) => Promise<void>;
+  persist: (nextWorld: World) => Promise<boolean>;
   runWorldAction: (action: () => World) => void;
   switchWorld: (worldId: string) => Promise<void>;
   removeWorld: (worldId: string) => Promise<void>;
@@ -36,8 +36,8 @@ async function refreshWorldSummaries(setWorlds: (worlds: WorldSummary[]) => void
   setWorlds(await listWorlds());
 }
 
-async function persistWorld(context: PersistContext, nextWorld: World): Promise<void> {
-  if (context.saveInFlight.current) return;
+async function persistWorld(context: PersistContext, nextWorld: World): Promise<boolean> {
+  if (context.saveInFlight.current) return false;
 
   context.saveInFlight.current = true;
   context.setSaving(true);
@@ -48,9 +48,11 @@ async function persistWorld(context: PersistContext, nextWorld: World): Promise<
     await saveWorld(nextWorld);
     await refreshWorldSummaries(context.setWorlds);
     context.setSaveStatus('Saved. Your world will remember this.');
+    return true;
   } catch {
     context.setWorld(context.previousWorld);
     context.setSaveStatus('That change could not be saved, so the world returned to its last safe state.');
+    return false;
   } finally {
     context.saveInFlight.current = false;
     context.setSaving(false);
