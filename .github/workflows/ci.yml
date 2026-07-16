@@ -15,7 +15,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Check out repository
@@ -45,6 +45,7 @@ jobs:
           node --check scripts/viewport-lifecycle-actions.mjs
           node --check scripts/verify-tablet-viewports.mjs
           node --check scripts/verify-tablet-suspension.mjs
+          node --check scripts/verify-illustrated-adventures.mjs
           node --check scripts/verify-multiple-worlds.mjs
           node --check scripts/verify-production-art.mjs
 
@@ -66,7 +67,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Verify tablet viewport, suspension, and local worlds
+      - name: Verify tablet viewport, suspension, adventures, and local worlds
         run: |
           set -o pipefail
           npm run preview --workspace=@pixel-pals/tablet -- --host 127.0.0.1 --port 4173 > /tmp/pixel-pals-preview.log 2>&1 &
@@ -85,6 +86,7 @@ jobs:
           mkdir -p artifacts
           npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
           npm run verify:suspension 2>&1 | tee artifacts/suspension-verification.log
+          npm run verify:adventures 2>&1 | tee artifacts/adventure-verification.log
           npm run verify:worlds 2>&1 | tee artifacts/world-catalog-verification.log
 
       - name: Upload CI evidence
@@ -98,6 +100,7 @@ jobs:
             artifacts/tablet-viewports
             artifacts/viewport-verification.log
             artifacts/suspension-verification.log
+            artifacts/adventure-verification.log
             artifacts/world-catalog-verification.log
           if-no-files-found: warn
           retention-days: 14
