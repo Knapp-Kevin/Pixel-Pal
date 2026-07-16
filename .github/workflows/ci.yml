@@ -15,7 +15,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 35
 
     steps:
       - name: Check out repository
@@ -47,6 +47,7 @@ jobs:
           node --check scripts/verify-tablet-suspension.mjs
           node --check scripts/verify-illustrated-adventures.mjs
           node --check scripts/verify-multiple-worlds.mjs
+          node --check scripts/verify-emulated-tablet-performance.mjs
           node --check scripts/verify-production-art.mjs
           node --check scripts/generate-production-art-registry.mjs
           node --check scripts/generate-art-review-report.mjs
@@ -78,7 +79,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Verify tablet viewport, suspension, adventures, and local worlds
+      - name: Verify tablet performance, viewport, suspension, adventures, and local worlds
         run: |
           set -o pipefail
           npm run preview --workspace=@pixel-pals/tablet -- --host 127.0.0.1 --port 4173 > /tmp/pixel-pals-preview.log 2>&1 &
@@ -95,6 +96,7 @@ jobs:
             sleep 0.25
           done
           mkdir -p artifacts
+          npm run verify:performance 2>&1 | tee artifacts/performance-verification.log
           npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
           npm run verify:suspension 2>&1 | tee artifacts/suspension-verification.log
           npm run verify:adventures 2>&1 | tee artifacts/adventure-verification.log
@@ -107,6 +109,8 @@ jobs:
           name: tablet-viewport-screenshots
           path: |
             artifacts/art-review
+            artifacts/performance
+            artifacts/performance-verification.log
             artifacts/art-registry-verification.log
             artifacts/typecheck-results.log
             artifacts/test-results.log
