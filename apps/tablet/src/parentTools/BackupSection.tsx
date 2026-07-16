@@ -55,10 +55,10 @@ function reviewBackupFile(input: HTMLInputElement, actions: ReviewActions): void
 function restoreBackup(pendingImport: World, onStatus: (message: string) => void): void {
   void saveWorld(pendingImport)
     .then(() => {
-      onStatus('World backup restored. Reopening the imported world…');
+      onStatus('World backup restored. Opening the imported local world…');
       window.setTimeout(() => window.location.reload(), 250);
     })
-    .catch(() => onStatus('The backup could not be restored. The current world remains active.'));
+    .catch(() => onStatus('The backup could not be restored. Existing local worlds remain unchanged.'));
 }
 
 type RestoreReviewProps = {
@@ -77,7 +77,7 @@ function RestoreReview({ pendingImport, confirmation, setConfirmation, onStatus,
       <p><strong>First Pal:</strong> {firstPalName(pendingImport)}</p>
       <p><strong>Memories:</strong> {pendingImport.memories.length}</p>
       <label className="field-label">
-        <span>Type RESTORE to replace the active world</span>
+        <span>Type RESTORE to add or replace this local world</span>
         <input
           className="name-input"
           value={confirmation}
@@ -98,7 +98,7 @@ function RestoreReview({ pendingImport, confirmation, setConfirmation, onStatus,
           Cancel
         </button>
       </div>
-      <p className="tool-note">A successful restore keeps the current valid world as the recovery checkpoint.</p>
+      <p className="tool-note">A matching world ID keeps the current valid version as recovery. A different world ID adds another local world.</p>
     </div>
   );
 }
@@ -125,7 +125,7 @@ export function BackupSection(props: BackupSectionProps) {
   return (
     <section aria-labelledby="world-backup-title">
       <h2 id="world-backup-title">World backup</h2>
-      <p>Export a local copy before resetting or moving this playtest to another build.</p>
+      <p>Export this local world before deleting it or moving it to another tablet or build.</p>
       <button className="adult-action" type="button" onClick={() => exportBackup(props)}>
         Export world backup
       </button>
