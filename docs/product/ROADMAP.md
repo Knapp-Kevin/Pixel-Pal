@@ -296,16 +296,17 @@ Each milestone must answer:
 
 ## Current Priority
 
-The active implementation target is **M2: Family Tablet Alpha**.
+The active implementation target remains **M2: Family Tablet Alpha**.
 
 The M0 and M1 software scope is implemented and verified through the full offline relationship loop, repeatable world days, deterministic persistence, recovery, and the five-profile tablet browser matrix. Their remaining exit evidence is physical: actual-device accessibility checks and observed child playtesting.
 
-M2 software work proceeds in this order:
+### M2 implementation status
 
-1. accessibility preferences and durable local settings;
-2. stable suspension and resume verification;
-3. multiple local child profiles or separate local worlds;
-4. production-quality illustrated adventures and art integration;
-5. installation, performance, and seven-day observed playtesting on the target family tablets.
+1. **Complete:** accessibility preferences and durable device-local settings.
+2. **Complete:** stable suspension, reload, and resume verification.
+3. **Complete:** multiple isolated local worlds with migration, independent recovery checkpoints, switching, backup, and selected-world deletion.
+4. **Software complete:** two saved relationship-centered illustrated adventures, **The Lanterns in the Rain** and **The Humming Bridge**. Both support all five starter species equally, resume after reload, create durable memories and village changes, and pass the five-profile tablet browser matrix.
+5. **Art production pending:** the runtime uses structured offline storybook fallbacks and production-art scene IDs. Final raster adventure assets remain planned until files, provenance, responsive crops, performance budgets, and release approval are complete.
+6. **Physical evidence pending:** installation, update behavior, oldest-device performance, actual-device accessibility, independent child navigation, and a seven-day observed family playtest on the target tablets.
 
-No M3 system should displace these Family Tablet Alpha outcomes unless it changes a foundational architecture decision.
+The next implementation work is final production art creation and provenance integration, followed immediately by target-tablet installation and observed Family Tablet Alpha validation. No M3 system should displace these outcomes unless it changes a foundational architecture decision.
