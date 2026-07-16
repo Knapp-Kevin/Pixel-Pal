@@ -1,34 +1,34 @@
 import { useState } from 'react';
-import { clearWorld } from '@pixel-pals/persistence';
 
 type ResetSectionProps = {
   firstPalName: string;
   backupExported: boolean;
+  otherWorldCount: number;
   onStatus: (message: string) => void;
-  onResetComplete: () => void;
+  onDeleteWorld: () => Promise<void>;
 };
 
-export function ResetSection({ firstPalName, backupExported, onStatus, onResetComplete }: ResetSectionProps) {
+export function ResetSection({ firstPalName, backupExported, otherWorldCount, onStatus, onDeleteWorld }: ResetSectionProps) {
   const [resetConfirmation, setResetConfirmation] = useState('');
   const resetPhrase = `DELETE ${firstPalName}`;
 
   function handleReset(): void {
-    void clearWorld()
-      .then(() => {
-        setResetConfirmation('');
-        onResetComplete();
-      })
-      .catch(() => onStatus('The world could not be cleared. The existing save remains available.'));
+    void onDeleteWorld()
+      .then(() => setResetConfirmation(''))
+      .catch(() => onStatus('The world could not be removed. Its existing save remains available.'));
   }
 
   return (
     <section className="reset-zone" aria-labelledby="reset-title">
-      <h2 id="reset-title">Reset this tablet</h2>
-      <p>This permanently removes the active and recovery checkpoints from this browser.</p>
+      <h2 id="reset-title">Delete this world</h2>
+      <p>
+        This permanently removes {firstPalName}’s active and recovery checkpoints from this tablet.
+        {otherWorldCount > 0 ? ` The other ${otherWorldCount} local world${otherWorldCount === 1 ? '' : 's'} will remain.` : ' A new story can begin afterward.'}
+      </p>
       <p className="tool-note">
         {backupExported
-          ? 'A backup was exported during this session.'
-          : 'Export the world backup above before reset becomes available.'}
+          ? 'A backup of this world was exported during this session.'
+          : 'Export this world above before deletion becomes available.'}
       </p>
       <label className="field-label">
         <span>Type {resetPhrase} to confirm</span>
@@ -45,7 +45,7 @@ export function ResetSection({ firstPalName, backupExported, onStatus, onResetCo
         disabled={!backupExported || resetConfirmation !== resetPhrase}
         onClick={handleReset}
       >
-        Permanently reset playtest world
+        Permanently delete {firstPalName}’s world
       </button>
     </section>
   );
