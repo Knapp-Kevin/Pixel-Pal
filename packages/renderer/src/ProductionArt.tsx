@@ -32,10 +32,14 @@ export type SceneArtworkAsset = {
   src: string;
   width: number;
   height: number;
+  portraitSrc?: string;
+  portraitWidth?: number;
+  portraitHeight?: number;
   sceneId: string;
   variant?: string;
   alt: string;
   objectPosition?: string;
+  portraitObjectPosition?: string;
 };
 
 export type ProductionArtRegistry = {
@@ -175,7 +179,7 @@ export function SceneArtwork({ sceneId, variant, className, fallback }: SceneArt
 
   if (!asset) return <>{fallback}</>;
 
-  return (
+  const image = (
     <img
       className={className}
       src={asset.src}
@@ -188,5 +192,14 @@ export function SceneArtwork({ sceneId, variant, className, fallback }: SceneArt
       data-art-status={asset.status}
       style={{ objectFit: 'cover', objectPosition: asset.objectPosition ?? '50% 50%' }}
     />
+  );
+
+  if (!asset.portraitSrc) return image;
+
+  return (
+    <picture data-responsive-art-asset-id={asset.id}>
+      <source media="(orientation: portrait)" srcSet={asset.portraitSrc} />
+      {image}
+    </picture>
   );
 }
