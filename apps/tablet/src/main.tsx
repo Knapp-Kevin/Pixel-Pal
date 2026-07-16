@@ -25,6 +25,7 @@ import './garden-game.css';
 import './day-cycle.css';
 import './home-day.css';
 import './adventures-compact.css';
+import './production-art.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,
