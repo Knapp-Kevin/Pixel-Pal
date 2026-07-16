@@ -6,6 +6,7 @@ import {
   availableAdventures,
   chooseAdventureStage,
   createFirstWorld,
+  offerNextWorldDay,
   startAdventure,
   type FirstActivityCompletion,
   type FirstPalChoice
@@ -79,6 +80,15 @@ describe('saved relationship adventures', () => {
     expect(() => startAdventure(started, 'humming-bridge')).toThrow(/current adventure/i);
   });
 
+  it('keeps an offered day and an unfinished adventure mutually exclusive', () => {
+    const ready = readyWorld();
+    const offeredDay = offerNextWorldDay(ready);
+    const activeAdventure = startAdventure(ready, 'lanterns-in-the-rain');
+
+    expect(() => startAdventure(offeredDay, 'lanterns-in-the-rain')).toThrow(/world-day invitation/i);
+    expect(() => offerNextWorldDay(activeAdventure)).toThrow(/unfinished adventure/i);
+  });
+
   it('records one valid choice for each completed stage', () => {
     const started = startAdventure(readyWorld(), 'humming-bridge');
     expect(() => chooseAdventureStage(started, 'humming-bridge', 'steady-gold')).toThrow(/current adventure stage/i);
@@ -116,7 +126,6 @@ describe('saved relationship adventures', () => {
       const firstPal = completed.pals.find((pal) => pal.id === completed.firstPalId)!;
       const session = adventureSession(completed, 'lanterns-in-the-rain')!;
       return {
-        speciesId,
         status: session.status,
         choices: session.selectedChoiceIds.length,
         memories: completed.memories.filter((memory) => memory.activityId === 'lanterns-in-the-rain').length,
@@ -126,8 +135,6 @@ describe('saved relationship adventures', () => {
       };
     });
 
-    expect(results.map(({ speciesId: _speciesId, ...result }) => result)).toEqual(
-      Array.from({ length: 5 }, () => results[0] && (({ speciesId: _speciesId, ...result }) => result)(results[0]))
-    );
+    expect(results).toEqual(Array.from({ length: 5 }, () => results[0]));
   });
 });
