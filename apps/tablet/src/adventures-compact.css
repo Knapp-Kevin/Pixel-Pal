@@ -13,6 +13,11 @@
   overflow: hidden;
 }
 
+.adventure-return-button {
+  height: auto;
+  min-height: 82px;
+}
+
 @media (max-height: 700px) and (orientation: landscape) {
   .adventure-library {
     padding: 14px 18px;
