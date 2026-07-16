@@ -6,6 +6,7 @@ import { clickButton, setPalName, waitForEnabledButton } from './viewport-action
 const baseUrl = process.env.PERFORMANCE_BASE_URL ?? 'http://127.0.0.1:4173';
 const origin = new URL(baseUrl).origin;
 const outputDirectory = join(process.cwd(), 'artifacts', 'performance');
+const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 const budgets = {
   coldLaunchMs: 5_000,
@@ -14,6 +15,19 @@ const budgets = {
   offlineReloadMs: 5_000,
   heapGrowthBytes: 32 * 1024 * 1024
 };
+
+async function startPerformanceBrowser() {
+  const failures = [];
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await startHeadlessChrome({ port: 9231 + attempt, startupTimeoutMs: 15_000 });
+    } catch (error) {
+      failures.push(error.message);
+      if (attempt < 2) await delay(500);
+    }
+  }
+  throw new Error(`Could not start Chrome for performance verification after 3 attempts: ${failures.join(' | ')}`);
+}
 
 async function setOldestTabletProfile(page) {
   await page.send('Emulation.setDeviceMetricsOverride', {
@@ -47,7 +61,7 @@ function assertBudget(name, value, budget) {
 }
 
 await mkdir(outputDirectory, { recursive: true });
-const browser = await startHeadlessChrome({ port: 9231 });
+const browser = await startPerformanceBrowser();
 const page = await browser.newPage();
 
 try {
