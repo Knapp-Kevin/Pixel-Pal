@@ -1,3 +1,18 @@
+.app-shell > .adventure-library {
+  grid-row: 2 / 4;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app-shell > .adventure-stage-shell,
+.app-shell > .adventure-completion-panel {
+  grid-row: 1 / 4;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 @media (max-height: 700px) and (orientation: landscape) {
   .adventure-library {
     padding: 14px 18px;
