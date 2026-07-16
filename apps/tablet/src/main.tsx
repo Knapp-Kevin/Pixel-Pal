@@ -16,7 +16,6 @@ import './parent-access.css';
 import './accessibility-settings.css';
 import './world-catalog.css';
 import './adventures.css';
-import './adventures-compact.css';
 import './compatibility.css';
 import './update-notice.css';
 import './viewport-layout.css';
@@ -25,6 +24,7 @@ import './leaf-chase.css';
 import './garden-game.css';
 import './day-cycle.css';
 import './home-day.css';
+import './adventures-compact.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,
