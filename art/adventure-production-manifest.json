@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "product": "Pixel Pals",
+  "manifestStatus": "alpha-blocked",
+  "assets": [
+    {
+      "id": "lanterns-in-the-rain-adventure",
+      "category": "storybook-illustration",
+      "subject": "The Lanterns in the Rain",
+      "status": "planned",
+      "releaseRequired": true,
+      "benchmarkCandidate": true,
+      "filePath": null,
+      "format": "webp",
+      "maxBytes": 1900000,
+      "sceneId": "adventure-lanterns-in-the-rain",
+      "requiredViews": [
+        "rain-path",
+        "lantern-colors",
+        "welcoming-path",
+        "landscape-crop",
+        "portrait-crop",
+        "reduced-motion"
+      ],
+      "provenance": null
+    },
+    {
+      "id": "humming-bridge-adventure",
+      "category": "storybook-illustration",
+      "subject": "The Humming Bridge",
+      "status": "planned",
+      "releaseRequired": true,
+      "benchmarkCandidate": true,
+      "filePath": null,
+      "format": "webp",
+      "maxBytes": 1900000,
+      "sceneId": "adventure-humming-bridge",
+      "requiredViews": [
+        "bridge-listening",
+        "bridge-patterns",
+        "bridge-gathering",
+        "landscape-crop",
+        "portrait-crop",
+        "reduced-motion"
+      ],
+      "provenance": null
+    }
+  ]
+}
