@@ -6,7 +6,7 @@ import { clearWorld, exportWorld, importWorld, loadWorld, saveWorld } from './in
 const DATABASE_NAME = 'pixel-pals';
 const DATABASE_VERSION = 1;
 const STORE_NAME = 'world-checkpoints';
-const ACTIVE_KEY = 'active';
+const ACTIVE_KEY = 'world:advanced-world:active';
 
 function invitation(day: number, kind: 'active' | 'quiet' | 'home' | 'helping', suffix: string) {
   return {
