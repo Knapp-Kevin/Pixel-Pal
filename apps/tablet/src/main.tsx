@@ -14,6 +14,7 @@ import './starter-choice.css';
 import './playtest.css';
 import './parent-access.css';
 import './accessibility-settings.css';
+import './world-catalog.css';
 import './compatibility.css';
 import './update-notice.css';
 import './viewport-layout.css';
