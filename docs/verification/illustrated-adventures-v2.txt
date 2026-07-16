@@ -1,0 +1,1 @@
+Temporary CI trigger for illustrated adventure verification after schema correction. Do not merge.
