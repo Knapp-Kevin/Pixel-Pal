@@ -12,6 +12,7 @@ export const LIMITS = {
   villages: 256,
   greatTrees: 256,
   daySessions: 10000,
+  adventureSessions: 64,
   palDetails: 128,
   references: 5000
 } as const;
