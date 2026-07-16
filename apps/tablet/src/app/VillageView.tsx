@@ -71,6 +71,19 @@ function villageSceneVariant(scene: WorldScene, marker: WillowmerePlayMarker | u
   return scene.ceremonyMemory ? `${base}-ceremony` : base;
 }
 
+function AdventureVillageMarkers({ scene }: { scene: WorldScene }) {
+  const rainLanterns = scene.village.visibleChanges.includes('adventure-rain-lantern-path');
+  const hummingBridge = scene.village.visibleChanges.includes('adventure-humming-bridge');
+  if (!rainLanterns && !hummingBridge) return null;
+
+  return (
+    <div className="adventure-village-markers" aria-label="Changes left by shared adventures">
+      {rainLanterns ? <span className="adventure-village-lanterns" title="The rain lantern path" /> : null}
+      {hummingBridge ? <span className="adventure-village-bridge" title="The humming bridge">♪</span> : null}
+    </div>
+  );
+}
+
 function VillagePanel({ scene }: { scene: WorldScene }) {
   const { firstPal, firstNeighbor, village, firstMemory, ceremonyMemory, firstPreference, latestStory } = scene;
   const expression = firstMemory ? 'delighted' : 'curious';
@@ -93,6 +106,7 @@ function VillagePanel({ scene }: { scene: WorldScene }) {
             />
           )}
         />
+        <AdventureVillageMarkers scene={scene} />
         <div className="pal-pair" aria-label={`${firstPal.name} and ${firstNeighbor.name} in ${village.name}`}>
           <PalArtwork className="scene-pal scene-pal-first" {...palAppearanceProps(firstPal)} expression={expression} pose={pose} />
           <PalArtwork
