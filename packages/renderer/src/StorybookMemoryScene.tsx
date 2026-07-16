@@ -4,12 +4,45 @@ import { PalArtwork, type PalArtworkRequest } from './ProductionArt';
 export type StorybookMemorySceneProps = {
   className?: string;
   eventType: string;
+  activityId?: string;
   emotionalTone: 'joyful' | 'playful' | 'calm' | 'uncertain' | 'sad' | 'hopeful';
   firstPal: PalArtworkRequest;
   companion?: PalArtworkRequest;
 };
 
-function SceneDetails({ eventType }: { eventType: string }) {
+function LanternAdventureDetails() {
+  return (
+    <g>
+      <path d="M56 198 Q150 164 246 198 T436 190" fill="none" stroke="#B79B70" strokeLinecap="round" strokeWidth="22" />
+      {[114, 236, 354].map((x, index) => (
+        <g key={x}>
+          <path d={`M${x} ${index === 1 ? 164 : 172} V118`} stroke="#4D5E4E" strokeLinecap="round" strokeWidth="5" />
+          <rect x={x - 13} y={index === 1 ? 142 : 150} width="26" height="35" rx="8" fill="#F4CA62" stroke="#5E503A" strokeWidth="4" />
+          <circle cx={x} cy={index === 1 ? 159 : 167} r="21" fill="#FFE89B" opacity="0.28" />
+        </g>
+      ))}
+      <path d="M70 62 L55 90 M138 50 L124 80 M210 58 L195 88 M288 46 L274 76 M374 59 L360 89" stroke="#E9F5F4" strokeLinecap="round" strokeWidth="5" opacity="0.7" />
+    </g>
+  );
+}
+
+function BridgeAdventureDetails() {
+  return (
+    <g>
+      <path d="M60 212 Q154 164 244 207 T430 199" fill="none" stroke="#6BA2A5" strokeLinecap="round" strokeWidth="28" />
+      <path d="M142 197 Q236 133 334 195" fill="#B58D5F" stroke="#674C37" strokeWidth="9" />
+      <path d="M154 187 Q236 143 322 185" fill="none" stroke="#E1C596" strokeLinecap="round" strokeWidth="9" />
+      <text x="176" y="110" fill="#3F604F" fontFamily="Georgia, serif" fontSize="34" fontWeight="700">♪</text>
+      <text x="246" y="88" fill="#3F604F" fontFamily="Georgia, serif" fontSize="28" fontWeight="700">·</text>
+      <text x="306" y="119" fill="#3F604F" fontFamily="Georgia, serif" fontSize="38" fontWeight="700">♫</text>
+    </g>
+  );
+}
+
+function SceneDetails({ eventType, activityId }: { eventType: string; activityId?: string }) {
+  if (eventType === 'adventure' && activityId === 'lanterns-in-the-rain') return <LanternAdventureDetails />;
+  if (eventType === 'adventure' && activityId === 'humming-bridge') return <BridgeAdventureDetails />;
+
   if (eventType === 'first-friendship-ceremony') {
     return (
       <g>
@@ -44,6 +77,7 @@ function SceneDetails({ eventType }: { eventType: string }) {
 export function StorybookMemoryScene({
   className,
   eventType,
+  activityId,
   emotionalTone,
   firstPal,
   companion
@@ -74,7 +108,7 @@ export function StorybookMemoryScene({
         <circle cx="408" cy="133" r="54" fill="#4D805B" />
         <circle cx="442" cy="143" r="43" fill="#5A9365" />
         <rect x="403" y="158" width="22" height="69" rx="10" fill="#80583B" />
-        <SceneDetails eventType={eventType} />
+        <SceneDetails eventType={eventType} activityId={activityId} />
         <rect width="480" height="270" rx="28" fill="#6A5137" filter={`url(#${textureId})`} />
         <rect x="5" y="5" width="470" height="260" rx="24" fill="none" stroke="#6B563F" strokeWidth="7" opacity="0.58" />
       </svg>
