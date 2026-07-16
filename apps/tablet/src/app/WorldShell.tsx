@@ -1,5 +1,6 @@
 import type { World } from '@pixel-pals/content-schema';
 import type { FirstActivity } from '@pixel-pals/simulation';
+import { LocalWorldChooser } from '../LocalWorldChooser';
 import { MemoryJournal } from '../MemoryJournal';
 import { ParentTestTools } from '../ParentTestTools';
 import { HomeView } from './HomeView';
@@ -19,7 +20,9 @@ type WorldShellProps = {
   setHomeView: (view: HomeViewMode) => void;
   onStartActivity: (activity: FirstActivity) => void;
   onChooseDayInvitation: (invitationId: string) => void;
-  onReset: () => void;
+  onSwitchWorld: (worldId: string) => Promise<void>;
+  onStartNewWorld: () => void;
+  onDeleteWorld: () => Promise<void>;
 };
 
 function WorldFooter({ saveStatus, memoryCount, worldDay }: { saveStatus: string; memoryCount: number; worldDay: number }) {
@@ -73,22 +76,46 @@ function WorldViews({ world, scene, save, view, setView, homeView, setHomeView, 
 }
 
 export function WorldShell(props: WorldShellProps) {
-  const { world, scene, save, view, setView, setHomeView, onReset } = props;
+  const {
+    world,
+    scene,
+    save,
+    view,
+    setView,
+    setHomeView,
+    onSwitchWorld,
+    onStartNewWorld,
+    onDeleteWorld
+  } = props;
 
   return (
     <main className="app-shell" aria-busy={save.saving} data-saving={save.saving}>
-      <WorldNav
-        view={view}
-        hasHome={Boolean(scene.ceremonyMemory)}
-        hasJournal={world.memories.length > 0}
-        disabled={save.saving}
-        onChange={(nextView) => {
-          setView(nextView);
-          if (nextView === 'home') setHomeView('exterior');
-        }}
-      />
+      <div className="world-toolbar">
+        <WorldNav
+          view={view}
+          hasHome={Boolean(scene.ceremonyMemory)}
+          hasJournal={world.memories.length > 0}
+          disabled={save.saving}
+          onChange={(nextView) => {
+            setView(nextView);
+            if (nextView === 'home') setHomeView('exterior');
+          }}
+        />
+        <LocalWorldChooser
+          worlds={save.worlds}
+          selectedWorldId={world.worldId}
+          disabled={save.saving}
+          onSwitch={onSwitchWorld}
+        />
+      </div>
       <WorldViews {...props} />
-      <ParentTestTools world={world} onStatus={save.setSaveStatus} onResetComplete={onReset} />
+      <ParentTestTools
+        world={world}
+        worlds={save.worlds}
+        onStatus={save.setSaveStatus}
+        onStartNewWorld={onStartNewWorld}
+        onDeleteWorld={onDeleteWorld}
+      />
       <WorldFooter saveStatus={save.saveStatus} memoryCount={world.memories.length} worldDay={world.worldDay} />
     </main>
   );
