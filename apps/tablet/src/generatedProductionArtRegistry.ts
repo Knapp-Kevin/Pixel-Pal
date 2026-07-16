@@ -5,5 +5,21 @@ import type { ProductionArtRegistry } from '@pixel-pals/renderer';
 
 export const generatedProductionArtRegistry: ProductionArtRegistry = {
   palAssets: [],
-  sceneAssets: []
+  sceneAssets: [
+    {
+      id: "lanterns-in-the-rain-adventure-rain-path",
+      status: "benchmark",
+      src: "/art/adventures/lanterns-in-the-rain/rain-path-landscape.webp",
+      width: 1600,
+      height: 1000,
+      portraitSrc: "/art/adventures/lanterns-in-the-rain/rain-path-portrait.webp",
+      portraitWidth: 1000,
+      portraitHeight: 1600,
+      sceneId: "adventure-lanterns-in-the-rain",
+      variant: "rain-path",
+      alt: "A gentle rainy woodland path with a stream, flowers, and three displaced lanterns.",
+      objectPosition: "50% 50%",
+      portraitObjectPosition: "50% 50%"
+    }
+  ]
 };
