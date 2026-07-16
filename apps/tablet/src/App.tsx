@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { currentOfferedDay, type FirstActivity, type WorldDayInvitation } from '@pixel-pals/simulation';
+import type { AdventureId } from '@pixel-pals/content-schema';
+import {
+  adventureSession,
+  currentOfferedDay,
+  startAdventure,
+  type FirstActivity,
+  type WorldDayInvitation
+} from '@pixel-pals/simulation';
+import { AdventureScreen } from './AdventureScreen';
 import { ActivityScreen } from './app/ActivityScreen';
 import { CreationPanel } from './app/CreationPanel';
 import { DayCycleScreen } from './app/DayCycleScreen';
@@ -15,6 +23,7 @@ export function App() {
   const [homeView, setHomeView] = useState<HomeView>('exterior');
   const [activeActivity, setActiveActivity] = useState<FirstActivity | null>(null);
   const [activeDayInvitationId, setActiveDayInvitationId] = useState<string | null>(null);
+  const [activeAdventureId, setActiveAdventureId] = useState<AdventureId | null>(null);
   const [creatingNewWorld, setCreatingNewWorld] = useState(false);
 
   function resetTransientViews(): void {
@@ -22,6 +31,7 @@ export function App() {
     setHomeView('exterior');
     setActiveActivity(null);
     setActiveDayInvitationId(null);
+    setActiveAdventureId(null);
   }
 
   if (save.loading) return <LoadingPanel />;
@@ -75,6 +85,21 @@ export function App() {
     );
   }
 
+  if (activeAdventureId && adventureSession(save.world, activeAdventureId)) {
+    return (
+      <AdventureScreen
+        adventureId={activeAdventureId}
+        world={save.world}
+        scene={scene}
+        save={save}
+        onExit={() => {
+          setActiveAdventureId(null);
+          setView('adventures');
+        }}
+      />
+    );
+  }
+
   return (
     <WorldShell
       world={save.world}
@@ -86,6 +111,11 @@ export function App() {
       setHomeView={setHomeView}
       onStartActivity={setActiveActivity}
       onChooseDayInvitation={setActiveDayInvitationId}
+      onOpenAdventure={setActiveAdventureId}
+      onStartAdventure={async (adventureId) => {
+        const saved = await save.persist(startAdventure(save.world!, adventureId));
+        if (saved) setActiveAdventureId(adventureId);
+      }}
       onSwitchWorld={async (worldId) => {
         await save.switchWorld(worldId);
         resetTransientViews();
