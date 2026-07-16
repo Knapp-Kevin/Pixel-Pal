@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { id, idList, shortText } from './primitives';
+import { id, idList } from './primitives';
 
 export const AdventureIdSchema = z.enum([
   'lanterns-in-the-rain',
@@ -20,7 +20,7 @@ export const AdventureSessionSchema = z.object({
   completedWorldDay: z.number().int().nonnegative().optional(),
   memoryId: id.optional(),
   visibleChangeId: id.optional(),
-  summary: shortText.optional()
+  summary: z.string().trim().min(1).max(320).optional()
 }).superRefine((session, context) => {
   if (new Set(session.selectedChoiceIds).size !== session.selectedChoiceIds.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'Adventure choices must be unique within one session.' });
