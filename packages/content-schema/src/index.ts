@@ -1,3 +1,10 @@
+export {
+  AdventureIdSchema,
+  AdventureSessionSchema,
+  AdventureSessionStatusSchema
+} from './adventures';
+export type { AdventureId, AdventureSession, AdventureSessionStatus } from './adventures';
+
 export { CanonStatusSchema, CURRENT_SCHEMA_VERSION, LifeStageSchema } from './primitives';
 export {
   AppearanceSchema,
