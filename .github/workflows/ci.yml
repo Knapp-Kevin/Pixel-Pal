@@ -49,6 +49,7 @@ jobs:
           node --check scripts/verify-multiple-worlds.mjs
           node --check scripts/verify-production-art.mjs
           node --check scripts/generate-production-art-registry.mjs
+          node --check scripts/generate-art-review-report.mjs
 
       - name: Verify production art planning contract
         run: npm run verify:art-plan
@@ -58,6 +59,9 @@ jobs:
           set -o pipefail
           mkdir -p artifacts
           npm run verify:art-registry 2>&1 | tee artifacts/art-registry-verification.log
+
+      - name: Generate production art review evidence
+        run: npm run generate:art-review
 
       - name: Typecheck
         run: |
@@ -102,6 +106,7 @@ jobs:
         with:
           name: tablet-viewport-screenshots
           path: |
+            artifacts/art-review
             artifacts/art-registry-verification.log
             artifacts/typecheck-results.log
             artifacts/test-results.log
