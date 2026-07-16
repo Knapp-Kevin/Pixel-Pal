@@ -1,5 +1,19 @@
 import { CURRENT_SCHEMA_VERSION, parseWorld, type World } from '@pixel-pals/content-schema';
 
+export {
+  activeAdventureSession,
+  adventureSession,
+  ADVENTURES,
+  availableAdventures,
+  chooseAdventureStage,
+  startAdventure
+} from './adventures';
+export type {
+  AdventureChoice,
+  AdventureDefinition,
+  AdventureRelationshipDimension,
+  AdventureStage
+} from './adventures';
 export { completeFirstActivity } from './completeActivity';
 export { completeWorldDay, currentOfferedDay, generateDayInvitations, offerNextWorldDay } from './dayCycle';
 export type { WorldDayCompletion, WorldDayInvitation, WorldDaySession } from './dayCycle';
@@ -133,6 +147,7 @@ export function createFirstWorld(input: CreateWorldInput): World {
       visibleChanges: []
     }],
     greatTrees: [{ id: treeId, villageId, recognizedMemoryIds: [], visualHistoryMarkers: [] }],
-    daySessions: []
+    daySessions: [],
+    adventureSessions: []
   });
 }
