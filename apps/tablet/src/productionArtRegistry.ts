@@ -1,9 +1,7 @@
-import type { ProductionArtRegistry, ProductionArtStatus } from '@pixel-pals/renderer';
+import type { ProductionArtStatus } from '@pixel-pals/renderer';
+import { generatedProductionArtRegistry } from './generatedProductionArtRegistry';
 
-export const productionArtRegistry: ProductionArtRegistry = {
-  palAssets: [],
-  sceneAssets: []
-};
+export const productionArtRegistry = generatedProductionArtRegistry;
 
 function configuredMinimumStatus(): ProductionArtStatus {
   const requested = import.meta.env.VITE_PIXEL_PALS_ART_STATUS;
