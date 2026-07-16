@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { World } from '@pixel-pals/content-schema';
 import type { WorldSummary } from '@pixel-pals/persistence';
 import { ParentAccessGate } from './parentGate/ParentAccessGate';
@@ -21,6 +21,10 @@ export function ParentTestTools({ world, worlds, onStartNewWorld, onDeleteWorld,
   const [backupExported, setBackupExported] = useState(false);
   const currentFirstPalName = firstPalName(world);
   const baseFilename = safeFilename(currentFirstPalName || world.worldName);
+
+  useEffect(() => {
+    setBackupExported(false);
+  }, [world.worldId]);
 
   return (
     <ParentAccessGate>
