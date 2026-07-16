@@ -1,0 +1,1 @@
+Temporary CI trigger for the manifest-driven production-art registry and responsive crop contract. This file exists only on the verification branch and must not be merged.
