@@ -184,6 +184,9 @@ export function currentOfferedDay(world: World): WorldDaySession | undefined {
 
 export function offerNextWorldDay(world: World): World {
   if (currentOfferedDay(world)) return world;
+  if (world.adventureSessions.some((session) => session.status === 'active')) {
+    throw new Error('The unfinished adventure is the current saved return point.');
+  }
   if (!world.memories.some((memory) => memory.eventType === 'first-home-object')) {
     throw new Error('The repeatable world rhythm begins after the first home is personalized.');
   }
