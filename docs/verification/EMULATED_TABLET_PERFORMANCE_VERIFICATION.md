@@ -1,0 +1,1 @@
+Temporary CI trigger for the provisional oldest-tablet emulation performance gate. This file exists only on the verification branch and must not be merged.
