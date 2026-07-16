@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AdventureSessionSchema } from './adventures';
 import { DaySessionSchema } from './dayCycle';
 import { GreatTreeSchema, HomeSchema, MemorySchema, PalSchema, RegionalLineageSchema, RelationshipSchema, SpeciesSchema, VillageSchema } from './entities';
 import { CURRENT_SCHEMA_VERSION, id, LIMITS, shortText } from './primitives';
@@ -21,7 +22,8 @@ export const LegacyWorldFields = {
 
 export const WorldFields = {
   ...LegacyWorldFields,
-  daySessions: z.array(DaySessionSchema).max(LIMITS.daySessions)
+  daySessions: z.array(DaySessionSchema).max(LIMITS.daySessions).default([]),
+  adventureSessions: z.array(AdventureSessionSchema).max(LIMITS.adventureSessions).default([])
 };
 
 export const BaseWorldSchema = z.object({ schemaVersion: z.literal(CURRENT_SCHEMA_VERSION), ...WorldFields });
