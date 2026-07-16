@@ -52,7 +52,10 @@ jobs:
         run: npm run verify:art-plan
 
       - name: Typecheck
-        run: npm run typecheck
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          npm run typecheck 2>&1 | tee artifacts/typecheck-results.log
 
       - name: Test
         run: |
@@ -90,6 +93,7 @@ jobs:
         with:
           name: tablet-viewport-screenshots
           path: |
+            artifacts/typecheck-results.log
             artifacts/test-results.log
             artifacts/tablet-viewports
             artifacts/viewport-verification.log
