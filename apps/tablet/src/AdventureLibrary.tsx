@@ -1,5 +1,5 @@
 import type { AdventureId, World } from '@pixel-pals/content-schema';
-import { ADVENTURES, activeAdventureSession, adventureSession, availableAdventures } from '@pixel-pals/simulation';
+import { activeAdventureSession, adventureSession, availableAdventures } from '@pixel-pals/simulation';
 import type { WorldScene } from './app/worldQueries';
 
 const ADVENTURE_SYMBOLS: Record<AdventureId, string> = {
@@ -44,7 +44,12 @@ export function AdventureLibrary({ world, scene, saving, onOpen, onStart }: Adve
                 : 'Ready to begin';
 
           return (
-            <article className={`adventure-card adventure-card-${definition.id}`} key={definition.id}>
+            <article
+              className={`adventure-card adventure-card-${definition.id}`}
+              data-adventure-id={definition.id}
+              data-adventure-status={session?.status ?? 'available'}
+              key={definition.id}
+            >
               <span className="adventure-card-symbol" aria-hidden="true">{ADVENTURE_SYMBOLS[definition.id]}</span>
               <div>
                 <span className="adventure-card-state">{state}</span>
@@ -53,6 +58,7 @@ export function AdventureLibrary({ world, scene, saving, onOpen, onStart }: Adve
               </div>
               <button
                 className="adult-action adventure-open-button"
+                data-adventure-action={definition.id}
                 type="button"
                 disabled={saving || blockedByAnother}
                 onClick={() => {
