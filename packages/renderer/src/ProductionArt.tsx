@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react';
 import {
   PalPortrait,
   type PalExpression,
@@ -173,15 +173,26 @@ export type SceneArtworkProps = {
   fallback: ReactNode;
 };
 
+type ResponsiveSceneStyle = CSSProperties & {
+  '--scene-object-position': string;
+  '--scene-portrait-object-position': string;
+};
+
 export function SceneArtwork({ sceneId, variant, className, fallback }: SceneArtworkProps) {
   const { registry, minimumStatus } = useContext(ProductionArtContext);
   const asset = resolveSceneArtwork(registry, sceneId, variant, minimumStatus);
 
   if (!asset) return <>{fallback}</>;
 
+  const responsiveStyle: ResponsiveSceneStyle = {
+    objectFit: 'cover',
+    '--scene-object-position': asset.objectPosition ?? '50% 50%',
+    '--scene-portrait-object-position': asset.portraitObjectPosition ?? asset.objectPosition ?? '50% 50%'
+  };
+  const imageClassName = [className, 'production-scene-art'].filter(Boolean).join(' ');
   const image = (
     <img
-      className={className}
+      className={imageClassName}
       src={asset.src}
       width={asset.width}
       height={asset.height}
@@ -190,7 +201,8 @@ export function SceneArtwork({ sceneId, variant, className, fallback }: SceneArt
       decoding="async"
       data-art-asset-id={asset.id}
       data-art-status={asset.status}
-      style={{ objectFit: 'cover', objectPosition: asset.objectPosition ?? '50% 50%' }}
+      data-responsive-art={asset.portraitSrc ? 'true' : 'false'}
+      style={responsiveStyle}
     />
   );
 
