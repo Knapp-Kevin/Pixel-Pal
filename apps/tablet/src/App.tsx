@@ -15,11 +15,32 @@ export function App() {
   const [homeView, setHomeView] = useState<HomeView>('exterior');
   const [activeActivity, setActiveActivity] = useState<FirstActivity | null>(null);
   const [activeDayInvitationId, setActiveDayInvitationId] = useState<string | null>(null);
+  const [creatingNewWorld, setCreatingNewWorld] = useState(false);
+
+  function resetTransientViews(): void {
+    setView('village');
+    setHomeView('exterior');
+    setActiveActivity(null);
+    setActiveDayInvitationId(null);
+  }
 
   if (save.loading) return <LoadingPanel />;
 
-  if (!save.world) {
-    return <CreationPanel saving={save.saving} saveStatus={save.saveStatus} persist={save.persist} onCreateError={save.setSaveStatus} />;
+  if (creatingNewWorld || !save.world) {
+    return (
+      <CreationPanel
+        saving={save.saving}
+        saveStatus={save.saveStatus}
+        persist={save.persist}
+        onCreateError={save.setSaveStatus}
+        existingWorldCount={save.worlds.length}
+        onCreated={() => {
+          setCreatingNewWorld(false);
+          resetTransientViews();
+        }}
+        onCancel={save.world ? () => setCreatingNewWorld(false) : undefined}
+      />
+    );
   }
 
   const scene = selectWorldScene(save.world);
@@ -65,13 +86,18 @@ export function App() {
       setHomeView={setHomeView}
       onStartActivity={setActiveActivity}
       onChooseDayInvitation={setActiveDayInvitationId}
-      onReset={() => {
-        save.setWorldDirect(null);
-        setView('village');
-        setHomeView('exterior');
-        setActiveActivity(null);
-        setActiveDayInvitationId(null);
-        save.setSaveStatus('Playtest world cleared. A new story can begin.');
+      onSwitchWorld={async (worldId) => {
+        await save.switchWorld(worldId);
+        resetTransientViews();
+      }}
+      onStartNewWorld={() => {
+        resetTransientViews();
+        setCreatingNewWorld(true);
+        save.setSaveStatus('The current worlds remain safe while another story begins.');
+      }}
+      onDeleteWorld={async () => {
+        await save.removeWorld(save.world!.worldId);
+        resetTransientViews();
       }}
     />
   );
