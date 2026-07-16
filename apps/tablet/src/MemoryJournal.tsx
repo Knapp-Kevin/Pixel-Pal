@@ -36,6 +36,7 @@ export function MemoryJournal({ world, firstPal }: MemoryJournalProps) {
             <article className="journal-entry" key={memory.id}>
               <StorybookMemoryScene
                 eventType={memory.eventType}
+                activityId={memory.activityId}
                 emotionalTone={memory.emotionalTone}
                 firstPal={{
                   name: firstPal.name,
