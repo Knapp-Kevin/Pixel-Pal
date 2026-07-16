@@ -1,7 +1,7 @@
 import type { HomeObject } from '@pixel-pals/content-schema';
 import type { FirstActivity, FirstPalChoice } from '@pixel-pals/simulation';
 
-export type AppView = 'village' | 'home' | 'journal';
+export type AppView = 'village' | 'home' | 'adventures' | 'journal';
 export type HomeView = 'exterior' | 'interior';
 
 export const speciesOptions: Array<{ id: FirstPalChoice['speciesId']; label: string }> = [
