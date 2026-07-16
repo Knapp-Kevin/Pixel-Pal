@@ -14,7 +14,11 @@ import {
 
 const baseUrl = process.env.VIEWPORT_BASE_URL ?? 'http://127.0.0.1:4173';
 const origin = new URL(baseUrl).origin;
-const screenshotDirectory = join(process.cwd(), 'artifacts', 'tablet-viewports');
+const screenshotSubdirectory = process.env.ADVENTURE_SCREENSHOT_SUBDIR ?? 'tablet-viewports';
+const screenshotDirectory = join(process.cwd(), 'artifacts', screenshotSubdirectory);
+const expectedRainPathStatus = process.env.EXPECT_RAIN_PATH_ART_STATUS;
+const expectRainPathFallback = process.env.EXPECT_RAIN_PATH_FALLBACK === 'true';
+const rainPathAssetId = 'lanterns-in-the-rain-adventure-rain-path';
 
 const profiles = [
   {
@@ -104,6 +108,43 @@ async function capture(page, profile, state) {
   await writeFile(join(screenshotDirectory, `${profile.name}-${state}.png`), Buffer.from(result.data, 'base64'));
 }
 
+async function assertRainPathArt(page, profile) {
+  if (profile.adventure !== 'lanterns-in-the-rain') return;
+  const selector = `img[data-art-asset-id="${rainPathAssetId}"]`;
+
+  if (expectedRainPathStatus) {
+    await page.waitFor(`Boolean(document.querySelector(${JSON.stringify(selector)}))`);
+    const snapshot = JSON.parse(await page.evaluate(`JSON.stringify((() => {
+      const image = document.querySelector(${JSON.stringify(selector)});
+      const picture = image?.closest('picture');
+      return image ? {
+        status: image.getAttribute('data-art-status'),
+        currentSrc: image.currentSrc,
+        responsiveId: picture?.getAttribute('data-responsive-art-asset-id') ?? null
+      } : null;
+    })())`));
+    if (!snapshot) throw new Error(`${profile.name} did not render Rain Path benchmark art.`);
+    if (snapshot.status !== expectedRainPathStatus) {
+      throw new Error(`${profile.name} rendered Rain Path status ${snapshot.status}, expected ${expectedRainPathStatus}.`);
+    }
+    if (snapshot.responsiveId !== rainPathAssetId) {
+      throw new Error(`${profile.name} did not render the responsive Rain Path picture contract.`);
+    }
+    const expectedFile = profile.width < profile.height ? 'rain-path-portrait.webp' : 'rain-path-landscape.webp';
+    if (!snapshot.currentSrc.endsWith(expectedFile)) {
+      throw new Error(`${profile.name} selected ${snapshot.currentSrc}, expected ${expectedFile}.`);
+    }
+    console.log(`PASS ${profile.name}: Rain Path ${expectedRainPathStatus} art selected ${expectedFile}`);
+    return;
+  }
+
+  if (expectRainPathFallback) {
+    const rendered = await page.evaluate(`Boolean(document.querySelector(${JSON.stringify(selector)}))`);
+    if (rendered) throw new Error(`${profile.name} rendered benchmark Rain Path art in a production-only build.`);
+    console.log(`PASS ${profile.name}: Rain Path benchmark remains excluded from production build`);
+  }
+}
+
 async function prepareWorld(page, profile) {
   await page.navigate(baseUrl);
   await page.waitFor("Boolean(document.querySelector('#first-pal-title'))");
@@ -133,6 +174,7 @@ async function openAdventure(page, profile) {
   await assertLayout(page, profile, 'adventure-library');
   await clickEnabledSelector(page, `[data-adventure-action="${profile.adventure}"]`);
   await page.waitFor(`document.querySelector('.adventure-stage-shell')?.getAttribute('data-adventure-id') === '${profile.adventure}'`);
+  await assertRainPathArt(page, profile);
 }
 
 async function chooseCurrentStage(page, expectedStage) {
@@ -190,7 +232,7 @@ try {
       page.close();
     }
   }
-  console.log('Verified both illustrated adventures across five starter species, accessibility profiles, and tablet viewports.');
+  console.log('Verified both illustrated adventures across five starter species, accessibility profiles, tablet viewports, and configured art status expectations.');
 } finally {
   await browser.close();
 }
