@@ -64,3 +64,73 @@
     padding: 9px 12px;
   }
 }
+
+@media (max-width: 640px) and (orientation: portrait) {
+  .adventure-library {
+    padding: 14px;
+  }
+
+  .adventure-library-header .eyebrow {
+    margin-bottom: 4px;
+  }
+
+  .adventure-library-header h1 {
+    margin-bottom: 6px;
+    font-size: 2rem;
+  }
+
+  .adventure-library-header p:not(.eyebrow) {
+    display: none;
+  }
+
+  .adventure-return-note {
+    margin: 6px 0 0;
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+
+  .adventure-card-grid {
+    margin-top: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .adventure-card {
+    min-height: 252px;
+    padding: 12px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .adventure-card-symbol {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+
+  .adventure-card h2 {
+    margin-bottom: 4px;
+    font-size: 1.2rem;
+  }
+
+  .adventure-card p {
+    display: -webkit-box;
+    margin-bottom: 0;
+    overflow: hidden;
+    font-size: 0.88rem;
+    line-height: 1.28;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .adventure-card-state {
+    font-size: 0.68rem;
+  }
+
+  .adventure-open-button {
+    min-height: 46px;
+    padding: 9px 10px;
+    font-size: 0.92rem;
+  }
+}
