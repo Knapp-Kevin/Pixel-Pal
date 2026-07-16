@@ -1,0 +1,9 @@
+.production-scene-art {
+  object-position: var(--scene-object-position, 50% 50%);
+}
+
+@media (orientation: portrait) {
+  .production-scene-art[data-responsive-art="true"] {
+    object-position: var(--scene-portrait-object-position, var(--scene-object-position, 50% 50%));
+  }
+}
