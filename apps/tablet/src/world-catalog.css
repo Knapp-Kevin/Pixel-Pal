@@ -1,0 +1,154 @@
+.world-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.world-chooser-trigger {
+  min-height: 46px;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 2px solid #315b4c;
+  border-radius: 999px;
+  color: #20342d;
+  background: #fffdf3;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 850;
+}
+
+.world-chooser-trigger span {
+  max-width: 16ch;
+  overflow: hidden;
+  color: #315b4c;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.world-chooser-overlay {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  display: grid;
+  place-items: center;
+  background: rgb(25 47 38 / 68%);
+  backdrop-filter: blur(4px);
+}
+
+.world-chooser-dialog {
+  width: min(720px, 100%);
+  max-height: calc(100dvh - 32px);
+  padding: clamp(20px, 4vw, 34px);
+  overflow: auto;
+  border: 3px solid #315b4c;
+  border-radius: 28px;
+  background: #fff9e8;
+  box-shadow: 0 24px 70px rgb(17 41 31 / 36%);
+}
+
+.world-chooser-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.world-chooser-heading h2,
+.world-chooser-heading p {
+  margin-top: 0;
+}
+
+.world-chooser-close {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+.world-card-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.world-card {
+  min-height: 142px;
+  padding: 18px;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 7px;
+  border: 3px solid #6a8175;
+  border-radius: 20px;
+  color: #20342d;
+  background: #fffdf4;
+  cursor: pointer;
+  text-align: left;
+}
+
+.world-card[aria-pressed="true"] {
+  border-color: #315b4c;
+  background: #d9ecde;
+  box-shadow: inset 0 0 0 2px rgb(49 91 76 / 18%);
+}
+
+.world-card-name {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.55rem;
+  font-weight: 800;
+}
+
+.world-card-summary {
+  line-height: 1.4;
+}
+
+.world-card-state {
+  color: #315b4c;
+  font-weight: 850;
+}
+
+.creation-cancel {
+  margin-top: 14px;
+}
+
+html[data-contrast="strong"] .world-chooser-dialog,
+html[data-contrast="strong"] .world-card,
+html[data-contrast="strong"] .world-chooser-trigger {
+  border-color: #163b2e;
+}
+
+html[data-contrast="strong"] .world-card[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 3px #163b2e;
+}
+
+@media (max-width: 720px) {
+  .world-toolbar {
+    align-items: stretch;
+  }
+
+  .world-chooser-trigger {
+    flex: 0 1 auto;
+  }
+
+  .world-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .world-toolbar {
+    flex-direction: column;
+  }
+
+  .world-chooser-trigger {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .world-chooser-heading {
+    flex-direction: column;
+  }
+}
