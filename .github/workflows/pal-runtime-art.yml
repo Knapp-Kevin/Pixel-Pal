@@ -47,7 +47,10 @@ jobs:
         run: npm run verify:pal-runtime-reviews
 
       - name: Verify generated registry
-        run: npm run verify:art-registry
+        run: |
+          npm run generate:art-registry
+          git diff -- apps/tablet/src/generatedProductionArtRegistry.ts
+          git diff --exit-code -- apps/tablet/src/generatedProductionArtRegistry.ts
 
       - name: Upload Pal review evidence
         if: always()
