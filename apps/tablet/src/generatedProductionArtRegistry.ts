@@ -6,7 +6,7 @@ import type { ProductionArtRegistry } from '@pixel-pals/renderer';
 export const generatedProductionArtRegistry: ProductionArtRegistry = {
   palAssets: [],
   sceneAssets: [
-     {
+      {
       id: "lanterns-in-the-rain-adventure-rain-path",
       status: "benchmark",
       src: "/art/adventures/lanterns-in-the-rain/rain-path-landscape.webp",
@@ -26,5 +26,5 @@ export const generatedProductionArtRegistry: ProductionArtRegistry = {
 
 export const generatedProductionArtRelease = {
   ready: false,
-  blockerCount: 35
+  blockerCount: 47
 } as const;

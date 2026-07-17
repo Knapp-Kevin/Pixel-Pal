@@ -1,0 +1,62 @@
+name: Pal Runtime Art
+
+on:
+  pull_request:
+    paths:
+      - art/pal-runtime-manifest.json
+      - art/production/pals/**
+      - art/review/pal-decisions/**
+      - apps/tablet/public/art/pals/**
+      - apps/tablet/src/generatedProductionArtRegistry.ts
+      - scripts/verify-pal-runtime-art.mjs
+      - scripts/verify-pal-runtime-reviews.mjs
+      - scripts/generate-production-art-registry.mjs
+      - package.json
+      - .github/workflows/pal-runtime-art.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pal-runtime-art-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Verify script syntax
+        run: |
+          node --check scripts/verify-pal-runtime-art.mjs
+          node --check scripts/verify-pal-runtime-reviews.mjs
+          node --check scripts/generate-production-art-registry.mjs
+
+      - name: Verify Pal runtime manifest
+        run: npm run verify:pal-runtime
+
+      - name: Verify Pal human reviews
+        run: npm run verify:pal-runtime-reviews
+
+      - name: Verify generated registry
+        run: |
+          npm run generate:art-registry
+          git diff -- apps/tablet/src/generatedProductionArtRegistry.ts
+          git diff --exit-code -- apps/tablet/src/generatedProductionArtRegistry.ts
+
+      - name: Upload Pal review evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
+        with:
+          name: pal-runtime-review-evidence
+          path: artifacts/pal-runtime-reviews
+          if-no-files-found: warn
+          retention-days: 14
