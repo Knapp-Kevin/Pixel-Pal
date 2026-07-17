@@ -18,6 +18,12 @@ const world = createFirstWorld({
 const firstPal = world.pals.find((pal) => pal.id === world.firstPalId)!;
 const fern = world.pals.find((pal) => pal.storyRole === 'first-neighbor')!;
 
+function objectKeys(value: unknown): string[] {
+  if (Array.isArray(value)) return value.flatMap(objectKeys);
+  if (typeof value !== 'object' || value === null) return [];
+  return Object.entries(value).flatMap(([key, nested]) => [key, ...objectKeys(nested)]);
+}
+
 describe('palTraitProfile', () => {
   it('derives stable expressed and hidden alleles without mutating the world', () => {
     const before = structuredClone(world);
@@ -65,15 +71,20 @@ describe('createInheritancePreview', () => {
     }
   });
 
-  it('keeps non-genetic identity outside the preview', () => {
+  it('keeps non-genetic identity outside the preview data model', () => {
     const preview = createInheritancePreview(world, firstPal.id, fern.id, 1);
+    const keys = objectKeys(preview);
 
     expect(preview.learningBoundary).toMatch(/culture/i);
     expect(preview.learningBoundary).toMatch(/personality/i);
+    expect(preview.learningBoundary).toMatch(/skills/i);
     expect(preview.learningBoundary).toMatch(/adoption/i);
     expect(preview.learningBoundary).toMatch(/belonging/i);
-    expect(JSON.stringify(preview)).not.toContain('characteristics');
-    expect(JSON.stringify(preview)).not.toContain('skills');
+    expect(keys).not.toContain('characteristics');
+    expect(keys).not.toContain('skills');
+    expect(keys).not.toContain('preferences');
+    expect(keys).not.toContain('relationships');
+    expect(keys).not.toContain('householdId');
   });
 
   it('requires two distinct Pals and a valid sample index', () => {
