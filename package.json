@@ -29,7 +29,10 @@
     "verify:art-reviews": "node scripts/verify-human-art-reviews.mjs",
     "generate:art-registry": "node scripts/generate-production-art-registry.mjs",
     "verify:art-registry": "node scripts/generate-production-art-registry.mjs --check",
-    "generate:art-review": "node scripts/generate-art-review-report.mjs"
+    "generate:art-review": "node scripts/generate-art-review-report.mjs",
+    "generate:art-parity": "node scripts/generate-art-parity-report.mjs",
+    "verify:art-parity-release": "node scripts/generate-art-parity-report.mjs --enforce-production",
+    "import:responsive-scene-art": "node scripts/import-responsive-scene-art.mjs"
   },
   "engines": {
     "node": ">=22.0.0"
