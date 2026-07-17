@@ -48,6 +48,7 @@ jobs:
           node --check scripts/verify-illustrated-adventures.mjs
           node --check scripts/verify-multiple-worlds.mjs
           node --check scripts/verify-emulated-tablet-performance.mjs
+          node --check scripts/verify-traits-lab.mjs
           node --check scripts/verify-production-art.mjs
           node --check scripts/verify-human-art-reviews.mjs
           node --check scripts/generate-production-art-registry.mjs
@@ -105,6 +106,7 @@ jobs:
           mkdir -p artifacts
           npm run verify:performance 2>&1 | tee artifacts/performance-verification.log
           npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
+          npm run verify:traits-lab 2>&1 | tee artifacts/traits-lab-verification.log
           npm run verify:suspension 2>&1 | tee artifacts/suspension-verification.log
           EXPECT_RAIN_PATH_FALLBACK=true npm run verify:adventures 2>&1 | tee artifacts/adventure-verification.log
           npm run verify:worlds 2>&1 | tee artifacts/world-catalog-verification.log
@@ -153,6 +155,8 @@ jobs:
             artifacts/test-results.log
             artifacts/tablet-viewports
             artifacts/viewport-verification.log
+            artifacts/traits-lab
+            artifacts/traits-lab-verification.log
             artifacts/suspension-verification.log
             artifacts/adventure-verification.log
             artifacts/world-catalog-verification.log
