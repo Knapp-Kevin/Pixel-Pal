@@ -63,19 +63,39 @@
     }
   },
   "criteria": {
-    "visualQuality": "pending",
+    "visualQuality": "needs-revision",
     "storybookIdentity": "pending",
     "environmentalContinuity": "pending",
     "environmentalDepth": "pending",
-    "livePalSafeAreas": "pending",
+    "livePalSafeAreas": "pass",
     "portraitAndLandscapeContinuity": "pending",
     "childSuitability": "pending",
-    "accessibility": "pending",
+    "accessibility": "pass",
     "sourceSimilarity": "pending",
     "ownershipAndRights": "pending",
-    "tabletReadability": "pending",
-    "performanceEvidence": "pending"
+    "tabletReadability": "needs-revision",
+    "performanceEvidence": "pass"
   },
-  "requiredRevisions": [],
-  "notes": "Isolated candidate pair. Explicit human approval is required before normalization into production dimensions, production-path promotion, registry update, or runtime integration."
+  "automatedEvidence": {
+    "workflow": "Candidate Art Review",
+    "workflowRunId": 29608728190,
+    "artifactId": 8417879968,
+    "profiles": [
+      "compact-landscape:800x600",
+      "compact-portrait:600x800"
+    ],
+    "checks": [
+      "exact-byte-and-sha256-integrity",
+      "native-dimension-decode",
+      "safe-area-containment",
+      "viewport-containment",
+      "reduced-motion-static-render"
+    ]
+  },
+  "requiredRevisions": [
+    "Re-encode both orientations at a quality level that preserves fine foliage, cottage edges, lantern geometry, and painterly texture at compact tablet scale.",
+    "Re-run compact landscape and portrait evidence and compare against this baseline before requesting human approval.",
+    "Validate final First Pal and Fern silhouette contrast against the bright foreground lanterns and reflections after canonical Pal assets exist."
+  ],
+  "notes": "The responsive composition and technical review gates pass, but the current low-byte AVIF encode is visibly too soft for the approved production-art standard. The candidate remains pending and isolated from production and runtime paths."
 }
