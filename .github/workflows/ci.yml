@@ -51,6 +51,7 @@ jobs:
           node --check scripts/verify-traits-lab.mjs
           node --check scripts/verify-family-map.mjs
           node --check scripts/verify-production-art-blocking.mjs
+          node --check scripts/verify-art-build-profile.mjs
           node --check scripts/verify-production-art.mjs
           node --check scripts/verify-human-art-reviews.mjs
           node --check scripts/generate-production-art-registry.mjs
@@ -110,10 +111,17 @@ jobs:
             sleep 0.25
           done
           mkdir -p artifacts
+          VIEWPORT_BASE_URL=http://127.0.0.1:4173 \
+          EXPECTED_ART_MODE=production \
+          EXPECTED_ART_FALLBACK=block \
+          EXPECTED_ART_MINIMUM_STATUS=production \
+          npm run verify:art-profile 2>&1 | tee artifacts/production-art-profile-verification.log
           npm run verify:art-blocking 2>&1 | tee artifacts/production-art-blocking-verification.log
 
       - name: Build explicit alpha functional fixture
-        run: npm run build --workspace=@pixel-pals/tablet -- --mode alpha-fixture --outDir dist-alpha-fixture
+        run: |
+          cd apps/tablet
+          npm run build -- --mode alpha-fixture --outDir dist-alpha-fixture
 
       - name: Verify gameplay routes against alpha fixture
         run: |
@@ -132,6 +140,11 @@ jobs:
             sleep 0.25
           done
           mkdir -p artifacts
+          VIEWPORT_BASE_URL=http://127.0.0.1:4174 \
+          EXPECTED_ART_MODE=alpha-fixture \
+          EXPECTED_ART_FALLBACK=alpha \
+          EXPECTED_ART_MINIMUM_STATUS=production \
+          npm run verify:art-profile 2>&1 | tee artifacts/alpha-art-profile-verification.log
           VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:performance 2>&1 | tee artifacts/performance-verification.log
           VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
           VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:traits-lab 2>&1 | tee artifacts/traits-lab-verification.log
@@ -141,9 +154,9 @@ jobs:
           VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:worlds 2>&1 | tee artifacts/world-catalog-verification.log
 
       - name: Build benchmark art review application
-        env:
-          VITE_PIXEL_PALS_ART_STATUS: benchmark
-        run: npm run build --workspace=@pixel-pals/tablet -- --mode benchmark-art --outDir dist-benchmark
+        run: |
+          cd apps/tablet
+          npm run build -- --mode benchmark-art --outDir dist-benchmark
 
       - name: Verify benchmark art across five starter species
         run: |
@@ -162,6 +175,11 @@ jobs:
             sleep 0.25
           done
           VIEWPORT_BASE_URL=http://127.0.0.1:4175 \
+          EXPECTED_ART_MODE=benchmark-art \
+          EXPECTED_ART_FALLBACK=alpha \
+          EXPECTED_ART_MINIMUM_STATUS=benchmark \
+          npm run verify:art-profile 2>&1 | tee artifacts/benchmark-art-profile-verification.log
+          VIEWPORT_BASE_URL=http://127.0.0.1:4175 \
           EXPECT_RAIN_PATH_ART_STATUS=benchmark \
           ADVENTURE_SCREENSHOT_SUBDIR=benchmark-art-review \
           npm run verify:adventures 2>&1 | tee artifacts/benchmark-art-verification.log
@@ -177,12 +195,15 @@ jobs:
             artifacts/art-review-decisions
             artifacts/art-review-decision-verification.log
             artifacts/benchmark-art-review
+            artifacts/benchmark-art-profile-verification.log
             artifacts/benchmark-art-verification.log
+            artifacts/alpha-art-profile-verification.log
             artifacts/performance
             artifacts/performance-verification.log
             artifacts/art-registry-verification.log
             artifacts/production-art-blocking
             artifacts/production-art-blocking-verification.log
+            artifacts/production-art-profile-verification.log
             artifacts/typecheck-results.log
             artifacts/test-results.log
             artifacts/tablet-viewports
