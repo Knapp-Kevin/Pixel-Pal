@@ -34,11 +34,13 @@ async function snapshot(page) {
       blockedPalCards: document.querySelectorAll('[data-production-art-blocked="pal"]').length,
       worldNav: Boolean(document.querySelector('.world-nav')),
       firstPalTitle: Boolean(document.querySelector('#first-pal-title')),
+      viewport: { width: innerWidth, height: innerHeight },
       documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
+      documentHeight: Math.max(document.documentElement.scrollHeight, document.body.scrollHeight),
       boundaryClientHeight: boundary?.clientHeight ?? null,
       boundaryScrollHeight: boundary?.scrollHeight ?? null,
-      boundaryRect: rect ? { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom } : null,
-      copyRect: copyRect ? { left: copyRect.left, right: copyRect.right, top: copyRect.top, bottom: copyRect.bottom } : null
+      boundaryRect: rect ? { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height } : null,
+      copyRect: copyRect ? { left: copyRect.left, right: copyRect.right, top: copyRect.top, bottom: copyRect.bottom, width: copyRect.width, height: copyRect.height } : null
     };
   })())`));
 }
@@ -68,7 +70,18 @@ function assertBoundary(state, profile) {
     || state.copyRect.bottom > state.boundaryRect.bottom + 1) {
     failures.push('release copy clipped by panel');
   }
-  if (failures.length > 0) throw new Error(`${profile.name} production art release boundary failed: ${failures.join('; ')}`);
+  if (failures.length > 0) {
+    const geometry = JSON.stringify({
+      viewport: state.viewport,
+      documentWidth: state.documentWidth,
+      documentHeight: state.documentHeight,
+      boundaryClientHeight: state.boundaryClientHeight,
+      boundaryScrollHeight: state.boundaryScrollHeight,
+      boundaryRect: state.boundaryRect,
+      copyRect: state.copyRect
+    });
+    throw new Error(`${profile.name} production art release boundary failed: ${failures.join('; ')}. Geometry: ${geometry}`);
+  }
 }
 
 await rm(screenshotDirectory, { recursive: true, force: true });
@@ -90,8 +103,8 @@ try {
       await page.navigate(baseUrl);
       await page.waitFor("Boolean(document.querySelector('[data-production-art-release-blocked=\"true\"]'))");
       const state = await snapshot(page);
-      assertBoundary(state, profile);
       await capture(page, `${profile.name}-visual-release-blocked`);
+      assertBoundary(state, profile);
       console.log(`PASS ${profile.name}: production is blocked by ${state.blockerCount} incomplete art records with no alpha fallback or clipped copy.`);
     } finally {
       page.close();
