@@ -22,6 +22,7 @@
     "verify:adventures": "node scripts/verify-illustrated-adventures.mjs",
     "verify:worlds": "node scripts/verify-multiple-worlds.mjs",
     "verify:performance": "node scripts/verify-emulated-tablet-performance.mjs",
+    "verify:traits-lab": "node scripts/verify-traits-lab.mjs",
     "verify:art-plan": "node scripts/verify-production-art.mjs",
     "verify:production-art": "node scripts/verify-production-art.mjs --release",
     "verify:art-reviews": "node scripts/verify-human-art-reviews.mjs",

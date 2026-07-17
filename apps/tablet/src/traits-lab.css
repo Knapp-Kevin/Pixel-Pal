@@ -1,0 +1,132 @@
+.traits-lab {
+  grid-column: 1 / -1;
+  background:
+    radial-gradient(circle at top right, rgb(255 244 191 / 58%), transparent 34%),
+    #fffdf4 !important;
+}
+
+.traits-lab-heading,
+.trait-outcome-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.traits-sample-count,
+.trait-state {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid #5d776a;
+  border-radius: 999px;
+  background: #f8f3df;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.traits-boundary {
+  padding: 12px 14px;
+  border-left: 5px solid #315b4c;
+  border-radius: 10px;
+  background: #edf3e6;
+  font-weight: 750;
+}
+
+.traits-profile-grid,
+.trait-outcome-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.trait-profile-card,
+.trait-outcome-card {
+  padding: 16px;
+  border: 2px solid rgb(49 91 76 / 28%);
+  border-radius: 16px;
+  background: #fffef9;
+}
+
+.trait-profile-card h3,
+.trait-outcome-card h3 {
+  margin: 0;
+}
+
+.trait-profile-card dl {
+  margin: 12px 0 0;
+  display: grid;
+  gap: 10px;
+}
+
+.trait-profile-card dl div {
+  display: grid;
+  gap: 3px;
+}
+
+.trait-profile-card dt,
+.trait-source span {
+  color: #587065;
+  font-size: 0.82rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.trait-profile-card dd {
+  margin: 0;
+  font-weight: 750;
+}
+
+.trait-state-expressed {
+  color: #fffdf3;
+  background: #315b4c;
+}
+
+.trait-state-carried {
+  margin-right: 8px;
+  color: #493d69;
+  border-color: #766996;
+  background: #eee7f6;
+}
+
+.trait-source-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.trait-source {
+  padding: 10px;
+  display: grid;
+  gap: 3px;
+  border-radius: 12px;
+  background: #f4f1df;
+}
+
+.trait-carried {
+  margin: 14px 0 8px;
+  font-weight: 800;
+}
+
+.traits-lab-actions {
+  margin-top: 18px;
+}
+
+@media (max-width: 760px) {
+  .traits-profile-grid,
+  .trait-outcome-grid,
+  .trait-source-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .traits-lab-heading,
+  .trait-outcome-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

@@ -26,6 +26,7 @@ import './day-cycle.css';
 import './home-day.css';
 import './adventures-compact.css';
 import './production-art.css';
+import './traits-lab.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,

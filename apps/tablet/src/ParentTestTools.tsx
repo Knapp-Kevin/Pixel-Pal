@@ -6,6 +6,7 @@ import { AccessibilitySection } from './parentTools/AccessibilitySection';
 import { BackupSection } from './parentTools/BackupSection';
 import { ObservationSection } from './parentTools/ObservationSection';
 import { ResetSection } from './parentTools/ResetSection';
+import { TraitsLabSection } from './parentTools/TraitsLabSection';
 import { WorldManagementSection } from './parentTools/WorldManagementSection';
 import { firstPalName, safeFilename } from './parentTools/playtestExport';
 
@@ -29,6 +30,7 @@ export function ParentTestTools({ world, worlds, onStartNewWorld, onDeleteWorld,
   return (
     <ParentAccessGate>
       <div className="parent-tools-panel">
+        <TraitsLabSection world={world} onStatus={onStatus} />
         <AccessibilitySection onStatus={onStatus} />
         <WorldManagementSection worlds={worlds} onStartNewWorld={onStartNewWorld} />
         <BackupSection
