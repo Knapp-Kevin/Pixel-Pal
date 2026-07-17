@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "product": "Pixel Pals",
+  "candidateId": "rain-path-painterly-v1",
+  "assetPair": {
+    "manifestAssetId": "lanterns-in-the-rain-adventure",
+    "variant": "rain-path",
+    "landscapeViewId": "rain-path-landscape",
+    "portraitViewId": "rain-path-portrait"
+  },
+  "status": "candidate",
+  "decision": "pending",
+  "reviewer": {
+    "kind": "human",
+    "name": null
+  },
+  "reviewedAt": null,
+  "assets": {
+    "landscape": {
+      "path": "art/candidates/adventures/lanterns-in-the-rain/rain-path-landscape.avif",
+      "format": "avif",
+      "width": 1200,
+      "height": 750,
+      "bytes": 10595,
+      "sha256": "a627071408822af9536177f65e6a5a0276507786f56dfcbb06d7269cd9203363"
+    },
+    "portrait": {
+      "path": "art/candidates/adventures/lanterns-in-the-rain/rain-path-portrait.avif",
+      "format": "avif",
+      "width": 750,
+      "height": 1200,
+      "bytes": 8525,
+      "sha256": "6cbf1411e8374d3ba7a00602ef79e3b1c147f55f3b6a5f658e2d18a698398eda"
+    }
+  },
+  "provenance": {
+    "creator": "OpenAI image generation",
+    "method": "Native image generation followed by deterministic center crop, Lanczos resize, and AVIF candidate encoding",
+    "ownershipBasis": "User-directed work product for MythologIQ Labs, LLC",
+    "createdAt": "2026-07-17T19:15:00Z",
+    "sourceReferenceIds": [
+      "chat-generation:landscape-rain-path-anchor",
+      "chat-generation:bd45ce54-9ce0-4109-b5dd-d563577c6481"
+    ],
+    "approvalScope": "Candidate review only; not approved or production art",
+    "humanArtApproval": false
+  },
+  "compositionContract": {
+    "mode": "environment-with-live-pal-overlay",
+    "charactersBakedIntoScene": false,
+    "requiredLivePalRoles": ["first-pal", "first-neighbor"],
+    "landscapeCharacterSafeArea": {
+      "leftPercent": 4,
+      "rightPercent": 4,
+      "bottomPercent": 1,
+      "heightPercent": 66
+    },
+    "portraitCharacterSafeArea": {
+      "leftPercent": 4,
+      "rightPercent": 4,
+      "bottomPercent": 2,
+      "heightPercent": 58
+    }
+  },
+  "criteria": {
+    "visualQuality": "pending",
+    "storybookIdentity": "pending",
+    "environmentalContinuity": "pending",
+    "environmentalDepth": "pending",
+    "livePalSafeAreas": "pending",
+    "portraitAndLandscapeContinuity": "pending",
+    "childSuitability": "pending",
+    "accessibility": "pending",
+    "sourceSimilarity": "pending",
+    "ownershipAndRights": "pending",
+    "tabletReadability": "pending",
+    "performanceEvidence": "pending"
+  },
+  "requiredRevisions": [],
+  "notes": "Isolated candidate pair. Explicit human approval is required before normalization into production dimensions, production-path promotion, registry update, or runtime integration."
+}
