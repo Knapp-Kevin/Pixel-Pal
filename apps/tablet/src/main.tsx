@@ -46,8 +46,12 @@ if (!root) {
   throw new Error('Pixel Pals could not find the application root.');
 }
 
+const alphaFixtureModes = new Set(['alpha-fixture', 'benchmark-art']);
 const productionArtFallbackPolicy: ProductionArtFallbackPolicy =
-  import.meta.env.VITE_PIXEL_PALS_ALLOW_ALPHA_FALLBACK === 'true' ? 'alpha' : 'block';
+  alphaFixtureModes.has(import.meta.env.MODE)
+    || import.meta.env.VITE_PIXEL_PALS_ALLOW_ALPHA_FALLBACK === 'true'
+    ? 'alpha'
+    : 'block';
 
 function ProductionArtReleaseBoundary({ children }: { children: ReactNode }) {
   if (productionArtFallbackPolicy === 'alpha' || productionArtRelease.ready) return <>{children}</>;
