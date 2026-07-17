@@ -1,14 +1,22 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { startHeadlessChrome } from './cdp-browser.mjs';
 
 const baseUrl = process.env.VIEWPORT_BASE_URL ?? 'http://127.0.0.1:4173';
 const origin = new URL(baseUrl).origin;
 const screenshotDirectory = join(process.cwd(), 'artifacts', 'production-art-blocking');
+const generatedRegistryPath = join(process.cwd(), 'apps', 'tablet', 'src', 'generatedProductionArtRegistry.ts');
 const profiles = [
   { name: 'compact-landscape', width: 800, height: 600, orientation: 'landscapePrimary', angle: 90 },
   { name: 'compact-portrait', width: 600, height: 800, orientation: 'portraitPrimary', angle: 0 }
 ];
+
+async function expectedBlockerCount() {
+  const generatedRegistry = await readFile(generatedRegistryPath, 'utf8');
+  const match = generatedRegistry.match(/blockerCount:\s*(\d+)/);
+  if (!match) throw new Error('Could not read blockerCount from generatedProductionArtRegistry.ts.');
+  return match[1];
+}
 
 async function capture(page, name) {
   const result = await page.send('Page.captureScreenshot', {
@@ -45,10 +53,10 @@ async function snapshot(page) {
   })())`));
 }
 
-function assertBoundary(state, profile) {
+function assertBoundary(state, profile, expectedCount) {
   const failures = [];
   if (!state.boundary) failures.push('missing visual release boundary');
-  if (state.blockerCount !== '35') failures.push(`reported ${state.blockerCount} blockers`);
+  if (state.blockerCount !== expectedCount) failures.push(`reported ${state.blockerCount} blockers instead of ${expectedCount}`);
   if (!state.title?.includes('finished artwork')) failures.push('missing release-block title');
   if (state.alphaPalSvgs !== 0) failures.push(`${state.alphaPalSvgs} alpha Pal SVGs rendered`);
   if (state.blockedPalCards !== 0) failures.push(`${state.blockedPalCards} per-component blocker cards rendered`);
@@ -86,6 +94,7 @@ function assertBoundary(state, profile) {
 
 await rm(screenshotDirectory, { recursive: true, force: true });
 await mkdir(screenshotDirectory, { recursive: true });
+const expectedCount = await expectedBlockerCount();
 const browser = await startHeadlessChrome();
 
 try {
@@ -104,7 +113,7 @@ try {
       await page.waitFor("Boolean(document.querySelector('[data-production-art-release-blocked=\"true\"]'))");
       const state = await snapshot(page);
       await capture(page, `${profile.name}-visual-release-blocked`);
-      assertBoundary(state, profile);
+      assertBoundary(state, profile, expectedCount);
       console.log(`PASS ${profile.name}: production is blocked by ${state.blockerCount} incomplete art records with no alpha fallback or clipped copy.`);
     } finally {
       page.close();
