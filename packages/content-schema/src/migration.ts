@@ -3,9 +3,11 @@ import {
   WorldV1Schema,
   WorldV2Schema,
   WorldV3Schema,
+  WorldV4Schema,
   type WorldV1,
   type WorldV2,
-  type WorldV3
+  type WorldV3,
+  type WorldV4
 } from './worldBase';
 import { WorldSchema, type World } from './world';
 
@@ -28,7 +30,8 @@ function ensureFirstHome(world: WorldV1, firstPal: WorldV1['pals'][number]): { h
     villageId: firstPal.homeVillageId,
     residentPalIds: [firstPal.id],
     styleId: 'willowmere-roundhouse',
-    visibleChanges: []
+    visibleChanges: [],
+    familyMemoryIds: []
   };
   return { homes: [...homes, firstHome], firstHomeId: firstHome.id };
 }
@@ -51,12 +54,19 @@ function migratePals(
   });
 }
 
-function migrateV3(world: WorldV3): World {
+function migrateV4(world: WorldV4): World {
   return WorldSchema.parse({
     ...world,
-    schemaVersion: CURRENT_SCHEMA_VERSION,
-    familyBonds: []
+    schemaVersion: CURRENT_SCHEMA_VERSION
   });
+}
+
+function migrateV3(world: WorldV3): World {
+  return migrateV4(WorldV4Schema.parse({
+    ...world,
+    schemaVersion: 4,
+    familyBonds: []
+  }));
 }
 
 function migrateV2(world: WorldV2): World {
@@ -93,6 +103,7 @@ export function parseWorld(input: unknown): World {
     if (input.schemaVersion === 1) return migrateV1(WorldV1Schema.parse(input));
     if (input.schemaVersion === 2) return migrateV2(WorldV2Schema.parse(input));
     if (input.schemaVersion === 3) return migrateV3(WorldV3Schema.parse(input));
+    if (input.schemaVersion === 4) return migrateV4(WorldV4Schema.parse(input));
   }
 
   return WorldSchema.parse(input);
