@@ -54,6 +54,11 @@ jobs:
           node --check scripts/verify-art-build-profile.mjs
           node --check scripts/verify-production-art.mjs
           node --check scripts/verify-human-art-reviews.mjs
+          node --check scripts/verify-pal-candidate-manifest.mjs
+          node --check scripts/generate-pal-candidate-review.mjs
+          node --check scripts/verify-pal-candidate-review.mjs
+          node --check scripts/verify-pal-runtime-art.mjs
+          node --check scripts/verify-pal-runtime-reviews.mjs
           node --check scripts/generate-production-art-registry.mjs
           node --check scripts/generate-art-review-report.mjs
           node --check scripts/generate-art-parity-report.mjs
@@ -67,6 +72,17 @@ jobs:
           set -o pipefail
           mkdir -p artifacts
           npm run verify:art-reviews 2>&1 | tee artifacts/art-review-decision-verification.log
+
+      - name: Verify canonical Pal candidate contract
+        run: |
+          set -o pipefail
+          npm run verify:pal-candidates 2>&1 | tee artifacts/pal-candidate-verification.log
+
+      - name: Verify Pal runtime art and reviews
+        run: |
+          set -o pipefail
+          npm run verify:pal-runtime 2>&1 | tee artifacts/pal-runtime-verification.log
+          npm run verify:pal-runtime-reviews 2>&1 | tee artifacts/pal-runtime-review-verification.log
 
       - name: Verify generated production art registry
         run: |
@@ -201,6 +217,10 @@ jobs:
             artifacts/performance
             artifacts/performance-verification.log
             artifacts/art-registry-verification.log
+            artifacts/pal-candidate-verification.log
+            artifacts/pal-runtime-verification.log
+            artifacts/pal-runtime-review-verification.log
+            artifacts/pal-runtime-reviews
             artifacts/production-art-blocking
             artifacts/production-art-blocking-verification.log
             artifacts/production-art-profile-verification.log
