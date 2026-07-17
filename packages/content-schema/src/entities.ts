@@ -101,7 +101,8 @@ export const FamilyMemoryThemeSchema = z.enum([
 export const FamilyHistorySchema = z.object({
   familyBondId: id,
   householdId: id,
-  sceneVariant: FamilyMemoryThemeSchema
+  sceneVariant: FamilyMemoryThemeSchema,
+  treeMarkerId: id
 });
 
 export const MemorySchema = z.object({
