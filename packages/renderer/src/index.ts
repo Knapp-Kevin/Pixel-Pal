@@ -1,3 +1,6 @@
+export { FamilyMemoryScene } from './FamilyMemoryScene';
+export type { FamilyMemorySceneProps } from './FamilyMemoryScene';
+
 export { HomeScene } from './HomeScene';
 export type { HomeSceneProps } from './HomeScene';
 
