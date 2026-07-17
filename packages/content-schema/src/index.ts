@@ -11,6 +11,8 @@ export {
   CharacteristicSchema,
   FamilyBondKindSchema,
   FamilyBondSchema,
+  FamilyHistorySchema,
+  FamilyMemoryThemeSchema,
   GreatTreeSchema,
   HomeObjectSchema,
   HomeSchema,
@@ -26,6 +28,8 @@ export {
 export type {
   FamilyBond,
   FamilyBondKind,
+  FamilyHistory,
+  FamilyMemoryTheme,
   Home,
   HomeObject,
   Memory,
