@@ -20,6 +20,8 @@ export type { WorldDayCompletion, WorldDayInvitation, WorldDaySession } from './
 export type { FirstActivity, FirstActivityCompletion } from './activities';
 export { addFamilyBond, FAMILY_BOND_HELP, FAMILY_BOND_LABELS, removeFamilyBond } from './familyBonds';
 export type { FamilyBondInput } from './familyBonds';
+export { FAMILY_MEMORY_THEMES, recordFamilyMemory, removeFamilyMemory } from './familyChronicle';
+export type { FamilyMemoryTone, RecordFamilyMemoryInput } from './familyChronicle';
 export { createInheritancePreview, palTraitProfile } from './inheritance';
 export type {
   InheritancePreview,
@@ -147,7 +149,14 @@ export function createFirstWorld(input: CreateWorldInput): World {
     }],
     familyBonds: [],
     memories: [],
-    homes: [{ id: homeId, villageId, residentPalIds: [firstPalId], styleId: 'willowmere-roundhouse', visibleChanges: [] }],
+    homes: [{
+      id: homeId,
+      villageId,
+      residentPalIds: [firstPalId],
+      styleId: 'willowmere-roundhouse',
+      visibleChanges: [],
+      familyMemoryIds: []
+    }],
     villages: [{
       id: villageId,
       name: 'Willowmere',
