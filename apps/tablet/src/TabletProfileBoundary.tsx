@@ -66,6 +66,8 @@ export function TabletProfileBoundary({ children }: TabletProfileBoundaryProps) 
       <ParentTestTools
         world={world}
         worlds={worlds}
+        saving={true}
+        runWorldAction={() => setStatus('Family changes stay read-only until compatible Pal artwork is installed.')}
         onStatus={setStatus}
         onStartNewWorld={() => setStatus('Install a compatible tablet build before beginning another local world.')}
         onDeleteWorld={async () => {
