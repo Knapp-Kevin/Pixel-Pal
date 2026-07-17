@@ -50,10 +50,13 @@ jobs:
           node --check scripts/verify-emulated-tablet-performance.mjs
           node --check scripts/verify-traits-lab.mjs
           node --check scripts/verify-family-map.mjs
+          node --check scripts/verify-production-art-blocking.mjs
           node --check scripts/verify-production-art.mjs
           node --check scripts/verify-human-art-reviews.mjs
           node --check scripts/generate-production-art-registry.mjs
           node --check scripts/generate-art-review-report.mjs
+          node --check scripts/generate-art-parity-report.mjs
+          node --check scripts/import-responsive-scene-art.mjs
 
       - name: Verify production art planning contract
         run: npm run verify:art-plan
@@ -70,8 +73,10 @@ jobs:
           mkdir -p artifacts
           npm run verify:art-registry 2>&1 | tee artifacts/art-registry-verification.log
 
-      - name: Generate production art review evidence
-        run: npm run generate:art-review
+      - name: Generate production art evidence
+        run: |
+          npm run generate:art-review
+          npm run generate:art-parity
 
       - name: Typecheck
         run: |
@@ -85,13 +90,13 @@ jobs:
           mkdir -p artifacts
           npm test 2>&1 | tee artifacts/test-results.log
 
-      - name: Build production-only application
+      - name: Build honest production application
         run: npm run build
 
-      - name: Verify production-only tablet routes
+      - name: Verify production blocks alpha artwork
         run: |
           set -o pipefail
-          npm run preview --workspace=@pixel-pals/tablet -- --host 127.0.0.1 --port 4173 > /tmp/pixel-pals-preview.log 2>&1 &
+          npm run preview --workspace=@pixel-pals/tablet -- --host 127.0.0.1 --port 4173 > /tmp/pixel-pals-production-preview.log 2>&1 &
           PREVIEW_PID=$!
           trap 'kill $PREVIEW_PID' EXIT
           for attempt in {1..40}; do
@@ -99,33 +104,58 @@ jobs:
               break
             fi
             if [ "$attempt" -eq 40 ]; then
-              cat /tmp/pixel-pals-preview.log
+              cat /tmp/pixel-pals-production-preview.log
               exit 1
             fi
             sleep 0.25
           done
           mkdir -p artifacts
-          npm run verify:performance 2>&1 | tee artifacts/performance-verification.log
-          npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
-          npm run verify:traits-lab 2>&1 | tee artifacts/traits-lab-verification.log
-          npm run verify:family-map 2>&1 | tee artifacts/family-map-verification.log
-          npm run verify:suspension 2>&1 | tee artifacts/suspension-verification.log
-          EXPECT_RAIN_PATH_FALLBACK=true npm run verify:adventures 2>&1 | tee artifacts/adventure-verification.log
-          npm run verify:worlds 2>&1 | tee artifacts/world-catalog-verification.log
+          npm run verify:art-blocking 2>&1 | tee artifacts/production-art-blocking-verification.log
+
+      - name: Build explicit alpha functional fixture
+        env:
+          VITE_PIXEL_PALS_ALLOW_ALPHA_FALLBACK: "true"
+        run: npm run build --workspace=@pixel-pals/tablet -- --outDir dist-alpha-fixture
+
+      - name: Verify gameplay routes against alpha fixture
+        run: |
+          set -o pipefail
+          python3 -m http.server 4174 --directory apps/tablet/dist-alpha-fixture > /tmp/pixel-pals-alpha-preview.log 2>&1 &
+          ALPHA_PID=$!
+          trap 'kill $ALPHA_PID' EXIT
+          for attempt in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4174/ > /dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 40 ]; then
+              cat /tmp/pixel-pals-alpha-preview.log
+              exit 1
+            fi
+            sleep 0.25
+          done
+          mkdir -p artifacts
+          VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:performance 2>&1 | tee artifacts/performance-verification.log
+          VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
+          VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:traits-lab 2>&1 | tee artifacts/traits-lab-verification.log
+          VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:family-map 2>&1 | tee artifacts/family-map-verification.log
+          VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:suspension 2>&1 | tee artifacts/suspension-verification.log
+          VIEWPORT_BASE_URL=http://127.0.0.1:4174 EXPECT_RAIN_PATH_FALLBACK=true npm run verify:adventures 2>&1 | tee artifacts/adventure-verification.log
+          VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:worlds 2>&1 | tee artifacts/world-catalog-verification.log
 
       - name: Build benchmark art review application
         env:
           VITE_PIXEL_PALS_ART_STATUS: benchmark
+          VITE_PIXEL_PALS_ALLOW_ALPHA_FALLBACK: "true"
         run: npm run build --workspace=@pixel-pals/tablet -- --outDir dist-benchmark
 
       - name: Verify benchmark art across five starter species
         run: |
           set -o pipefail
-          python3 -m http.server 4174 --directory apps/tablet/dist-benchmark > /tmp/pixel-pals-benchmark-preview.log 2>&1 &
+          python3 -m http.server 4175 --directory apps/tablet/dist-benchmark > /tmp/pixel-pals-benchmark-preview.log 2>&1 &
           BENCHMARK_PID=$!
           trap 'kill $BENCHMARK_PID' EXIT
           for attempt in {1..40}; do
-            if curl --fail --silent http://127.0.0.1:4174/ > /dev/null; then
+            if curl --fail --silent http://127.0.0.1:4175/ > /dev/null; then
               break
             fi
             if [ "$attempt" -eq 40 ]; then
@@ -134,7 +164,7 @@ jobs:
             fi
             sleep 0.25
           done
-          VIEWPORT_BASE_URL=http://127.0.0.1:4174 \
+          VIEWPORT_BASE_URL=http://127.0.0.1:4175 \
           EXPECT_RAIN_PATH_ART_STATUS=benchmark \
           ADVENTURE_SCREENSHOT_SUBDIR=benchmark-art-review \
           npm run verify:adventures 2>&1 | tee artifacts/benchmark-art-verification.log
@@ -145,6 +175,7 @@ jobs:
         with:
           name: tablet-viewport-screenshots
           path: |
+            artifacts/art-parity
             artifacts/art-review
             artifacts/art-review-decisions
             artifacts/art-review-decision-verification.log
@@ -153,6 +184,8 @@ jobs:
             artifacts/performance
             artifacts/performance-verification.log
             artifacts/art-registry-verification.log
+            artifacts/production-art-blocking
+            artifacts/production-art-blocking-verification.log
             artifacts/typecheck-results.log
             artifacts/test-results.log
             artifacts/tablet-viewports
