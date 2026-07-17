@@ -9,6 +9,8 @@ export { CanonStatusSchema, CURRENT_SCHEMA_VERSION, LifeStageSchema } from './pr
 export {
   AppearanceSchema,
   CharacteristicSchema,
+  FamilyBondKindSchema,
+  FamilyBondSchema,
   GreatTreeSchema,
   HomeObjectSchema,
   HomeSchema,
@@ -21,7 +23,15 @@ export {
   SpeciesSchema,
   VillageSchema
 } from './entities';
-export type { Home, HomeObject, Memory, Pal, Relationship } from './entities';
+export type {
+  FamilyBond,
+  FamilyBondKind,
+  Home,
+  HomeObject,
+  Memory,
+  Pal,
+  Relationship
+} from './entities';
 export { WorldSchema } from './world';
 export type { World } from './world';
 export { parseWorld } from './migration';

@@ -1,0 +1,245 @@
+.family-map {
+  grid-column: 1 / -1;
+  background:
+    radial-gradient(circle at top left, rgb(216 235 224 / 72%), transparent 34%),
+    #fffdf4 !important;
+}
+
+.family-map-heading,
+.family-bond-card,
+.family-pal-card {
+  display: flex;
+  align-items: center;
+}
+
+.family-map-heading {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.family-map-count {
+  width: fit-content;
+  padding: 7px 11px;
+  border: 1px solid #5d776a;
+  border-radius: 999px;
+  background: #f8f3df;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.family-art-contract {
+  padding: 12px 14px;
+  border-left: 5px solid #315b4c;
+  border-radius: 10px;
+  background: #edf3e6;
+  font-weight: 750;
+}
+
+.family-pal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.family-pal-card {
+  min-height: 150px;
+  gap: 14px;
+  padding: 14px;
+  border: 2px solid rgb(49 91 76 / 26%);
+  border-radius: 18px;
+  background: #fffef9;
+}
+
+.family-pal-card h3,
+.family-pal-card p {
+  margin: 0;
+}
+
+.family-pal-card p {
+  margin-top: 5px;
+  color: #587065;
+  font-weight: 750;
+  text-transform: capitalize;
+}
+
+.family-pal-art-frame {
+  width: 104px;
+  height: 124px;
+  flex: 0 0 104px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 28%, rgb(255 248 204 / 70%), transparent 35%),
+    #d9ecde;
+}
+
+.family-map-pal-art {
+  width: 96px;
+  height: 116px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 6px rgb(40 55 45 / 18%));
+}
+
+.family-pal-art-missing {
+  padding: 12px;
+  color: #405c50;
+  font-size: 0.82rem;
+  font-weight: 850;
+  text-align: center;
+}
+
+.family-bond-editor {
+  margin-top: 18px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 12px;
+  border: 2px solid rgb(49 91 76 / 22%);
+  border-radius: 18px;
+  background: #f8f3df;
+}
+
+.family-bond-editor label {
+  display: grid;
+  gap: 7px;
+  color: #314a40;
+  font-weight: 800;
+}
+
+.family-bond-editor select {
+  width: 100%;
+  min-height: 46px;
+  padding: 9px 11px;
+  border: 2px solid #71887c;
+  border-radius: 12px;
+  color: #20342d;
+  background: #fffef8;
+  font: inherit;
+}
+
+.family-bond-editor select:focus-visible {
+  outline: 4px solid #173d73;
+  outline-offset: 4px;
+}
+
+.family-bond-add {
+  min-width: 170px;
+  margin-top: 0;
+}
+
+.family-bond-help {
+  margin: 10px 0 0;
+}
+
+.family-bond-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.family-map-empty {
+  margin: 0;
+  padding: 16px;
+  border: 2px dashed #71887c;
+  border-radius: 14px;
+  color: #405c50;
+  background: #fffef9;
+  font-weight: 750;
+}
+
+.family-bond-card {
+  min-height: 96px;
+  gap: 14px;
+  padding: 14px;
+  border: 2px solid rgb(49 91 76 / 24%);
+  border-radius: 16px;
+  background: #fffef9;
+}
+
+.family-bond-marker {
+  min-width: 68px;
+  min-height: 46px;
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid #315b4c;
+  border-radius: 999px;
+  color: #20342d;
+  background: #edf3e6;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+}
+
+.family-bond-marker-adoptive-parent,
+.family-bond-marker-chosen-family {
+  border-style: double;
+  border-width: 4px;
+}
+
+.family-bond-marker-guardian {
+  border-radius: 12px;
+}
+
+.family-bond-marker-sibling {
+  background: #fff4cf;
+}
+
+.family-bond-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.family-bond-copy h3,
+.family-bond-copy p {
+  margin: 0;
+}
+
+.family-bond-copy p {
+  margin-top: 5px;
+}
+
+.family-bond-remove {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .family-bond-editor {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .family-bond-add {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .family-map-heading,
+  .family-bond-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .family-bond-editor,
+  .family-pal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .family-pal-card {
+    align-items: center;
+  }
+
+  .family-bond-marker {
+    align-self: flex-start;
+  }
+
+  .family-bond-remove {
+    width: 100%;
+  }
+}

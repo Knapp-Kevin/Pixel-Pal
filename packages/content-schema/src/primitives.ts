@@ -1,12 +1,13 @@
 import { z } from 'zod';
 
-export const CURRENT_SCHEMA_VERSION = 3 as const;
+export const CURRENT_SCHEMA_VERSION = 4 as const;
 
 export const LIMITS = {
   species: 128,
   lineages: 1024,
   pals: 5000,
   relationships: 20000,
+  familyBonds: 10000,
   memories: 20000,
   homes: 5000,
   villages: 256,

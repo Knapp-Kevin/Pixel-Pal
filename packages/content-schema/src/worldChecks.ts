@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { Home, Pal, Village } from './entities';
+import type { FamilyBond, FamilyBondKind, Home, Pal, Village } from './entities';
 import type { WorldShape } from './worldBase';
 
 type Lookups = {
@@ -11,6 +11,9 @@ type Lookups = {
   memoryById: Map<string, WorldShape['memories'][number]>;
   treeById: Map<string, WorldShape['greatTrees'][number]>;
 };
+
+const CAREGIVING_KINDS = new Set<FamilyBondKind>(['biological-parent', 'adoptive-parent', 'guardian']);
+const SYMMETRIC_KINDS = new Set<FamilyBondKind>(['sibling', 'chosen-family']);
 
 function issue(context: z.RefinementCtx, message: string, path?: Array<string | number>): void {
   context.addIssue({ code: z.ZodIssueCode.custom, message, ...(path ? { path } : {}) });
@@ -57,6 +60,7 @@ function validateCollectionIds(world: WorldShape, context: z.RefinementCtx): voi
     ['Lineages', world.lineages, 'lineages'],
     ['Pals', world.pals, 'pals'],
     ['Relationships', world.relationships, 'relationships'],
+    ['Family bonds', world.familyBonds, 'familyBonds'],
     ['Memories', world.memories, 'memories'],
     ['Homes', world.homes, 'homes'],
     ['Villages', world.villages, 'villages'],
@@ -147,6 +151,72 @@ function validateRelationships(world: WorldShape, context: z.RefinementCtx, look
       issue(context, `Duplicate directed relationship ${pair}.`, ['relationships']);
     }
     relationshipPairs.add(pair);
+  }
+}
+
+function unorderedPair(left: string, right: string): string {
+  return [left, right].sort().join('<>');
+}
+
+function semanticBondKey(bond: FamilyBond): string {
+  if (SYMMETRIC_KINDS.has(bond.kind)) {
+    return `${bond.kind}:${unorderedPair(bond.fromPalId, bond.toPalId)}`;
+  }
+  return `${bond.kind}:${bond.fromPalId}>${bond.toPalId}`;
+}
+
+function validateFamilyBonds(world: WorldShape, context: z.RefinementCtx, lookups: Lookups): void {
+  const semanticKeys = new Set<string>();
+  const caregivingDirections = new Map<string, FamilyBondKind>();
+  const kindsByPair = new Map<string, Set<FamilyBondKind>>();
+
+  for (const bond of world.familyBonds) {
+    if (!lookups.palById.has(bond.fromPalId) || !lookups.palById.has(bond.toPalId)) {
+      issue(context, `Family bond ${bond.id} references an unknown Pal.`, ['familyBonds']);
+    }
+    if (bond.fromPalId === bond.toPalId) {
+      issue(context, `Family bond ${bond.id} cannot connect a Pal to itself.`, ['familyBonds']);
+    }
+    if (bond.establishedWorldDay > world.worldDay) {
+      issue(context, `Family bond ${bond.id} is dated after the current world day.`, ['familyBonds']);
+    }
+
+    const semanticKey = semanticBondKey(bond);
+    if (semanticKeys.has(semanticKey)) {
+      issue(context, `Duplicate family bond ${semanticKey}.`, ['familyBonds']);
+    }
+    semanticKeys.add(semanticKey);
+
+    const pair = unorderedPair(bond.fromPalId, bond.toPalId);
+    const existingKinds = kindsByPair.get(pair) ?? new Set<FamilyBondKind>();
+    const existingCaregiving = [...existingKinds].find((kind) => CAREGIVING_KINDS.has(kind));
+    const existingSymmetric = [...existingKinds].find((kind) => SYMMETRIC_KINDS.has(kind));
+
+    if (CAREGIVING_KINDS.has(bond.kind)) {
+      const direction = `${bond.fromPalId}>${bond.toPalId}`;
+      const reverse = `${bond.toPalId}>${bond.fromPalId}`;
+      if (caregivingDirections.has(reverse)) {
+        issue(context, `Family bond ${bond.id} creates a reciprocal caregiving cycle.`, ['familyBonds']);
+      }
+      if (existingCaregiving && existingCaregiving !== bond.kind) {
+        issue(context, `Family pair ${pair} has conflicting caregiving classifications.`, ['familyBonds']);
+      }
+      if (existingKinds.has('sibling')) {
+        issue(context, `Family pair ${pair} cannot be both sibling and caregiver-child.`, ['familyBonds']);
+      }
+      caregivingDirections.set(direction, bond.kind);
+    }
+
+    if (bond.kind === 'sibling' && existingCaregiving) {
+      issue(context, `Family pair ${pair} cannot be both sibling and caregiver-child.`, ['familyBonds']);
+    }
+
+    if (SYMMETRIC_KINDS.has(bond.kind) && existingSymmetric && existingSymmetric !== bond.kind) {
+      issue(context, `Family pair ${pair} has conflicting symmetric family classifications.`, ['familyBonds']);
+    }
+
+    existingKinds.add(bond.kind);
+    kindsByPair.set(pair, existingKinds);
   }
 }
 
@@ -251,6 +321,7 @@ export function validateWorld(world: WorldShape, context: z.RefinementCtx): void
   validateLineages(world, context, lookups);
   for (const pal of world.pals) validatePalEntry(pal, context, lookups);
   validateRelationships(world, context, lookups);
+  validateFamilyBonds(world, context, lookups);
   validateMemories(world, context, lookups);
   validateHomes(world, context, lookups);
   validateVillages(world, context, lookups);

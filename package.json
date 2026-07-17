@@ -23,6 +23,7 @@
     "verify:worlds": "node scripts/verify-multiple-worlds.mjs",
     "verify:performance": "node scripts/verify-emulated-tablet-performance.mjs",
     "verify:traits-lab": "node scripts/verify-traits-lab.mjs",
+    "verify:family-map": "node scripts/verify-family-map.mjs",
     "verify:art-plan": "node scripts/verify-production-art.mjs",
     "verify:production-art": "node scripts/verify-production-art.mjs --release",
     "verify:art-reviews": "node scripts/verify-human-art-reviews.mjs",

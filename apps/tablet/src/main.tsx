@@ -27,6 +27,7 @@ import './home-day.css';
 import './adventures-compact.css';
 import './production-art.css';
 import './traits-lab.css';
+import './family-map.css';
 
 const updateServiceWorker = registerSW({
   immediate: true,
