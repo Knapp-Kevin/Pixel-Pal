@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ProductionArtProvider } from '@pixel-pals/renderer';
+import { ProductionArtProvider, type ProductionArtFallbackPolicy } from '@pixel-pals/renderer';
 import { registerSW } from 'virtual:pwa-register';
 import { AccessibilitySettingsProvider } from './AccessibilitySettingsProvider';
 import { App } from './App';
@@ -42,11 +42,18 @@ if (!root) {
   throw new Error('Pixel Pals could not find the application root.');
 }
 
+const productionArtFallbackPolicy: ProductionArtFallbackPolicy =
+  import.meta.env.VITE_PIXEL_PALS_ALLOW_ALPHA_FALLBACK === 'true' ? 'alpha' : 'block';
+
 createRoot(root).render(
   <StrictMode>
     <ErrorBoundary>
       <AccessibilitySettingsProvider>
-        <ProductionArtProvider registry={productionArtRegistry} minimumStatus={productionArtMinimumStatus}>
+        <ProductionArtProvider
+          registry={productionArtRegistry}
+          minimumStatus={productionArtMinimumStatus}
+          fallbackPolicy={productionArtFallbackPolicy}
+        >
           <TabletProfileBoundary>
             <App />
           </TabletProfileBoundary>
