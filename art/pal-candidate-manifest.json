@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "product": "Pixel Pals",
   "program": "M3 Production Art",
   "artDirection": "lush-hand-painted-storybook",
@@ -9,7 +9,7 @@
     "ageRead": "young child companion, never infant and never adult",
     "proportions": "approximately 3.5 heads tall with a large readable face, compact torso, short limbs, and species-correct feet",
     "rendering": "soft painterly edges, visible brush texture, warm bounced light, restrained detail, and a clean transparent silhouette",
-    "baseOutfit": "Willowmere daywear: cream linen shirt, simple sleeveless vest, short practical bottoms, soft ankle footwear where anatomically appropriate, and no removable accessory",
+    "baseOutfit": "Willowmere daywear: cream linen shirt, simple sleeveless vest, short practical bottoms, species-appropriate feet, and no removable accessory",
     "poseAnchor": "feet centered on a common ground line; body center and eye line remain stable across expressions and poses",
     "expressionAnchor": "open, emotionally legible face with consistent eye size, muzzle or beak geometry, and age",
     "forbidden": [
@@ -19,8 +19,8 @@
       "infant proportions",
       "human hands on paws, wings, or hooves",
       "random costume changes",
-      "baked-in text, UI, scenery, or named identity",
-      "cropped ears, wings, horns, feet, or tail"
+      "baked-in text, UI, scenery, or user-selected names",
+      "cropped ears, antlers, feet, wings, or tail"
     ]
   },
   "requiredAssetSet": [
@@ -34,12 +34,14 @@
     "confirmation",
     "error"
   ],
-  "species": [
+  "characters": [
     {
+      "key": "starter-fox",
+      "displayName": "Fox starter family",
       "species": "fox",
       "artIdentity": "starter-fox-v1",
       "palette": "russet-cream",
-      "marking": "cream-muzzle-chest-tail-tip",
+      "marking": "generic-base",
       "accessory": "none",
       "silhouette": "large triangular ears, narrow soft muzzle, compact body, and a broad expressive tail approximately torso length",
       "face": "warm amber-brown eyes, small charcoal nose, cream cheeks, and dark russet ear tips",
@@ -49,36 +51,27 @@
       "assets": {}
     },
     {
-      "species": "cat",
-      "artIdentity": "starter-cat-v1",
-      "palette": "warm-gray-cream",
-      "marking": "soft-tabby-brow-cheeks-tail",
+      "key": "starter-deer",
+      "displayName": "Deer starter family",
+      "species": "deer",
+      "artIdentity": "starter-deer-v1",
+      "palette": "hazel-cream",
+      "marking": "generic-base",
       "accessory": "none",
-      "silhouette": "rounded triangular ears, soft cheek shape, compact paws, and a gently curved striped tail",
-      "face": "hazel-green eyes, small rose-brown nose, short cream muzzle, and three restrained tabby marks above each eye",
-      "outfitPalette": "ochre vest, cream shirt, chestnut shorts",
+      "silhouette": "large upright ears, gentle tapered muzzle, compact cloven hooves, short tail, and small youth-safe antler buds rather than adult antlers",
+      "face": "deep brown eyes, soft cream muzzle, warm charcoal nose, and calm brows that remain readable beneath the ear line",
+      "outfitPalette": "river-blue vest, cream shirt, walnut shorts",
       "reviewState": "planned",
       "decision": "pending",
       "assets": {}
     },
     {
-      "species": "dragon",
-      "artIdentity": "starter-dragon-v1",
-      "palette": "moss-green-cream",
-      "marking": "cream-belly-muzzle-and-wing-membrane",
-      "accessory": "none",
-      "silhouette": "short rounded muzzle, two small swept-back amber horns, compact folded wings, sturdy feet, and a tapered tail",
-      "face": "large golden-brown eyes, gentle brow plates, two small nostrils, and no predatory teeth in the resting expression",
-      "outfitPalette": "indigo vest, cream shirt, walnut shorts",
-      "reviewState": "planned",
-      "decision": "pending",
-      "assets": {}
-    },
-    {
-      "species": "bunny",
-      "artIdentity": "starter-bunny-v1",
+      "key": "starter-rabbit",
+      "displayName": "Rabbit starter family",
+      "species": "rabbit",
+      "artIdentity": "starter-rabbit-v1",
       "palette": "cocoa-cream",
-      "marking": "cream-muzzle-chest-inner-ear-and-tail",
+      "marking": "generic-base",
       "accessory": "none",
       "silhouette": "two long upright ears with a slight outward curve, rounded cheeks, compact hind feet, and a small visible tail",
       "face": "deep brown eyes, small warm-brown nose, cream muzzle, and consistent ear length approximately one head high",
@@ -88,14 +81,46 @@
       "assets": {}
     },
     {
-      "species": "bird",
-      "artIdentity": "starter-bird-v1",
-      "palette": "blue-gray-gold",
-      "marking": "golden-breast-cream-eye-ring-and-wing-tips",
+      "key": "starter-kitten",
+      "displayName": "Kitten starter family",
+      "species": "cat",
+      "artIdentity": "starter-kitten-v1",
+      "palette": "warm-gray-cream",
+      "marking": "generic-base",
       "accessory": "none",
-      "silhouette": "round feathered head, short tapered beak, feathered arm-wings capable of readable gestures, compact body, small tail fan, and three-toed bird feet",
-      "face": "dark warm eyes with a cream eye ring, short amber beak, soft brow feather shape, and no human lips or hands",
+      "silhouette": "rounded triangular ears, soft cheek shape, compact paws, and a gently curved tail that stays clear of the body silhouette",
+      "face": "hazel-green eyes, small rose-brown nose, short cream muzzle, and restrained brow markings that do not imply one fixed inherited pattern",
+      "outfitPalette": "ochre vest, cream shirt, chestnut shorts",
+      "reviewState": "planned",
+      "decision": "pending",
+      "assets": {}
+    },
+    {
+      "key": "starter-duckling",
+      "displayName": "Duckling starter family",
+      "species": "duck",
+      "artIdentity": "starter-duckling-v1",
+      "palette": "golden-cream",
+      "marking": "generic-base",
+      "accessory": "none",
+      "silhouette": "round feathered head, short broad bill, gesture-capable wings without human hands, compact body, small tail fan, and webbed feet",
+      "face": "dark warm eyes, short amber bill, soft brow feather shape, and no human lips, fingers, or mammalian muzzle",
       "outfitPalette": "forest-green vest, cream shirt panel, walnut short trousers adapted around the tail",
+      "reviewState": "planned",
+      "decision": "pending",
+      "assets": {}
+    },
+    {
+      "key": "fern",
+      "displayName": "Fern",
+      "species": "rabbit",
+      "artIdentity": "fern",
+      "palette": "mosscream",
+      "marking": "ear-dapple",
+      "accessory": "none",
+      "silhouette": "two long relaxed rabbit ears, rounded cheeks, compact hind feet, a small tail, and a stable neighbor silhouette distinct from the generic starter Rabbit",
+      "face": "warm dark eyes, cream muzzle, gentle smile, moss-and-cream ear dappling, and an attentive expression suited to gardening and first-neighbor scenes",
+      "outfitPalette": "leaf-green vest, cream shirt, warm brown shorts with practical gardening wear",
       "reviewState": "planned",
       "decision": "pending",
       "assets": {}
