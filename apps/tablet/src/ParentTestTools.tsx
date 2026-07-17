@@ -4,6 +4,7 @@ import type { WorldSummary } from '@pixel-pals/persistence';
 import { ParentAccessGate } from './parentGate/ParentAccessGate';
 import { AccessibilitySection } from './parentTools/AccessibilitySection';
 import { BackupSection } from './parentTools/BackupSection';
+import { FamilyMapSection } from './parentTools/FamilyMapSection';
 import { ObservationSection } from './parentTools/ObservationSection';
 import { ResetSection } from './parentTools/ResetSection';
 import { TraitsLabSection } from './parentTools/TraitsLabSection';
@@ -13,12 +14,22 @@ import { firstPalName, safeFilename } from './parentTools/playtestExport';
 type ParentTestToolsProps = {
   world: World;
   worlds: WorldSummary[];
+  saving: boolean;
+  runWorldAction: (action: () => World) => void;
   onStartNewWorld: () => void;
   onDeleteWorld: () => Promise<void>;
   onStatus: (message: string) => void;
 };
 
-export function ParentTestTools({ world, worlds, onStartNewWorld, onDeleteWorld, onStatus }: ParentTestToolsProps) {
+export function ParentTestTools({
+  world,
+  worlds,
+  saving,
+  runWorldAction,
+  onStartNewWorld,
+  onDeleteWorld,
+  onStatus
+}: ParentTestToolsProps) {
   const [backupExported, setBackupExported] = useState(false);
   const currentFirstPalName = firstPalName(world);
   const baseFilename = safeFilename(currentFirstPalName || world.worldName);
@@ -31,6 +42,12 @@ export function ParentTestTools({ world, worlds, onStartNewWorld, onDeleteWorld,
     <ParentAccessGate>
       <div className="parent-tools-panel">
         <TraitsLabSection world={world} onStatus={onStatus} />
+        <FamilyMapSection
+          world={world}
+          saving={saving}
+          runWorldAction={runWorldAction}
+          onStatus={onStatus}
+        />
         <AccessibilitySection onStatus={onStatus} />
         <WorldManagementSection worlds={worlds} onStartNewWorld={onStartNewWorld} />
         <BackupSection
