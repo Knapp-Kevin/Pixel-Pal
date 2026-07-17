@@ -18,6 +18,14 @@ export { completeFirstActivity } from './completeActivity';
 export { completeWorldDay, currentOfferedDay, generateDayInvitations, offerNextWorldDay } from './dayCycle';
 export type { WorldDayCompletion, WorldDayInvitation, WorldDaySession } from './dayCycle';
 export type { FirstActivity, FirstActivityCompletion } from './activities';
+export { createInheritancePreview, palTraitProfile } from './inheritance';
+export type {
+  InheritancePreview,
+  InheritedTraitOutcome,
+  PalTraitProfile,
+  TraitAllele,
+  TraitLocus
+} from './inheritance';
 
 export type FirstPalChoice = {
   name: string;
