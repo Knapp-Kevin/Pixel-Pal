@@ -6,10 +6,13 @@ on:
       - art/pal-candidate-manifest.json
       - art/candidates/pals/**
       - art/review/candidates/pals/**
+      - scripts/import-pal-candidate.mjs
+      - scripts/verify-pal-candidate-import.mjs
       - scripts/verify-pal-candidate-manifest.mjs
       - scripts/generate-pal-candidate-review.mjs
       - scripts/verify-pal-candidate-review.mjs
       - scripts/cdp-browser.mjs
+      - package.json
       - .github/workflows/pal-candidate-review.yml
 
 permissions:
@@ -32,15 +35,18 @@ jobs:
         with:
           node-version: 22
 
-      - name: Verify Pal identity contract
+      - name: Verify Pal identity and intake contract
         run: |
+          node --check scripts/import-pal-candidate.mjs
+          node --check scripts/verify-pal-candidate-import.mjs
           node --check scripts/verify-pal-candidate-manifest.mjs
           node --check scripts/generate-pal-candidate-review.mjs
           node --check scripts/verify-pal-candidate-review.mjs
-          node scripts/verify-pal-candidate-manifest.mjs
+          npm run verify:pal-candidate-import
+          npm run verify:pal-candidates
 
       - name: Generate isolated Pal review surface
-        run: node scripts/generate-pal-candidate-review.mjs
+        run: npm run generate:pal-candidate-review
 
       - name: Verify compact tablet review
         run: |
@@ -57,7 +63,7 @@ jobs:
             fi
             sleep 0.25
           done
-          PAL_REVIEW_BASE_URL=http://127.0.0.1:4177 node scripts/verify-pal-candidate-review.mjs
+          PAL_REVIEW_BASE_URL=http://127.0.0.1:4177 npm run verify:pal-candidate-review
 
       - name: Upload Pal review evidence
         if: always()
