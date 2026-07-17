@@ -113,9 +113,7 @@ jobs:
           npm run verify:art-blocking 2>&1 | tee artifacts/production-art-blocking-verification.log
 
       - name: Build explicit alpha functional fixture
-        env:
-          VITE_PIXEL_PALS_ALLOW_ALPHA_FALLBACK: "true"
-        run: npm run build --workspace=@pixel-pals/tablet -- --outDir dist-alpha-fixture
+        run: npm run build --workspace=@pixel-pals/tablet -- --mode alpha-fixture --outDir dist-alpha-fixture
 
       - name: Verify gameplay routes against alpha fixture
         run: |
@@ -145,8 +143,7 @@ jobs:
       - name: Build benchmark art review application
         env:
           VITE_PIXEL_PALS_ART_STATUS: benchmark
-          VITE_PIXEL_PALS_ALLOW_ALPHA_FALLBACK: "true"
-        run: npm run build --workspace=@pixel-pals/tablet -- --outDir dist-benchmark
+        run: npm run build --workspace=@pixel-pals/tablet -- --mode benchmark-art --outDir dist-benchmark
 
       - name: Verify benchmark art across five starter species
         run: |
