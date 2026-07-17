@@ -6,6 +6,7 @@ type Lookups = {
   speciesById: Map<string, WorldShape['species'][number]>;
   lineageById: Map<string, WorldShape['lineages'][number]>;
   palById: Map<string, Pal>;
+  bondById: Map<string, FamilyBond>;
   homeById: Map<string, Home>;
   villageById: Map<string, Village>;
   memoryById: Map<string, WorldShape['memories'][number]>;
@@ -47,6 +48,7 @@ function buildLookups(world: WorldShape): Lookups {
     speciesById: new Map(world.species.map((species) => [species.id, species])),
     lineageById: new Map(world.lineages.map((lineage) => [lineage.id, lineage])),
     palById: new Map(world.pals.map((pal) => [pal.id, pal])),
+    bondById: new Map(world.familyBonds.map((bond) => [bond.id, bond])),
     homeById: new Map(world.homes.map((home) => [home.id, home])),
     villageById: new Map(world.villages.map((village) => [village.id, village])),
     memoryById: new Map(world.memories.map((memory) => [memory.id, memory])),
@@ -220,6 +222,51 @@ function validateFamilyBonds(world: WorldShape, context: z.RefinementCtx, lookup
   }
 }
 
+function validateFamilyHistoryMemory(
+  memory: WorldShape['memories'][number],
+  context: z.RefinementCtx,
+  lookups: Lookups
+): void {
+  const history = memory.familyHistory;
+  if (!history) return;
+
+  if (memory.eventType !== 'family-history') {
+    issue(context, `Family memory ${memory.id} must use the family-history event type.`, ['memories']);
+  }
+
+  const bond = lookups.bondById.get(history.familyBondId);
+  if (!bond) {
+    issue(context, `Family memory ${memory.id} references unknown family bond ${history.familyBondId}.`, ['memories']);
+  } else {
+    for (const palId of [bond.fromPalId, bond.toPalId]) {
+      if (!memory.participantPalIds.includes(palId)) {
+        issue(context, `Family memory ${memory.id} is missing bonded Pal ${palId}.`, ['memories']);
+      }
+    }
+  }
+
+  const home = lookups.homeById.get(history.householdId);
+  if (!home) {
+    issue(context, `Family memory ${memory.id} references unknown household ${history.householdId}.`, ['memories']);
+  } else {
+    if (home.villageId !== memory.villageId) {
+      issue(context, `Family memory ${memory.id} household belongs to another village.`, ['memories']);
+    }
+    if (!home.familyMemoryIds.includes(memory.id)) {
+      issue(context, `Family memory ${memory.id} is missing from household ${home.id} history.`, ['homes']);
+    }
+    if (bond && !home.residentPalIds.some((palId) => palId === bond.fromPalId || palId === bond.toPalId)) {
+      issue(context, `Family memory ${memory.id} household does not host either bonded Pal.`, ['memories']);
+    }
+  }
+
+  const village = lookups.villageById.get(memory.villageId);
+  const tree = village ? lookups.treeById.get(village.greatTreeId) : undefined;
+  if (tree && !tree.recognizedMemoryIds.includes(memory.id)) {
+    issue(context, `Family memory ${memory.id} is not recognized by Great Tree ${tree.id}.`, ['greatTrees']);
+  }
+}
+
 function validateMemories(world: WorldShape, context: z.RefinementCtx, lookups: Lookups): void {
   for (const memory of world.memories) {
     addDuplicateIssues(context, `Memory ${memory.id} participants`, memory.participantPalIds, ['memories']);
@@ -235,6 +282,8 @@ function validateMemories(world: WorldShape, context: z.RefinementCtx, lookups: 
     if (memory.worldDay > world.worldDay) {
       issue(context, `Memory ${memory.id} occurs after the current world day.`, ['memories']);
     }
+
+    validateFamilyHistoryMemory(memory, context, lookups);
   }
 }
 
@@ -249,6 +298,17 @@ function validateHomeResidents(home: Home, context: z.RefinementCtx, lookups: Lo
   }
 }
 
+function validateHomeFamilyHistory(home: Home, context: z.RefinementCtx, lookups: Lookups): void {
+  for (const memoryId of home.familyMemoryIds) {
+    const memory = lookups.memoryById.get(memoryId);
+    if (!memory) {
+      issue(context, `Home ${home.id} references unknown family memory ${memoryId}.`, ['homes']);
+    } else if (memory.familyHistory?.householdId !== home.id) {
+      issue(context, `Home ${home.id} references memory ${memoryId} from another household.`, ['homes']);
+    }
+  }
+}
+
 function validateHomes(world: WorldShape, context: z.RefinementCtx, lookups: Lookups): void {
   for (const home of world.homes) {
     if (!lookups.villageById.has(home.villageId)) {
@@ -257,8 +317,10 @@ function validateHomes(world: WorldShape, context: z.RefinementCtx, lookups: Loo
 
     addDuplicateIssues(context, `Home ${home.id} residents`, home.residentPalIds, ['homes']);
     addDuplicateIssues(context, `Home ${home.id} visible changes`, home.visibleChanges, ['homes']);
+    addDuplicateIssues(context, `Home ${home.id} family memories`, home.familyMemoryIds, ['homes']);
 
     validateHomeResidents(home, context, lookups);
+    validateHomeFamilyHistory(home, context, lookups);
 
     if (home.chosenObjectId && !home.visibleChanges.includes(home.chosenObjectId)) {
       issue(context, `Home ${home.id} chosen object is missing from visible changes.`, ['homes']);
