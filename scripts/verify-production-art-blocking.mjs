@@ -6,6 +6,7 @@ import { clickButton, setPalName, waitForEnabledButton } from './viewport-action
 const baseUrl = process.env.VIEWPORT_BASE_URL ?? 'http://127.0.0.1:4173';
 const origin = new URL(baseUrl).origin;
 const screenshotDirectory = join(process.cwd(), 'artifacts', 'production-art-blocking');
+const starterSpecies = ['Fox', 'Deer', 'Rabbit', 'Kitten', 'Duckling'];
 
 async function capture(page, name) {
   const result = await page.send('Page.captureScreenshot', {
@@ -54,12 +55,19 @@ try {
   await page.navigate(baseUrl);
   await page.waitFor("Boolean(document.querySelector('#first-pal-title'))");
 
-  const starter = await artSnapshot(page);
-  assertNoAlpha(starter, 'Starter selection');
-  if (starter.blockedPals < 5) {
-    throw new Error(`Starter selection exposed only ${starter.blockedPals} blocked production Pal slots.`);
+  const unselected = await artSnapshot(page);
+  assertNoAlpha(unselected, 'Unselected starter screen');
+
+  for (const species of starterSpecies) {
+    await clickButton(page, species, true);
+    await page.waitFor("document.querySelectorAll('[data-production-art-blocked=\"pal\"]').length === 1");
+    const selected = await artSnapshot(page);
+    assertNoAlpha(selected, `${species} starter preview`);
+    if (selected.blockedPals !== 1) {
+      throw new Error(`${species} starter preview exposed ${selected.blockedPals} blocked Pal slots instead of one.`);
+    }
+    await capture(page, `starter-${species.toLowerCase()}-production-art-blocked`);
   }
-  await capture(page, 'starter-production-art-blocked');
 
   await clickButton(page, 'Fox', true);
   await setPalName(page, 'Pip');
@@ -72,7 +80,7 @@ try {
   if (world.blockedPals < 1) throw new Error('The first world did not block missing production Pal art.');
   await capture(page, 'world-production-art-blocked');
 
-  console.log(`PASS production art honesty: ${starter.blockedPals} starter Pal slots blocked; alpha SVG fallback absent.`);
+  console.log(`PASS production art honesty: all ${starterSpecies.length} starter previews blocked missing production art; alpha SVG fallback absent.`);
   console.log(`World state: ${world.productionPalImages} production Pal images, ${world.productionSceneImages} production scene images, ${world.blockedScenes} blocked scene slots.`);
 } finally {
   page.close();
