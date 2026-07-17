@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "product": "Pixel Pals",
+  "program": "M3 Production Art",
+  "artDirection": "lush-hand-painted-storybook",
+  "candidateRoot": "art/candidates/pals",
+  "productionPromotionAllowed": false,
+  "sharedIdentityContract": {
+    "ageRead": "young child companion, never infant and never adult",
+    "proportions": "approximately 3.5 heads tall with a large readable face, compact torso, short limbs, and species-correct feet",
+    "rendering": "soft painterly edges, visible brush texture, warm bounced light, restrained detail, and a clean transparent silhouette",
+    "baseOutfit": "Willowmere daywear: cream linen shirt, simple sleeveless vest, short practical bottoms, soft ankle footwear where anatomically appropriate, and no removable accessory",
+    "poseAnchor": "feet centered on a common ground line; body center and eye line remain stable across expressions and poses",
+    "expressionAnchor": "open, emotionally legible face with consistent eye size, muzzle or beak geometry, and age",
+    "forbidden": [
+      "glossy 3D animation rendering",
+      "generic clip art",
+      "adult anatomy",
+      "infant proportions",
+      "human hands on paws, wings, or hooves",
+      "random costume changes",
+      "baked-in text, UI, scenery, or named identity",
+      "cropped ears, wings, horns, feet, or tail"
+    ]
+  },
+  "requiredAssetSet": [
+    "model-sheet",
+    "idle-happy",
+    "waving",
+    "sleeping",
+    "listening",
+    "surprised",
+    "joyful-reaction",
+    "confirmation",
+    "error"
+  ],
+  "species": [
+    {
+      "species": "fox",
+      "artIdentity": "starter-fox-v1",
+      "palette": "russet-cream",
+      "marking": "cream-muzzle-chest-tail-tip",
+      "accessory": "none",
+      "silhouette": "large triangular ears, narrow soft muzzle, compact body, and a broad expressive tail approximately torso length",
+      "face": "warm amber-brown eyes, small charcoal nose, cream cheeks, and dark russet ear tips",
+      "outfitPalette": "moss vest, cream shirt, walnut shorts",
+      "reviewState": "planned",
+      "decision": "pending",
+      "assets": {}
+    },
+    {
+      "species": "cat",
+      "artIdentity": "starter-cat-v1",
+      "palette": "warm-gray-cream",
+      "marking": "soft-tabby-brow-cheeks-tail",
+      "accessory": "none",
+      "silhouette": "rounded triangular ears, soft cheek shape, compact paws, and a gently curved striped tail",
+      "face": "hazel-green eyes, small rose-brown nose, short cream muzzle, and three restrained tabby marks above each eye",
+      "outfitPalette": "ochre vest, cream shirt, chestnut shorts",
+      "reviewState": "planned",
+      "decision": "pending",
+      "assets": {}
+    },
+    {
+      "species": "dragon",
+      "artIdentity": "starter-dragon-v1",
+      "palette": "moss-green-cream",
+      "marking": "cream-belly-muzzle-and-wing-membrane",
+      "accessory": "none",
+      "silhouette": "short rounded muzzle, two small swept-back amber horns, compact folded wings, sturdy feet, and a tapered tail",
+      "face": "large golden-brown eyes, gentle brow plates, two small nostrils, and no predatory teeth in the resting expression",
+      "outfitPalette": "indigo vest, cream shirt, walnut shorts",
+      "reviewState": "planned",
+      "decision": "pending",
+      "assets": {}
+    },
+    {
+      "species": "bunny",
+      "artIdentity": "starter-bunny-v1",
+      "palette": "cocoa-cream",
+      "marking": "cream-muzzle-chest-inner-ear-and-tail",
+      "accessory": "none",
+      "silhouette": "two long upright ears with a slight outward curve, rounded cheeks, compact hind feet, and a small visible tail",
+      "face": "deep brown eyes, small warm-brown nose, cream muzzle, and consistent ear length approximately one head high",
+      "outfitPalette": "dusty-rose vest, cream shirt, walnut shorts",
+      "reviewState": "planned",
+      "decision": "pending",
+      "assets": {}
+    },
+    {
+      "species": "bird",
+      "artIdentity": "starter-bird-v1",
+      "palette": "blue-gray-gold",
+      "marking": "golden-breast-cream-eye-ring-and-wing-tips",
+      "accessory": "none",
+      "silhouette": "round feathered head, short tapered beak, feathered arm-wings capable of readable gestures, compact body, small tail fan, and three-toed bird feet",
+      "face": "dark warm eyes with a cream eye ring, short amber beak, soft brow feather shape, and no human lips or hands",
+      "outfitPalette": "forest-green vest, cream shirt panel, walnut short trousers adapted around the tail",
+      "reviewState": "planned",
+      "decision": "pending",
+      "assets": {}
+    }
+  ]
+}
