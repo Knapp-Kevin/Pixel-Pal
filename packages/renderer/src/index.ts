@@ -20,6 +20,7 @@ export {
 export type {
   PalArtworkAsset,
   PalArtworkRequest,
+  ProductionArtFallbackPolicy,
   ProductionArtProviderProps,
   ProductionArtRegistry,
   ProductionArtStatus,
