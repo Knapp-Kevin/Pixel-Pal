@@ -15,6 +15,12 @@ const page = await browser.newPage();
 try {
   await page.navigate(baseUrl);
   await page.waitFor("Boolean(document.documentElement.dataset.pixelPalsArtMode)");
+  if (expectedFallback === 'alpha') {
+    await page.waitFor("Boolean(document.querySelector('#first-pal-title'))");
+  } else {
+    await page.waitFor("Boolean(document.querySelector('[data-production-art-release-blocked=\"true\"]'))");
+  }
+
   const profile = JSON.parse(await page.evaluate(`JSON.stringify({
     mode: document.documentElement.dataset.pixelPalsArtMode,
     fallback: document.documentElement.dataset.pixelPalsArtFallback,
