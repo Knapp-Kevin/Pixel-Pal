@@ -3,6 +3,8 @@
 }
 
 .production-art-release-shell {
+  width: 100%;
+  max-width: none;
   min-height: 100dvh;
   display: grid;
   place-items: center;
@@ -13,14 +15,16 @@
     #f4f0df;
 }
 
-.production-art-release-block {
+.production-art-release-block.storybook-panel {
   width: min(960px, 100%);
-  min-height: min(640px, calc(100dvh - 28px));
+  height: min(520px, calc(100dvh - 72px));
+  min-height: 360px;
   display: grid;
-  grid-template-columns: minmax(230px, 0.8fr) minmax(320px, 1.2fr);
+  grid-template-columns: minmax(220px, 0.8fr) minmax(300px, 1.2fr);
   align-items: center;
-  gap: clamp(28px, 6vw, 72px);
-  padding: clamp(28px, 6vw, 72px);
+  gap: clamp(24px, 5vw, 60px);
+  padding: clamp(26px, 5vw, 56px);
+  overflow: hidden;
   border: 3px solid #315b4c;
   border-radius: 34px;
   background: rgb(255 253 244 / 94%);
@@ -29,7 +33,7 @@
 
 .production-art-release-mark {
   position: relative;
-  width: min(100%, 300px);
+  width: min(100%, 260px);
   aspect-ratio: 1;
   justify-self: center;
   display: grid;
@@ -83,26 +87,29 @@
 }
 
 .production-art-release-copy {
+  min-width: 0;
   max-width: 54ch;
 }
 
 .production-art-release-copy h1 {
-  margin: 8px 0 18px;
+  margin: 8px 0 16px;
   color: #203c31;
   font-family: Georgia, serif;
-  font-size: clamp(2rem, 5vw, 4.4rem);
+  font-size: clamp(1.85rem, 4.4vw, 3.7rem);
   line-height: 0.98;
 }
 
 .production-art-release-copy p {
+  margin: 12px 0 0;
   color: #405c50;
-  font-size: clamp(1rem, 2vw, 1.22rem);
-  line-height: 1.55;
+  font-size: clamp(0.94rem, 1.7vw, 1.12rem);
+  line-height: 1.45;
 }
 
 .production-art-release-copy .eyebrow {
+  margin-top: 0;
   color: #315b4c;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 950;
   letter-spacing: 0.12em;
 }
@@ -151,15 +158,18 @@
 }
 
 @media (max-width: 700px), (orientation: portrait) {
-  .production-art-release-block {
-    min-height: calc(100dvh - 28px);
+  .production-art-release-block.storybook-panel {
+    height: auto;
+    min-height: min(680px, calc(100dvh - 112px));
     grid-template-columns: 1fr;
     align-content: center;
+    gap: 24px;
+    padding: clamp(24px, 6vw, 44px);
     text-align: center;
   }
 
   .production-art-release-mark {
-    width: min(58vw, 230px);
+    width: min(48vw, 220px);
   }
 
   .production-art-release-copy {
