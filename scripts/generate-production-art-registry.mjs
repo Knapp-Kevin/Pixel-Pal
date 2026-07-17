@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+const coreManifestPath = resolve('art/production-manifest.json');
 const manifestPath = resolve('art/adventure-production-manifest.json');
 const outputPath = resolve('apps/tablet/src/generatedProductionArtRegistry.ts');
 const checkOnly = process.argv.includes('--check');
@@ -34,11 +35,11 @@ function quote(value) {
   return JSON.stringify(value);
 }
 
-function registrySource(sceneAssets) {
+function registrySource(sceneAssets, releaseBlockerCount) {
   const serializedScenes = sceneAssets.length === 0
     ? '[]'
     : `[
-${sceneAssets.map((asset) => `    {
+ ${sceneAssets.map((asset) => `    {
       id: ${quote(asset.id)},
       status: ${quote(asset.status)},
       src: ${quote(asset.src)},
@@ -64,13 +65,27 @@ export const generatedProductionArtRegistry: ProductionArtRegistry = {
   palAssets: [],
   sceneAssets: ${serializedScenes}
 };
+
+export const generatedProductionArtRelease = {
+  ready: ${releaseBlockerCount === 0},
+  blockerCount: ${releaseBlockerCount}
+} as const;
 `;
+}
+
+const coreManifest = JSON.parse(await readFile(coreManifestPath, 'utf8'));
+if (coreManifest.schemaVersion !== 1 || coreManifest.product !== 'Pixel Pals' || !Array.isArray(coreManifest.assets)) {
+  fail('production-manifest.json must be a Pixel Pals schemaVersion 1 manifest.');
 }
 
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 if (manifest.schemaVersion !== 2 || manifest.product !== 'Pixel Pals' || !Array.isArray(manifest.assets)) {
   fail('adventure-production-manifest.json must be a Pixel Pals schemaVersion 2 manifest.');
 }
+
+let releaseBlockerCount = coreManifest.assets.filter(
+  (asset) => asset.releaseRequired === true && asset.status !== 'production'
+).length;
 
 const sceneAssets = [];
 for (const asset of manifest.assets) {
@@ -88,6 +103,7 @@ for (const asset of manifest.assets) {
       fail(`${asset.id}.${view.id}.orientation must be landscape or portrait.`);
     }
     if (!allowedStatuses.has(view.status)) fail(`${asset.id}.${view.id} has unsupported status ${view.status}.`);
+    if (asset.releaseRequired === true && view.status !== 'production') releaseBlockerCount += 1;
     const pair = variants.get(variant) ?? {};
     if (pair[orientation]) fail(`${asset.id}.${variant} has duplicate ${orientation} views.`);
     pair[orientation] = view;
@@ -125,15 +141,15 @@ for (const asset of manifest.assets) {
 }
 
 sceneAssets.sort((left, right) => left.id.localeCompare(right.id));
-const source = registrySource(sceneAssets);
+const source = registrySource(sceneAssets, releaseBlockerCount);
 
 if (checkOnly) {
   const existing = await readFile(outputPath, 'utf8').catch(() => null);
   if (existing !== source) {
     fail('generatedProductionArtRegistry.ts is out of date. Run npm run generate:art-registry.');
   }
-  console.log(`Production art registry is current: ${sceneAssets.length} responsive scene assets.`);
+  console.log(`Production art registry is current: ${sceneAssets.length} responsive scene assets, ${releaseBlockerCount} release blockers.`);
 } else {
   await writeFile(outputPath, source, 'utf8');
-  console.log(`Generated ${sceneAssets.length} responsive scene assets at ${outputPath}.`);
+  console.log(`Generated ${sceneAssets.length} responsive scene assets and ${releaseBlockerCount} release blockers at ${outputPath}.`);
 }
