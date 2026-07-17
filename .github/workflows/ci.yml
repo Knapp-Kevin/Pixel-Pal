@@ -145,7 +145,7 @@ jobs:
           EXPECTED_ART_FALLBACK=alpha \
           EXPECTED_ART_MINIMUM_STATUS=production \
           npm run verify:art-profile 2>&1 | tee artifacts/alpha-art-profile-verification.log
-          VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:performance 2>&1 | tee artifacts/performance-verification.log
+          PERFORMANCE_BASE_URL=http://127.0.0.1:4174 npm run verify:performance 2>&1 | tee artifacts/performance-verification.log
           VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:viewports 2>&1 | tee artifacts/viewport-verification.log
           VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:traits-lab 2>&1 | tee artifacts/traits-lab-verification.log
           VIEWPORT_BASE_URL=http://127.0.0.1:4174 npm run verify:family-map 2>&1 | tee artifacts/family-map-verification.log
