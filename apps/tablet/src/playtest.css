@@ -87,7 +87,7 @@ summary:focus-visible {
   background: #fffdf4;
 }
 
-.parent-tools-panel section:nth-child(2) {
+.parent-tools-panel .world-management-section {
   grid-row: span 2;
 }
 
@@ -206,7 +206,7 @@ summary:focus-visible {
     grid-template-columns: 1fr;
   }
 
-  .parent-tools-panel section:nth-child(2) {
+  .parent-tools-panel .world-management-section {
     grid-row: auto;
   }
 }
