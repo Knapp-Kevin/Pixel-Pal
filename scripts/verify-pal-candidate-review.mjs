@@ -4,6 +4,7 @@ import { startHeadlessChrome } from './cdp-browser.mjs';
 
 const baseUrl = process.env.PAL_REVIEW_BASE_URL ?? 'http://127.0.0.1:4177';
 const output = resolve('artifacts/pal-candidate-review/screenshots');
+const expectedKeys = ['starter-fox', 'starter-deer', 'starter-rabbit', 'starter-kitten', 'starter-duckling', 'fern'];
 const profiles = [
   { name: 'compact-landscape', width: 800, height: 600 },
   { name: 'compact-portrait', width: 600, height: 800 }
@@ -31,7 +32,7 @@ try {
         features: [{ name: 'prefers-reduced-motion', value: 'reduce' }]
       });
       await page.navigate(`${baseUrl}/index.html`);
-      await page.waitFor(`document.querySelectorAll('.pal-card').length === 5`);
+      await page.waitFor(`document.querySelectorAll('.pal-card').length === ${expectedKeys.length}`);
       await page.waitFor(`Array.from(document.images).every((image) => image.complete)`);
       const evidence = await page.evaluate(`(() => {
         const cards = Array.from(document.querySelectorAll('.pal-card'));
@@ -39,6 +40,7 @@ try {
         const images = Array.from(document.images);
         return {
           cardCount: cards.length,
+          characterKeys: cards.map((card) => card.dataset.characterKey),
           species: cards.map((card) => card.dataset.species),
           horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
           viewportWidth: innerWidth,
@@ -59,8 +61,9 @@ try {
           }))
         };
       })()`);
-      if (evidence.cardCount !== 5) fail(`${profile.name} rendered ${evidence.cardCount} Pal cards.`);
-      if (evidence.species.join(',') !== 'fox,cat,dragon,bunny,bird') fail(`${profile.name} starter order drifted.`);
+      if (evidence.cardCount !== expectedKeys.length) fail(`${profile.name} rendered ${evidence.cardCount} Pal cards.`);
+      if (evidence.characterKeys.join(',') !== expectedKeys.join(',')) fail(`${profile.name} canonical package order drifted.`);
+      if (evidence.species.join(',') !== 'fox,deer,rabbit,cat,duck,rabbit') fail(`${profile.name} runtime species mapping drifted.`);
       if (evidence.horizontalOverflow || !evidence.stageContainment) fail(`${profile.name} overflows horizontally.`);
       if (!evidence.reducedMotion || evidence.activeAnimations !== 0) fail(`${profile.name} violates reduced-motion review.`);
       if (evidence.decodedImages.some((image) => image.complete && (image.naturalWidth === 0 || image.naturalHeight === 0))) {
