@@ -36,12 +36,17 @@ export const WorldV3Fields = {
   adventureSessions: z.array(AdventureSessionSchema).max(LIMITS.adventureSessions).default([])
 };
 
-export const WorldFields = {
+export const WorldV4Fields = {
   ...WorldV3Fields,
   familyBonds: z.array(FamilyBondSchema).max(LIMITS.familyBonds).default([])
 };
 
+export const WorldFields = {
+  ...WorldV4Fields
+};
+
 export const BaseWorldSchema = z.object({ schemaVersion: z.literal(CURRENT_SCHEMA_VERSION), ...WorldFields });
+export const WorldV4Schema = z.object({ schemaVersion: z.literal(4), ...WorldV4Fields });
 export const WorldV3Schema = z.object({ schemaVersion: z.literal(3), ...WorldV3Fields });
 export const WorldV2Schema = z.object({ schemaVersion: z.literal(2), ...LegacyWorldFields });
 export const WorldV1Schema = z.object({
@@ -51,6 +56,7 @@ export const WorldV1Schema = z.object({
 });
 
 export type WorldShape = z.infer<typeof BaseWorldSchema>;
+export type WorldV4 = z.infer<typeof WorldV4Schema>;
 export type WorldV3 = z.infer<typeof WorldV3Schema>;
 export type WorldV2 = z.infer<typeof WorldV2Schema>;
 export type WorldV1 = z.infer<typeof WorldV1Schema>;
