@@ -140,6 +140,8 @@ export function WorldShell(props: WorldShellProps) {
       <ParentTestTools
         world={world}
         worlds={save.worlds}
+        saving={save.saving}
+        runWorldAction={save.runWorldAction}
         onStatus={save.setSaveStatus}
         onStartNewWorld={onStartNewWorld}
         onDeleteWorld={onDeleteWorld}
