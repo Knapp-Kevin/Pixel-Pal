@@ -1,0 +1,65 @@
+name: Candidate Art Review
+
+on:
+  pull_request:
+    paths:
+      - art/candidates/**
+      - art/review/candidates/**
+      - scripts/generate-art-candidate-review.mjs
+      - scripts/verify-art-candidate-review.mjs
+      - scripts/cdp-browser.mjs
+      - .github/workflows/candidate-art-review.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: candidate-art-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out candidate branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Verify review script syntax
+        run: |
+          node --check scripts/generate-art-candidate-review.mjs
+          node --check scripts/verify-art-candidate-review.mjs
+
+      - name: Generate isolated candidate review
+        run: node scripts/generate-art-candidate-review.mjs
+
+      - name: Verify compact tablet composition
+        run: |
+          python3 -m http.server 4176 --directory artifacts/art-candidate-review > /tmp/pixel-pals-candidate-review.log 2>&1 &
+          REVIEW_PID=$!
+          trap 'kill $REVIEW_PID' EXIT
+          for attempt in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4176/index.html > /dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 40 ]; then
+              cat /tmp/pixel-pals-candidate-review.log
+              exit 1
+            fi
+            sleep 0.25
+          done
+          CANDIDATE_REVIEW_BASE_URL=http://127.0.0.1:4176 node scripts/verify-art-candidate-review.mjs
+
+      - name: Upload candidate review evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
+        with:
+          name: rain-path-candidate-review
+          path: artifacts/art-candidate-review
+          if-no-files-found: error
+          retention-days: 14
