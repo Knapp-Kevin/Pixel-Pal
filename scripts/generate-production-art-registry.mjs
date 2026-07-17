@@ -2,7 +2,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const coreManifestPath = resolve('art/production-manifest.json');
-const manifestPath = resolve('art/adventure-production-manifest.json');
+const adventureManifestPath = resolve('art/adventure-production-manifest.json');
+const palManifestPath = resolve('art/pal-runtime-manifest.json');
 const outputPath = resolve('apps/tablet/src/generatedProductionArtRegistry.ts');
 const checkOnly = process.argv.includes('--check');
 
@@ -35,11 +36,33 @@ function quote(value) {
   return JSON.stringify(value);
 }
 
-function registrySource(sceneAssets, releaseBlockerCount) {
+function optionalProperty(name, value) {
+  return value === undefined ? '' : `\n      ${name}: ${quote(value)},`;
+}
+
+function registrySource(palAssets, sceneAssets, releaseBlockerCount) {
+  const serializedPals = palAssets.length === 0
+    ? '[]'
+    : `[
+  ${palAssets.map((asset) => `    {
+      id: ${quote(asset.id)},
+      status: ${quote(asset.status)},
+      src: ${quote(asset.src)},
+      width: ${asset.width},
+      height: ${asset.height},
+      species: ${quote(asset.species)},
+      artIdentity: ${quote(asset.artIdentity)},${optionalProperty('paletteId', asset.paletteId)}${optionalProperty('markingId', asset.markingId)}${optionalProperty('accessoryId', asset.accessoryId)}
+      expression: ${quote(asset.expression)},
+      pose: ${quote(asset.pose)},
+      alt: ${quote(asset.alt)},
+      objectPosition: ${quote(asset.objectPosition)}
+    }`).join(',\n')}
+  ]`;
+
   const serializedScenes = sceneAssets.length === 0
     ? '[]'
     : `[
- ${sceneAssets.map((asset) => `    {
+  ${sceneAssets.map((asset) => `    {
       id: ${quote(asset.id)},
       status: ${quote(asset.status)},
       src: ${quote(asset.src)},
@@ -62,7 +85,7 @@ function registrySource(sceneAssets, releaseBlockerCount) {
 import type { ProductionArtRegistry } from '@pixel-pals/renderer';
 
 export const generatedProductionArtRegistry: ProductionArtRegistry = {
-  palAssets: [],
+  palAssets: ${serializedPals},
   sceneAssets: ${serializedScenes}
 };
 
@@ -78,17 +101,52 @@ if (coreManifest.schemaVersion !== 1 || coreManifest.product !== 'Pixel Pals' ||
   fail('production-manifest.json must be a Pixel Pals schemaVersion 1 manifest.');
 }
 
-const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-if (manifest.schemaVersion !== 2 || manifest.product !== 'Pixel Pals' || !Array.isArray(manifest.assets)) {
+const adventureManifest = JSON.parse(await readFile(adventureManifestPath, 'utf8'));
+if (adventureManifest.schemaVersion !== 2 || adventureManifest.product !== 'Pixel Pals' || !Array.isArray(adventureManifest.assets)) {
   fail('adventure-production-manifest.json must be a Pixel Pals schemaVersion 2 manifest.');
+}
+
+const palManifest = JSON.parse(await readFile(palManifestPath, 'utf8'));
+if (palManifest.schemaVersion !== 1 || palManifest.product !== 'Pixel Pals' || !Array.isArray(palManifest.assets)) {
+  fail('pal-runtime-manifest.json must be a Pixel Pals schemaVersion 1 manifest.');
 }
 
 let releaseBlockerCount = coreManifest.assets.filter(
   (asset) => asset.releaseRequired === true && asset.status !== 'production'
 ).length;
 
+const palAssets = [];
+for (const asset of palManifest.assets) {
+  requireString(asset.id, 'pal asset.id');
+  requireString(asset.subject, `${asset.id}.subject`);
+  requireString(asset.species, `${asset.id}.species`);
+  requireString(asset.artIdentity, `${asset.id}.artIdentity`);
+  requireString(asset.expression, `${asset.id}.expression`);
+  requireString(asset.pose, `${asset.id}.pose`);
+  if (!allowedStatuses.has(asset.status)) fail(`${asset.id} has unsupported status ${asset.status}.`);
+  if (asset.releaseRequired === true && asset.status !== 'production') releaseBlockerCount += 1;
+  if (asset.status === 'planned') continue;
+
+  palAssets.push({
+    id: asset.id,
+    status: asset.status,
+    src: publicUrl(asset.runtimePath, `${asset.id}.runtimePath`),
+    width: asset.width,
+    height: asset.height,
+    species: asset.species,
+    artIdentity: asset.artIdentity,
+    paletteId: asset.paletteId,
+    markingId: asset.markingId,
+    accessoryId: asset.accessoryId,
+    expression: asset.expression,
+    pose: asset.pose,
+    alt: asset.alt ?? asset.subject,
+    objectPosition: asset.objectPosition ?? '50% 50%'
+  });
+}
+
 const sceneAssets = [];
-for (const asset of manifest.assets) {
+for (const asset of adventureManifest.assets) {
   requireString(asset.id, 'asset.id');
   requireString(asset.subject, `${asset.id}.subject`);
   requireString(asset.sceneId, `${asset.id}.sceneId`);
@@ -140,16 +198,23 @@ for (const asset of manifest.assets) {
   }
 }
 
+palAssets.sort((left, right) => left.id.localeCompare(right.id));
 sceneAssets.sort((left, right) => left.id.localeCompare(right.id));
-const source = registrySource(sceneAssets, releaseBlockerCount);
+const source = registrySource(palAssets, sceneAssets, releaseBlockerCount);
 
 if (checkOnly) {
   const existing = await readFile(outputPath, 'utf8').catch(() => null);
   if (existing !== source) {
     fail('generatedProductionArtRegistry.ts is out of date. Run npm run generate:art-registry.');
   }
-  console.log(`Production art registry is current: ${sceneAssets.length} responsive scene assets, ${releaseBlockerCount} release blockers.`);
+  console.log(
+    `Production art registry is current: ${palAssets.length} Pal assets, ${sceneAssets.length} responsive scene assets, ` +
+    `${releaseBlockerCount} release blockers.`
+  );
 } else {
   await writeFile(outputPath, source, 'utf8');
-  console.log(`Generated ${sceneAssets.length} responsive scene assets and ${releaseBlockerCount} release blockers at ${outputPath}.`);
+  console.log(
+    `Generated ${palAssets.length} Pal assets, ${sceneAssets.length} responsive scene assets, and ` +
+    `${releaseBlockerCount} release blockers at ${outputPath}.`
+  );
 }
