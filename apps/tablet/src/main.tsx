@@ -53,6 +53,10 @@ const productionArtFallbackPolicy: ProductionArtFallbackPolicy =
     ? 'alpha'
     : 'block';
 
+document.documentElement.dataset.pixelPalsArtMode = import.meta.env.MODE;
+document.documentElement.dataset.pixelPalsArtFallback = productionArtFallbackPolicy;
+document.documentElement.dataset.pixelPalsArtMinimumStatus = productionArtMinimumStatus;
+
 function ProductionArtReleaseBoundary({ children }: { children: ReactNode }) {
   if (productionArtFallbackPolicy === 'alpha' || productionArtRelease.ready) return <>{children}</>;
 
