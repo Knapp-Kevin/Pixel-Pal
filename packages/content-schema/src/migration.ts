@@ -1,5 +1,12 @@
 import { CURRENT_SCHEMA_VERSION } from './primitives';
-import { WorldV1Schema, WorldV2Schema, type WorldV1, type WorldV2 } from './worldBase';
+import {
+  WorldV1Schema,
+  WorldV2Schema,
+  WorldV3Schema,
+  type WorldV1,
+  type WorldV2,
+  type WorldV3
+} from './worldBase';
 import { WorldSchema, type World } from './world';
 
 function availableHomeId(baseId: string, homes: WorldV1['homes']): string {
@@ -44,12 +51,21 @@ function migratePals(
   });
 }
 
-function migrateV2(world: WorldV2): World {
+function migrateV3(world: WorldV3): World {
   return WorldSchema.parse({
     ...world,
     schemaVersion: CURRENT_SCHEMA_VERSION,
-    daySessions: []
+    familyBonds: []
   });
+}
+
+function migrateV2(world: WorldV2): World {
+  return migrateV3(WorldV3Schema.parse({
+    ...world,
+    schemaVersion: 3,
+    daySessions: [],
+    adventureSessions: []
+  }));
 }
 
 function migrateV1(world: WorldV1): World {
@@ -76,6 +92,7 @@ export function parseWorld(input: unknown): World {
   if (typeof input === 'object' && input !== null && 'schemaVersion' in input) {
     if (input.schemaVersion === 1) return migrateV1(WorldV1Schema.parse(input));
     if (input.schemaVersion === 2) return migrateV2(WorldV2Schema.parse(input));
+    if (input.schemaVersion === 3) return migrateV3(WorldV3Schema.parse(input));
   }
 
   return WorldSchema.parse(input);
