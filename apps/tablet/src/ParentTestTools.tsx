@@ -4,6 +4,7 @@ import type { WorldSummary } from '@pixel-pals/persistence';
 import { ParentAccessGate } from './parentGate/ParentAccessGate';
 import { AccessibilitySection } from './parentTools/AccessibilitySection';
 import { BackupSection } from './parentTools/BackupSection';
+import { FamilyChronicleSection } from './parentTools/FamilyChronicleSection';
 import { FamilyMapSection } from './parentTools/FamilyMapSection';
 import { ObservationSection } from './parentTools/ObservationSection';
 import { ResetSection } from './parentTools/ResetSection';
@@ -43,6 +44,12 @@ export function ParentTestTools({
       <div className="parent-tools-panel">
         <TraitsLabSection world={world} onStatus={onStatus} />
         <FamilyMapSection
+          world={world}
+          saving={saving}
+          runWorldAction={runWorldAction}
+          onStatus={onStatus}
+        />
+        <FamilyChronicleSection
           world={world}
           saving={saving}
           runWorldAction={runWorldAction}
