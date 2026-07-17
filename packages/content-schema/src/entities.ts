@@ -75,6 +75,22 @@ export const RelationshipSchema = z.object({
   sharedHistory: z.number().finite().min(0).max(1)
 });
 
+export const FamilyBondKindSchema = z.enum([
+  'biological-parent',
+  'adoptive-parent',
+  'guardian',
+  'sibling',
+  'chosen-family'
+]);
+
+export const FamilyBondSchema = z.object({
+  id,
+  kind: FamilyBondKindSchema,
+  fromPalId: id,
+  toPalId: id,
+  establishedWorldDay: z.number().int().nonnegative()
+});
+
 export const MemorySchema = z.object({
   id,
   title: shortText,
@@ -123,6 +139,8 @@ export const GreatTreeSchema = z.object({
 export type Pal = z.infer<typeof PalSchema>;
 export type Village = z.infer<typeof VillageSchema>;
 export type Relationship = z.infer<typeof RelationshipSchema>;
+export type FamilyBondKind = z.infer<typeof FamilyBondKindSchema>;
+export type FamilyBond = z.infer<typeof FamilyBondSchema>;
 export type Memory = z.infer<typeof MemorySchema>;
 export type Home = z.infer<typeof HomeSchema>;
 export type HomeObject = z.infer<typeof HomeObjectSchema>;
