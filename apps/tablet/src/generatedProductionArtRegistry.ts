@@ -26,5 +26,5 @@ export const generatedProductionArtRegistry: ProductionArtRegistry = {
 
 export const generatedProductionArtRelease = {
   ready: false,
-  blockerCount: 35
+  blockerCount: 47
 } as const;
