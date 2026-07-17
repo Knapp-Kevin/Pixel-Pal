@@ -91,6 +91,19 @@ export const FamilyBondSchema = z.object({
   establishedWorldDay: z.number().int().nonnegative()
 });
 
+export const FamilyMemoryThemeSchema = z.enum([
+  'welcome-home',
+  'helping-day',
+  'family-tradition',
+  'promise-kept'
+]);
+
+export const FamilyHistorySchema = z.object({
+  familyBondId: id,
+  householdId: id,
+  sceneVariant: FamilyMemoryThemeSchema
+});
+
 export const MemorySchema = z.object({
   id,
   title: shortText,
@@ -101,7 +114,8 @@ export const MemorySchema = z.object({
   emotionalTone: z.enum(['joyful', 'playful', 'calm', 'uncertain', 'sad', 'hopeful']),
   summary: z.string().trim().min(1).max(500),
   worldDay: z.number().int().nonnegative(),
-  significance: z.number().finite().min(0).max(1)
+  significance: z.number().finite().min(0).max(1),
+  familyHistory: FamilyHistorySchema.optional()
 });
 
 export const HomeObjectSchema = z.enum([
@@ -116,7 +130,8 @@ export const HomeSchema = z.object({
   residentPalIds: idList().min(1),
   styleId: id,
   chosenObjectId: HomeObjectSchema.optional(),
-  visibleChanges: idList()
+  visibleChanges: idList(),
+  familyMemoryIds: idList().default([])
 });
 
 export const VillageSchema = z.object({
@@ -141,6 +156,8 @@ export type Village = z.infer<typeof VillageSchema>;
 export type Relationship = z.infer<typeof RelationshipSchema>;
 export type FamilyBondKind = z.infer<typeof FamilyBondKindSchema>;
 export type FamilyBond = z.infer<typeof FamilyBondSchema>;
+export type FamilyMemoryTheme = z.infer<typeof FamilyMemoryThemeSchema>;
+export type FamilyHistory = z.infer<typeof FamilyHistorySchema>;
 export type Memory = z.infer<typeof MemorySchema>;
 export type Home = z.infer<typeof HomeSchema>;
 export type HomeObject = z.infer<typeof HomeObjectSchema>;
