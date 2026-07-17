@@ -4,6 +4,7 @@
   "program": "M3 Production Art",
   "artDirection": "lush-hand-painted-storybook",
   "candidateRoot": "art/candidates/pals",
+  "candidateMaxBytes": 8000000,
   "productionPromotionAllowed": false,
   "sharedIdentityContract": {
     "ageRead": "young child companion, never infant and never adult",

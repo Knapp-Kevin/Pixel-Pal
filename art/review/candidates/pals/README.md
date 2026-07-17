@@ -11,15 +11,30 @@ The canonical package order is:
 5. Duckling starter family, using runtime species key `duck`
 6. Fern, using runtime species key `rabbit` and stable art identity `fern`
 
+## Candidate intake
+
+Preserve generated or painted source art as a transparent PNG. Candidate sources may be larger than the runtime budget because destructive runtime compression belongs after visual approval, not before it.
+
+```bash
+npm run import:pal-candidate -- \
+  --character-key starter-fox \
+  --asset-key idle-happy \
+  --source /absolute/path/to/fox-idle-happy.png \
+  --source-references chat-generation:<reference>
+```
+
+The command validates the canonical package and asset key, requires a real alpha channel, checks dimensions and source byte budget, calculates SHA-256, copies the PNG beneath `art/candidates/pals/<character-key>/`, updates `art/pal-candidate-manifest.json`, and creates a digest-bound pending review record in this directory.
+
+Existing candidates are not overwritten silently. An intentional replacement requires `--replace true`, creates a new digest-bound pending review record, and invalidates any prior visual decision for those bytes.
+
 ## Required sequence
 
 1. Generate one character asset at a time from the identity contract in `art/pal-candidate-manifest.json`.
-2. Store the file only beneath `art/candidates/pals/<character-key>/`.
-3. Record exact dimensions, byte count, SHA-256 digest, expression, pose, provenance, and human review state in the candidate manifest.
-4. Run the candidate manifest verifier and compact tablet review workflow.
-5. Compare silhouette, face, proportions, palette, outfit, anchor line, and emotional readability against the approved model sheet.
-6. Require a named human decision before copying anything into production or runtime paths.
-7. Only after approval, normalize the asset, update the production manifest and generated registry, run the playable game, and capture route evidence.
+2. Import the transparent source through `scripts/import-pal-candidate.mjs` rather than copying files or editing JSON manually.
+3. Run the candidate manifest verifier and compact tablet review workflow.
+4. Compare silhouette, face, proportions, palette, outfit, anchor line, and emotional readability against the approved model sheet.
+5. Require a named human decision before copying anything into production or runtime paths.
+6. Only after approval, normalize the asset, update the production manifest and generated registry, run the playable game, and capture route evidence.
 
 ## Static versus sprite assets
 
