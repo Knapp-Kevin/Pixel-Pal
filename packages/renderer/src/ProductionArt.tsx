@@ -8,6 +8,7 @@ import {
 } from './PalPortrait';
 
 export type ProductionArtStatus = 'benchmark' | 'approved' | 'production';
+export type ProductionArtFallbackPolicy = 'alpha' | 'block';
 
 export type PalArtworkAsset = {
   id: string;
@@ -119,36 +120,65 @@ export function resolveSceneArtwork(
 type ProductionArtContextValue = {
   registry: ProductionArtRegistry;
   minimumStatus: ProductionArtStatus;
+  fallbackPolicy: ProductionArtFallbackPolicy;
 };
 
 const ProductionArtContext = createContext<ProductionArtContextValue>({
   registry: EMPTY_PRODUCTION_ART_REGISTRY,
-  minimumStatus: 'production'
+  minimumStatus: 'production',
+  fallbackPolicy: 'alpha'
 });
 
 export type ProductionArtProviderProps = {
   registry: ProductionArtRegistry;
   minimumStatus?: ProductionArtStatus;
+  fallbackPolicy?: ProductionArtFallbackPolicy;
   children: ReactNode;
 };
 
 export function ProductionArtProvider({
   registry,
   minimumStatus = 'production',
+  fallbackPolicy = 'alpha',
   children
 }: ProductionArtProviderProps) {
   return (
-    <ProductionArtContext.Provider value={{ registry, minimumStatus }}>
+    <ProductionArtContext.Provider value={{ registry, minimumStatus, fallbackPolicy }}>
       {children}
     </ProductionArtContext.Provider>
   );
 }
 
+function BlockedArt({
+  kind,
+  label,
+  className
+}: {
+  kind: 'pal' | 'scene';
+  label: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={[className, 'production-art-block', `production-art-block-${kind}`].filter(Boolean).join(' ')}
+      role="img"
+      aria-label={`${label}. Production artwork is not yet available.`}
+      data-production-art-blocked={kind}
+    >
+      <span className="production-art-block-label">Production art pending</span>
+      <strong>{label}</strong>
+    </div>
+  );
+}
+
 export function PalArtwork(props: PalArtworkRequest) {
-  const { registry, minimumStatus } = useContext(ProductionArtContext);
+  const { registry, minimumStatus, fallbackPolicy } = useContext(ProductionArtContext);
   const asset = resolvePalArtwork(registry, props, minimumStatus);
 
-  if (!asset) return <PalPortrait {...props} />;
+  if (!asset) {
+    if (fallbackPolicy === 'alpha') return <PalPortrait {...props} />;
+    return <BlockedArt kind="pal" label={`${props.name}, ${props.species} Pal`} className={props.className} />;
+  }
 
   return (
     <img
@@ -179,10 +209,14 @@ type ResponsiveSceneStyle = CSSProperties & {
 };
 
 export function SceneArtwork({ sceneId, variant, className, fallback }: SceneArtworkProps) {
-  const { registry, minimumStatus } = useContext(ProductionArtContext);
+  const { registry, minimumStatus, fallbackPolicy } = useContext(ProductionArtContext);
   const asset = resolveSceneArtwork(registry, sceneId, variant, minimumStatus);
 
-  if (!asset) return <>{fallback}</>;
+  if (!asset) {
+    if (fallbackPolicy === 'alpha') return <>{fallback}</>;
+    const label = variant ? `${sceneId}: ${variant}` : sceneId;
+    return <BlockedArt kind="scene" label={label} className={className} />;
+  }
 
   const responsiveStyle: ResponsiveSceneStyle = {
     objectFit: 'cover',
