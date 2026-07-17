@@ -29,6 +29,8 @@
     "verify:art-plan": "node scripts/verify-production-art.mjs",
     "verify:production-art": "node scripts/verify-production-art.mjs --release",
     "verify:art-reviews": "node scripts/verify-human-art-reviews.mjs",
+    "import:pal-candidate": "node scripts/import-pal-candidate.mjs",
+    "verify:pal-candidate-import": "node scripts/verify-pal-candidate-import.mjs",
     "verify:pal-candidates": "node scripts/verify-pal-candidate-manifest.mjs",
     "generate:pal-candidate-review": "node scripts/generate-pal-candidate-review.mjs",
     "verify:pal-candidate-review": "node scripts/verify-pal-candidate-review.mjs",
