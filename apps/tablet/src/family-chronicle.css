@@ -1,0 +1,226 @@
+.family-chronicle {
+  grid-column: 1 / -1;
+  background:
+    radial-gradient(circle at top right, rgb(249 222 174 / 68%), transparent 34%),
+    #fffdf4 !important;
+}
+
+.family-chronicle-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.family-chronicle-count {
+  width: fit-content;
+  padding: 7px 11px;
+  border: 1px solid #7a684f;
+  border-radius: 999px;
+  background: #fff0cc;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.family-chronicle-editor {
+  margin-top: 18px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+  border: 2px solid rgb(116 83 61 / 24%);
+  border-radius: 18px;
+  background: #fff4d9;
+}
+
+.family-chronicle-editor label {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+  color: #4c3d31;
+  font-weight: 800;
+}
+
+.family-chronicle-editor input,
+.family-chronicle-editor select,
+.family-chronicle-editor textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 9px 11px;
+  border: 2px solid #8b765f;
+  border-radius: 12px;
+  color: #2f2822;
+  background: #fffef8;
+  font: inherit;
+}
+
+.family-chronicle-editor textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.family-chronicle-editor input:focus-visible,
+.family-chronicle-editor select:focus-visible,
+.family-chronicle-editor textarea:focus-visible {
+  outline: 4px solid #173d73;
+  outline-offset: 4px;
+}
+
+.family-chronicle-title-field,
+.family-chronicle-summary-field,
+.family-chronicle-theme-help {
+  grid-column: span 2;
+}
+
+.family-memory-record {
+  min-width: 180px;
+  margin-top: 0;
+}
+
+.family-chronicle-empty {
+  margin: 16px 0 0;
+  padding: 16px;
+  border: 2px dashed #8b765f;
+  border-radius: 14px;
+  color: #5b493a;
+  background: #fffef9;
+  font-weight: 750;
+}
+
+.family-chronicle-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.family-chronicle-entry {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(260px, 1.1fr);
+  gap: 18px;
+  padding: 16px;
+  border: 2px solid rgb(116 83 61 / 24%);
+  border-radius: 18px;
+  background: #fffef9;
+}
+
+.family-chronicle-copy {
+  min-width: 0;
+  align-self: center;
+}
+
+.family-chronicle-copy h3,
+.family-chronicle-copy p {
+  margin: 0;
+}
+
+.family-chronicle-copy p {
+  margin-top: 8px;
+}
+
+.family-memory-remove {
+  margin-top: 14px;
+}
+
+.family-memory-scene {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 210px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #dce7cf;
+  box-shadow: inset 0 0 0 2px rgb(89 69 50 / 22%);
+}
+
+.family-memory-scene > picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.family-memory-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.family-memory-pal {
+  position: absolute;
+  z-index: 2;
+  bottom: -7%;
+  width: 31%;
+  height: 86%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 8px rgb(37 47 39 / 22%));
+}
+
+.family-memory-pal-first {
+  left: 18%;
+}
+
+.family-memory-pal-companion {
+  right: 17%;
+  transform: scaleX(-1);
+}
+
+.family-memory-theme-label {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  left: 12px;
+  padding: 7px 11px;
+  border: 2px solid rgb(76 61 49 / 48%);
+  border-radius: 999px;
+  color: #3b3028;
+  background: rgb(255 250 230 / 92%);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.journal-entry-family {
+  border-color: rgb(116 83 61 / 36%);
+  background: #fffaf0;
+}
+
+@media (max-width: 900px) {
+  .family-chronicle-editor {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .family-chronicle-entry {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .family-chronicle-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .family-chronicle-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .family-chronicle-title-field,
+  .family-chronicle-summary-field,
+  .family-chronicle-theme-help {
+    grid-column: auto;
+  }
+
+  .family-memory-record,
+  .family-memory-remove {
+    width: 100%;
+  }
+
+  .family-memory-scene {
+    min-height: 185px;
+  }
+}
