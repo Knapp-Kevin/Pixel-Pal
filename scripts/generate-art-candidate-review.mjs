@@ -1,10 +1,11 @@
 import { createHash } from 'node:crypto';
-import { copyFile, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
-import { basename, extname, resolve } from 'node:path';
+import { copyFile, mkdir, readFile, readdir, realpath, rm, stat, writeFile } from 'node:fs/promises';
+import { extname, resolve, sep } from 'node:path';
 
 const candidatesDirectory = resolve('art/review/candidates');
 const outputDirectory = resolve('artifacts/art-candidate-review');
 const assetDirectory = resolve(outputDirectory, 'assets');
+const candidateAssetsRoot = resolve('art/candidates');
 
 function fail(message) {
   throw new Error(`Art candidate review generation failed: ${message}`);
@@ -17,6 +18,19 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+async function checkedCandidateAssetPath(assetPath) {
+  if (typeof assetPath !== 'string' || !assetPath.startsWith('art/candidates/')) {
+    fail('candidate asset path must be a relative art/candidates/ path.');
+  }
+  const allowedRoot = await realpath(candidateAssetsRoot);
+  const source = await realpath(resolve(assetPath));
+  if (!source.startsWith(`${allowedRoot}${sep}`)) fail(`candidate asset path escapes art/candidates: ${assetPath}`);
+  if (!['.avif', '.webp', '.png'].includes(extname(source).toLowerCase())) {
+    fail(`candidate asset must be an image in an allowed format: ${assetPath}`);
+  }
+  return source;
 }
 
 function safeAreaStyle(contract, orientation) {
@@ -52,6 +66,9 @@ const summary = {
 
 for (const file of files) {
   const candidate = JSON.parse(await readFile(resolve(candidatesDirectory, file), 'utf8'));
+  if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(candidate.candidateId ?? '')) {
+    fail(`${file} has an invalid candidateId; only lowercase slug characters are allowed.`);
+  }
   if (candidate.schemaVersion !== 1 || candidate.product !== 'Pixel Pals') {
     fail(`${file} is not a Pixel Pals candidate schemaVersion 1 record.`);
   }
@@ -59,8 +76,18 @@ for (const file of files) {
   if (!['pending', 'approved', 'rejected'].includes(candidate.decision)) {
     fail(`${file} has unsupported decision ${candidate.decision}.`);
   }
-  if (candidate.decision === 'approved' && !candidate.provenance?.humanArtApproval) {
-    fail(`${file} cannot be approved without humanArtApproval=true.`);
+  if (candidate.decision === 'approved' && (
+    candidate.provenance?.humanArtApproval !== true ||
+    candidate.reviewer?.kind !== 'human' ||
+    typeof candidate.reviewer?.name !== 'string' ||
+    !candidate.reviewer.name.trim() ||
+    typeof candidate.reviewedAt !== 'string' ||
+    !Number.isFinite(Date.parse(candidate.reviewedAt))
+  )) {
+    fail(`${file} cannot be approved without named human review, approval, and a valid reviewedAt timestamp.`);
+  }
+  if (candidate.decision !== 'approved' && candidate.provenance?.humanArtApproval === true) {
+    fail(`${file} cannot claim humanArtApproval=true with decision=${candidate.decision}.`);
   }
   summary.candidates += 1;
   summary[candidate.decision] += 1;
@@ -68,7 +95,7 @@ for (const file of files) {
   for (const orientation of ['landscape', 'portrait']) {
     const asset = candidate.assets?.[orientation];
     if (!asset?.path) fail(`${file} is missing ${orientation} asset metadata.`);
-    const source = resolve(asset.path);
+    const source = await checkedCandidateAssetPath(asset.path);
     const sourceStat = await stat(source).catch(() => null);
     if (!sourceStat?.isFile()) fail(`${file} points to missing ${orientation} file ${asset.path}.`);
     if (sourceStat.size !== asset.bytes) {
