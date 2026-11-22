@@ -36,13 +36,13 @@ A feature should deepen a friendship, support a family, enrich a community, pres
 
 ## The Family Idea Behind It
 
-Pixel Pals began with my kids helping imagine a world in which making friends, building a home, and looking after a community could be the adventure. It is a family-inspired creative project, not a commercial game launch. The repository shares the engineering work as the idea becomes playable.
+Pixel Pals began with my kids helping imagine a world in which making friends, building a home, and looking after a community could be the adventure. It is a family-inspired creative project, not a commercial game launch. The repository publicly shares the engineering work as the idea becomes playable.
 
 The storybook environment in the banner is **concept artwork**, not a screenshot of finished gameplay. The current art and device-validation limitations are described below.
 
 ## Current Build
 
-Pixel Pals is an experimental engineering alpha with source being prepared for public visibility. The core vertical slice is functional, installable, locally persistent, and protected by automated browser and release gates. It is **not a finished game or a public child-ready release**.
+Pixel Pals is a **public-source engineering alpha**. The core vertical slice is functional, installable, locally persistent, and protected by automated browser and release gates. It is **not a finished game or a public child-ready release**.
 
 | Area | Current state |
 | --- | --- |
@@ -419,11 +419,11 @@ A feature is not complete until it includes, where applicable:
 
 **No open-source license has been selected for this repository yet.** A public GitHub repository is visible to others, but visibility alone does not grant general permission to redistribute the code, artwork, or other content. Code and creative assets may ultimately have different licensing terms.
 
-Until an explicit license is added, please treat the source and images as **all rights reserved**, subject to GitHub's applicable platform terms. See [Public Release Preparation](docs/PUBLIC_RELEASE_PREPARATION.md) for outstanding publication checks. This is a licensing disclosure, not a claim of certified child safety or production readiness.
+Until an explicit license is added, please treat the source and images as **all rights reserved**, subject to GitHub's applicable platform terms. See [Public Release Preparation](docs/PUBLIC_RELEASE_PREPARATION.md) for outstanding publication checks and [Security](SECURITY.md) for private vulnerability reporting. This is a licensing disclosure, not a claim of certified child safety or production readiness.
 
 ## Contribution Expectations
 
-Pixel Pals is currently a private MythologIQ Labs, LLC project in active development.
+Pixel Pals is a family-inspired project with public source and active development. Public source availability does not imply a finished, child-ready game or unrestricted rights to redistribute creative assets.
 
 Changes should favor:
 
