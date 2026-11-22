@@ -1,6 +1,6 @@
 # Procedural Exploration and Emergent Adventures
 
-**Status:** PROVISIONAL design proposal v0.3, adversarially revised; not implementation or engine-adoption approval  
+**Status:** PROVISIONAL design proposal v0.4, adversarially revised; not implementation or engine-adoption approval  
 **Authority:** Specialist design proposal beneath the Game Design Document and Simulation Design Document  
 **Canon impact:** None. New locations, characters, histories, and changes require their respective canon classification and approval before release  
 **Last reviewed:** 2026-11-22  
@@ -80,7 +80,7 @@ Variation dimensions: current environment; companions' stated preferences; share
 
 ### C. Continuity and memory
 
-Only the existing TypeScript simulation validates commands, commits domain events, and persists world changes. Expedition facts, decisions, and generated scene descriptors are not authority on their own.
+Only the existing TypeScript simulation may authorize world-state changes. **Current code validates and returns the next World via parseWorld; it does not implement the general event ledger described in the aspirational Simulation Design Document.** Typed domain effects and event-grounded history are a proposed extension, not a shipped abstraction. Expedition facts, decisions, and generated scene descriptors have no authority on their own.
 
 The memory created after an expedition should identify an actual player-observed event and can later affect dialogue, relationship context, household activities, a changing region, or village history. **No invented memory or invisible retrospective relationship change.**
 
@@ -101,9 +101,9 @@ Follow existing app boundaries, with no new runtime dependency for the first pro
 
 **Content schema (data):** An ExpeditionRecipe, RegionKit, DecisionNode, VariationSlot, EffectDeclaration, AccessibilityFallback, and content version. Every recipe declares allowable facts, required steps, and bounded variants.
 
-**Simulation (pure logic):** A seeded SelectExpedition operation produces a proposed, versioned expedition. A pure ValidateExpedition operation proves a solution is reachable, content combinations are allowed, required companions are willing, no disallowed effects occur, and all choices resolve. Existing command/event handling is responsible for any changes to saved state.
+**Simulation (pure logic, proposed):** A seeded SelectExpedition operation produces a proposed, versioned expedition. A pure ValidateExpedition operation checks reachable resolutions, permitted combinations, participant willingness, and authorized effects. Today the existing startAdventure / chooseAdventureStage functions return validated World replacements; an explicit typed effect dispatcher/event record does **not yet exist**. Introduce one only when needed with specific migration and replay tests. Until then, experimental recipes may compute proposals and use a dedicated, allowlisted transition instead of claiming generic event-sourcing exists.
 
-**Persistence:** Store a stable expedition ID, content version, used seed, materialized choice/branch identifiers, checkpoint, actual choices, event IDs, and a compact snapshot of any facts needed to reconstruct its presentation. A new generator version may affect future expeditions, but MUST NOT silently rewrite an expedition already started or mutate prior history.
+**Persistence (future schema extension):** Store a stable expedition ID, content version, used seed, materialized choice/branch identifiers, checkpoint, actual choices, transition IDs (event IDs only once implemented), and a compact snapshot of facts needed to reconstruct its presentation. A new generator version may affect future expeditions, but MUST NOT silently rewrite an expedition already started or mutate prior history.
 
 **Renderer:** The current React/storybook renderer is the baseline. An optional read-only Verdant rendering bridge can consume an immutable scene descriptor for environment presentation. It cannot author relationships, overwrite world saves, or bypass asset approvals.
 
@@ -118,6 +118,20 @@ Suggested logical shape (illustrative, not the current schema):
 
 The recipe version is pinned. "seed alone" is not a durable save contract when templates or PRNG algorithms change. Treat generated text as display only; meaningful effects must reference allowlisted, typed commands.
 
+### Actual code boundary verified in adversarial iteration v0.4
+
+The current packages/simulation/src/adventures.ts contains **two static ADVENTURES definitions** (The Lanterns in the Rain and The Humming Bridge), a fixed AdventureId union, a three-stage index, and participant selection through getFirstNeighborContext (first Pal plus first neighbor). startAdventure and chooseAdventureStage return parseWorld-validated World replacements; on completion they write a fixed memory summary, visible village marker, skill/preference changes, and positive relationship bonuses. The current tests prove idempotence, resume, stage validity, and five-species structural parity; they do **not** prove arbitrary parties, version-pinned recipes, graph branching, or choice-grounded memories.
+
+Consequences for implementation:
+
+- **Do not retrofit a generic event framework in the first spike.** Prototype region and recipe selection as a pure deterministic function with fixtures and no persistent mutation. Preserve the original two adventures unchanged.
+- The first Orchard should use two *test-fixture* party variants. Real arbitrary companion selection requires a distinct, reviewed domain contract; no pretending getFirstNeighborContext already supports it.
+- Do not assume more than three stages or a graph-shaped session model currently exists. Materialized recipe branches, version pinning, optional checkpoint states, and content-schema migration require separate implementation and exact replay tests before persistence.
+- Existing relationship bonuses are uniformly positive and the existing memorySummary does not depend on selectedChoiceIds. The prototype must demonstrate a distinct meaningful later acknowledgment, not simply tweak a score or replace nouns in that same summary.
+- Preserve the present single-active-adventure and offered-world-day exclusion semantics until a deliberately reviewed change. Never cast arbitrary recipe IDs into AdventureId to evade schema validation.
+
+**Architecture red-team verdict:** The conceptual model is valid as a *target*, but it is not a description of shipped infrastructure. The first spike should be smaller than the design, not a clandestine engine refactor.
+
 ## 7. Procedural integrity gates
 
 A generated expedition MUST pass these before surfacing to a child:
@@ -127,7 +141,7 @@ A generated expedition MUST pass these before surfacing to a child:
 3. Every reachable state has a child-readable next step, a safe stop/return, and at least one valid non-punitive resolution.
 4. At least two *meaningfully distinct* choices exist where a recipe promises branching; otherwise label it a vignette rather than fake a decision.
 5. All co-op tasks have accessible non-timed, touch-friendly alternatives and cannot dead-end due to party composition.
-6. Every proposed world effect is typechecked, consented where necessary, and commit-safe through the current simulation command API.
+6. Every proposed world effect is typechecked, consented where necessary, and commit-safe through a narrow, explicitly reviewed simulation transition.
 7. Return/memory hooks are matched to actual events; no rewards or memories for unplayed branches.
 8. Variation remains within available approved art/crop budgets and does not require unapproved images.
 
@@ -141,7 +155,8 @@ If a sampled recipe fails validation, fall back to a known-good authored expedit
 | **P0: Broken narrative** | An event contradicts canon or an NPC remembers something that never happened | Canon classes, typed effects, event-grounded memories | Planted contradiction, false-memory, and invalid-branch tests must fail closed |
 | **P0: No valid route** | One species or skill is required, or a Pal declines | Validated alternate cooperative routes and willingness checks | Run every recipe across supported parties, refusal states, and accessibility profiles |
 | **P0: Safety drift** | Randomized stories add manipulative urgency or inappropriate loss | Curated content grammar, reviewed outcome sets, no unrestricted runtime text generation | Negative content fixtures and actual adult-child review |
-| **P0: Save corruption** | Generator update regenerates different history mid-adventure | Version-pinned materialized state, atomic domain events, migration and replay tests | Old-save, suspend/resume, mid-event interruption and rollback recovery |
+| **P0: Save corruption** | Generator update regenerates different history mid-adventure | Version-pinned materialized state, atomic validated world transitions (future event ledger optional), migration and replay tests | Old-save, suspend/resume, mid-transition interruption and rollback recovery |
+| **P0: Architecture mismatch** | Treat proposed event ledger and arbitrary companions as if implemented today | Pure fixture spike first; explicitly contract and test any schema/transition extension | Compare proposed features to current adventures.ts, content-schema, and tested saved sessions |
 | **P1: Village becomes irrelevant** | Endless adventures eclipse daily community life | Return-home stories and quiet village sessions remain complete; no loot treadmill | Observe preferred activities across sessions, not just novelty on first encounter |
 | **P1: Unequal identity portrayal** | Lineage/species become destiny or cultural cliché | Contextual affordances without identity superiority | Content audit with counterexamples and diverse party fixtures |
 | **P1: Visual fragmentation** | Generated PBR scenes clash with painterly Pals | Fixed style kits; authored render-to-asset option; human approvals | Side-by-side art gate on actual target screens |
@@ -167,7 +182,7 @@ An invitation emerges because an old orchard beyond Willowmere is unusually quie
 
 ## 10. Test and acceptance strategy
 
-**Pure simulation tests:** Repeatability for identical seed+version+inputs; branch coverage; no missing exits; no invalid effects; difference between proposed and committed state; replay with interleaved commands; migration of older saved expeditions.
+**Pure simulation tests:** Repeatability for identical seed+version+inputs; branch coverage; no missing exits; no invalid effects; difference between proposed and committed state; replay after saved transitions; migration of older saved expeditions **once those features are actually implemented**. The first pure fixture need not change save schemas.
 
 **Property/fuzz tests:** Generate a representative seed/party/environment matrix, including invalid combinations, and verify invariants. Start with 1,000 cases per version as a proposed automated floor; revise based on runtime and bug yield. Exhaustive tests are required for the bounded authored branch graph.
 
