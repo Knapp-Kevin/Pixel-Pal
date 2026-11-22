@@ -1,5 +1,12 @@
 name: Build Pixel Pal public brand PNGs (temporary bootstrap)
 on:
+  push:
+    branches: [docs/public-facing-readme-and-brand]
+    paths:
+      - assets/brand/**
+      - scripts/render-brand-assets.mjs
+      - scripts/verify-brand-assets.mjs
+      - .github/workflows/brand-bootstrap.yml
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
@@ -11,7 +18,7 @@ permissions:
   contents: write
 jobs:
   render-and-commit:
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'docs/public-facing-readme-and-brand' }}
+    if: ${{ github.repository == 'Knapp-Kevin/Pixel-Pal' && (github.ref == 'refs/heads/docs/public-facing-readme-and-brand' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'docs/public-facing-readme-and-brand')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
