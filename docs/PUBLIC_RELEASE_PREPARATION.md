@@ -20,6 +20,7 @@
 - [x] The new README avoids presenting concept branding as finished gameplay art.
 - [x] The banner and social preview have been committed as real PNGs: 1600×520 (786,531 bytes) and 1280×640 (813,564 bytes). The dedicated image renderer and PNG signature/dimension verifier passed on GitHub Actions.
 - [x] README source-level preservation and local navigation check: all 40 baseline headings retained; 22 linked references checked; seven internal anchors; zero unresolved local paths or anchors. This is not a full remote link or browser-rendering audit.
+- [x] Read-only public-source disclosure job passed on the PR branch: 235 tracked text files scanned, zero high-confidence secret patterns, seven binary files excluded. One contact-like reference was the public vendor contact in the `glob` package's deprecation notice within `package-lock.json`. Job evidence: [Public source disclosure run](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/44995813325). This is **not** a full personal-name, history, binary or GitHub Actions-log audit.
 
 ## Before switching GitHub visibility to public
 
