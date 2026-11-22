@@ -18,7 +18,8 @@
 - [x] The two tracked `apps/tablet/.env.*` mode fixtures contain art build flags, not access tokens.
 - [x] A recursive baseline tree inventory found no filenames ending in `.pem`, `.p12`, `.pfx`, or `.key`, and no obvious committed `secrets` or token files.
 - [x] The new README avoids presenting concept branding as finished gameplay art.
-- [x] The banner and social preview have designated PNG paths with explicit renderer and dimension checks.
+- [x] The banner and social preview have been committed as real PNGs: 1600×520 (786,531 bytes) and 1280×640 (813,564 bytes). The dedicated image renderer and PNG signature/dimension verifier passed on GitHub Actions.
+- [x] README source-level preservation and local navigation check: all 40 baseline headings retained; 22 linked references checked; seven internal anchors; zero unresolved local paths or anchors. This is not a full remote link or browser-rendering audit.
 
 ## Before switching GitHub visibility to public
 
@@ -26,10 +27,11 @@
 - [ ] **Full content and history disclosure review.** Inspect all tracked source, documents, issue/PR discussion, commit author metadata and reachable Git history for tokens, credentials, private links, personal names, child/family records and unpublished material. A filename scan is not a secrets scan.
 - [ ] **Rights/provenance review.** Confirm ownership or permission for the painterly source artwork, fonts, brand image, icons and other creative assets before redistribution.
 - [ ] **README/asset verification.** Confirm the checked-in `assets/brand/readme-banner.png` renders on GitHub; confirm `assets/brand/social-preview.png` is 1280×640 and legible at small preview sizes.
+- [ ] **Security advisory remediation.** Current CI reports HIGH `GHSA-mrhx-c7xc-m3w5` against Zod 3.25.76. Track [Issue #108](https://github.com/Knapp-Kevin/Pixel-Pal/issues/108). Do not disable the audit or call the build green.
 - [ ] **Exact-head CI and maintainer review.** Check the final PR commit, local link/heading verification, required repository checks and unresolved review threads before merging. A green unrelated job is not evidence of release readiness.
 - [ ] **Safety and disclosure.** Confirm public docs make no claim of a finished, child-ready app, security certification or completed physical tablet testing.
 - [ ] **Owner visibility decision.** Only after the above conditions are complete, the owner may change GitHub repository visibility to **public**. Visibility is not changed by this PR.
-- [ ] **Social preview setting.** After the image is committed, upload `assets/brand/social-preview.png` in GitHub repository settings under **General → Social preview**. Checking a file into the repo does not automatically configure GitHub's social card.
+- [ ] **Social preview setting.** The committed PNG is under GitHub's recommended 1 MB limit. After the repository is public, upload `assets/brand/social-preview.png` in GitHub repository settings under **General → Social preview**. Checking a file into the repo does not automatically configure GitHub's social card.
 - [ ] **Public smoke test.** From a logged-out browser verify the README, banner, image/card preview, license notice, clone instructions and documentation links, then file any discrepancies.
 
 ## Asset separation
