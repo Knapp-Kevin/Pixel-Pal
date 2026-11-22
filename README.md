@@ -4,21 +4,26 @@
 
 ### Where every friendship changes the world.
 
-A tablet-first, offline-capable storybook life simulation about friendship, family, community, identity, and cooperative discovery.
+**A family-inspired, tablet-first storybook game about friendship, discovery, and a world that grows with you.**
+
+*An open-to-explore engineering alpha, not a finished game or a public playtest.*
 
 [![CI](https://github.com/Knapp-Kevin/Pixel-Pal/actions/workflows/ci.yml/badge.svg)](https://github.com/Knapp-Kevin/Pixel-Pal/actions/workflows/ci.yml)
-![Status](https://img.shields.io/badge/status-engineering_alpha-7a5c24)
+![Status](https://img.shields.io/badge/status-public_source_alpha-7a5c24)
 ![Platform](https://img.shields.io/badge/platform-tablet_first-315b4c)
 ![Runtime](https://img.shields.io/badge/runtime-offline_first-446b50)
 ![Safety](https://img.shields.io/badge/design-child_safety_by_default-6b5378)
 
-[Quick start](#quick-start) · [Current build](#current-build) · [Architecture](#architecture) · [Verification](#verification) · [Art review](docs/art/review/rain-path/README.md) · [Roadmap](#roadmap)
+[Quick start](#quick-start) · [Gameplay](#playable-vertical-slice) · [Current status](#current-build) · [Art gallery](#art-review) · [Architecture](#architecture) · [Verification](#verification) · [Roadmap](#roadmap) · [Public-source notes](#public-source-notes)
 
 </div>
 
 ---
 
 ## What Pixel Pals Is
+
+Pixel Pals began as a playful game idea shaped with my kids. It remains a personal family-inspired project, built in the open as an evolving experiment in what a kinder, more thoughtful game world could be. No information about the children or private playtest saves is needed to explore the source.
+
 
 Pixel Pals is a nonviolent life simulation where children discover anthropomorphic animal characters, welcome them into villages, build homes, nurture relationships, practice skills, explore cooperative adventures, and preserve the history of a changing community.
 
@@ -32,7 +37,7 @@ A feature should deepen a friendship, support a family, enrich a community, pres
 
 ## Current Build
 
-Pixel Pals is a private engineering alpha. The core vertical slice is functional, installable, locally persistent, and protected by automated browser and release gates. It is not yet visually ready for public production.
+Pixel Pals is a **public-source engineering alpha**. Its core vertical slice is functional, installable, locally persistent, and protected by automated browser and release gates. **Public source availability does not mean the game is released, production-ready, or open for child playtesting.** Finished art and physical tablet validation remain release gates.
 
 | Area | Current state |
 | --- | --- |
@@ -247,6 +252,9 @@ Pixel-Pal/
 
 ## Quick Start
 
+> **Source checkout only.** This starts a local development build. The public production build deliberately blocks unfinished art, and the alpha fixture is for technical validation, not a released children’s game. No account, cloud service, or family data is required.
+
+
 ### Prerequisites
 
 - Node.js 22 or newer
@@ -280,7 +288,7 @@ npm run verify:artifacts
 
 ## Verification
 
-The repository does not use “works on my machine” as an evidence class.
+The repository does not use “works on my machine” as an evidence class. A green CI run shows the checks that ran passed; it is not evidence that all artwork is approved or that physical tablets have passed release validation.
 
 | Command | Verifies |
 | --- | --- |
@@ -404,6 +412,14 @@ A feature is not complete until it includes, where applicable:
 - documentation for new contracts;
 - privacy and safety review for data or social behavior;
 - evidence that it strengthens the product North Star.
+
+## Public-Source Notes
+
+This repository is public so others can explore the work and follow its progress. **A public repository is not automatically open source.** There is currently no published root license; until a license is added, do not assume permission to redistribute code or artwork. In particular, do not reuse the generated illustrations outside this project without an applicable grant of rights.
+
+The README artwork and GitHub social preview are **repository branding**, not approved in-game production art. Child-safety and privacy boundaries still apply to public issues, screenshots, demos, and contributions. Do not post any child’s identifying details, world saves, local backups, parent PINs, or security-sensitive information. Security reports should not be disclosed through a public issue; see [Security](SECURITY.md).
+
+See [Public release readiness](docs/PUBLIC_RELEASE_READINESS.md) for what was checked and what remains unverified before any public gameplay release.
 
 ## Contribution Expectations
 
