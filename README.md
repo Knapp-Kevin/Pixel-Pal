@@ -1,10 +1,14 @@
 <div align="center">
 
+![Pixel Pals storybook banner showing a lantern-lit forest village path](assets/brand/readme-banner.png)
+
 # Pixel Pals
 
 ### Where every friendship changes the world.
 
 A tablet-first, offline-capable storybook life simulation about friendship, family, community, identity, and cooperative discovery.
+
+*An idea dreamed up with the kids, now taking shape as a small independent game.*
 
 [![CI](https://github.com/Knapp-Kevin/Pixel-Pal/actions/workflows/ci.yml/badge.svg)](https://github.com/Knapp-Kevin/Pixel-Pal/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-engineering_alpha-7a5c24)
@@ -12,7 +16,7 @@ A tablet-first, offline-capable storybook life simulation about friendship, fami
 ![Runtime](https://img.shields.io/badge/runtime-offline_first-446b50)
 ![Safety](https://img.shields.io/badge/design-child_safety_by_default-6b5378)
 
-[Quick start](#quick-start) · [Current build](#current-build) · [Architecture](#architecture) · [Verification](#verification) · [Art review](docs/art/review/rain-path/README.md) · [Roadmap](#roadmap)
+[Quick start](#quick-start) · [Current build](#current-build) · [Architecture](#architecture) · [Verification](#verification) · [Art status](#art-review) · [Roadmap](#roadmap) · [Licensing](#license-and-reuse)
 
 </div>
 
@@ -30,9 +34,15 @@ The governing product principle is simple:
 
 A feature should deepen a friendship, support a family, enrich a community, preserve a memory, or help a Pal find where they belong. Features that do none of those things do not belong in the product merely because games have historically accumulated menus like lint.
 
+## The Family Idea Behind It
+
+Pixel Pals began with my kids helping imagine a world in which making friends, building a home, and looking after a community could be the adventure. It is a family-inspired creative project, not a commercial game launch. The repository publicly shares the engineering work as the idea becomes playable.
+
+The storybook environment in the banner is **concept artwork**, not a screenshot of finished gameplay. The current art and device-validation limitations are described below.
+
 ## Current Build
 
-Pixel Pals is a private engineering alpha. The core vertical slice is functional, installable, locally persistent, and protected by automated browser and release gates. It is not yet visually ready for public production.
+Pixel Pals is a **public-source engineering alpha**. The core vertical slice is functional, installable, locally persistent, and protected by automated browser and release gates. It is **not a finished game or a public child-ready release**.
 
 | Area | Current state |
 | --- | --- |
@@ -262,7 +272,7 @@ npm ci
 npm run dev
 ```
 
-The development server starts the tablet application. Vite prints the local address in the terminal.
+The development server starts the tablet application. Vite prints the local address in the terminal. This is a **development build**, not a finished child-facing release. The public-production art gate remains intentionally closed.
 
 ### Production Build
 
@@ -405,9 +415,15 @@ A feature is not complete until it includes, where applicable:
 - privacy and safety review for data or social behavior;
 - evidence that it strengthens the product North Star.
 
+## License and Reuse
+
+**No open-source license has been selected for this repository yet.** A public GitHub repository is visible to others, but visibility alone does not grant general permission to redistribute the code, artwork, or other content. Code and creative assets may ultimately have different licensing terms.
+
+Until an explicit license is added, please treat the source and images as **all rights reserved**, subject to GitHub's applicable platform terms. See [Public Release Preparation](docs/PUBLIC_RELEASE_PREPARATION.md) for outstanding publication checks and [Security](SECURITY.md) for private vulnerability reporting. This is a licensing disclosure, not a claim of certified child safety or production readiness.
+
 ## Contribution Expectations
 
-Pixel Pals is currently a private MythologIQ Labs, LLC project in active development.
+Pixel Pals is a family-inspired project with public source and active development. Public source availability does not imply a finished, child-ready game or unrestricted rights to redistribute creative assets.
 
 Changes should favor:
 

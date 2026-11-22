@@ -1,0 +1,26 @@
+name: Public source disclosure
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  audit-current-tree:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Scan tracked source without leaking findings
+        run: node scripts/audit-public-source.mjs
+      - name: Upload bounded source audit evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: public-source-audit
+          path: artifacts/public-source-audit.json
+          if-no-files-found: warn
+          retention-days: 7
