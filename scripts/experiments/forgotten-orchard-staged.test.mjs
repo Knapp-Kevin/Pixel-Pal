@@ -60,6 +60,7 @@ test('each checkpoint can terminate gently without fabricating a memory or effec
     assert.equal(after.at, 'home');
     assert.equal(after.memory, null);
     assert.equal(after.effect, null);
+    assert.equal(after.pending, null);
     assert.equal(verifyStagedCheckpoint(a, [...prefix, 'return-early'], after), true);
   }
 });
