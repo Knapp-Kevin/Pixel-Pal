@@ -119,7 +119,7 @@ function advanceUnchecked(authority, state, actionId) {
     requireValid(path !== null, 'route-blocked');
     return { ...state, checkpoint: 'done', status: 'returned-early', at: 'home',
       events: [...state.events, { actionId, checkpoint: state.checkpoint, path }],
-      effect: null, memory: null };
+      pending: null, effect: null, memory: null };
   }
   const action = [...region.surveys, ...region.responses, { id: 'go-home', at: 'home' }].find((x) => x.id === actionId);
   requireValid(action !== undefined, 'unknown-action');
