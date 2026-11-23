@@ -1,4 +1,5 @@
 // Pixel Pals E0: experimental fixture and validator. Not imported by production.
+// Accessibility modes here are narrow test profiles, not a complete accessibility model.
 export const MODES = Object.freeze(['touch', 'keyboard', 'reduced-motion']);
 const LANDMARKS = Object.freeze(['home', 'arrival', 'fork', 'channel', 'caretaker']);
 const PATHS = Object.freeze([
@@ -147,10 +148,16 @@ export function runOrchard(region, party, mode, choiceId, snapshot, seed = 123) 
 }
 
 // Recompute from observed action trace; retrospective memories are not authoritative.
-export function verifyTrace(region, party, mode, result) {
+export function verifyTrace(region, party, mode, result, recordedSeed) {
   const check = validateRegion(region, party, mode);
-  if (!check.ok) return false;
-  if (result.status === 'returned-early') return result.events.length === 0 && result.memories.length === 0;
+  if (!check.ok || !result || !result.proposed || !Array.isArray(result.events) || !Array.isArray(result.memories)) return false;
+  // A self-reported seed is not authority; a caller can supply its recorded seed.
+  if (recordedSeed !== undefined && result.proposed.seed !== recordedSeed) return false;
+  let expected;
+  try { expected = composeOrchard(result.proposed.seed, party, mode, region); } catch { return false; }
+  if (JSON.stringify(expected) !== JSON.stringify(result.proposed)) return false;
+  if (result.status === 'returned-early') return result.events.length === 0 && result.memories.length === 0 &&
+    JSON.stringify(result.route) === JSON.stringify(route(region, 'arrival', 'home'));
   if (result.status !== 'completed' || result.events.length !== 1 || result.memories.length !== 1) return false;
   const event = result.events[0];
   const memory = result.memories[0];
