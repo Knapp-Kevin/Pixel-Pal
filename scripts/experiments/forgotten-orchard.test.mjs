@@ -100,6 +100,12 @@ test('rejects invented, altered or other-party retrospective memory', () => {
   const forgedRoute = clone(actual);
   forgedRoute.route = ['arrival', 'home'];
   assert.equal(verifyTrace(ORCHARD_FIXTURE, PARTIES[0], 'touch', forgedRoute), false);
+  const forgedSeed = clone(actual);
+  forgedSeed.proposed.seed = 77;
+  assert.equal(verifyTrace(ORCHARD_FIXTURE, PARTIES[0], 'touch', forgedSeed, 123), false);
+  const early = runOrchard(ORCHARD_FIXTURE, PARTIES[0], 'touch', 'return-home', {});
+  early.route = ['arrival'];
+  assert.equal(verifyTrace(ORCHARD_FIXTURE, PARTIES[0], 'touch', early), false);
 });
 
 test('does not mutate canonical-like snapshots or recipe fixtures', () => {
