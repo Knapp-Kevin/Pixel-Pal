@@ -1,0 +1,77 @@
+name: Verdant external consumer experiment
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/verdant-consumer/**'
+      - '.github/workflows/verdant-consumer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verdant-consumer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  external-consumer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out exact PR source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install upstream Rust toolchain version
+        run: rustup toolchain install 1.97.1 --profile minimal
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Confirm release-specific sparse registry index
+        working-directory: experiments/verdant-consumer
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --max-time 30 \
+            'https://cdn.jsdelivr.net/gh/afflom/verdant-engine@stitch-mirror/v2.21.7/crates/index/config.json' \
+            > /tmp/verdant-registry-config.json
+          node -e 'const c=require("/tmp/verdant-registry-config.json"); if (!c.dl.includes("releases/download/v2.21.7/")) process.exit(1)'
+          cat /tmp/verdant-registry-config.json
+
+      - name: Build independently and generate same GLB twice
+        working-directory: experiments/verdant-consumer
+        run: |
+          set -euo pipefail
+          mkdir -p output
+          cargo +1.97.1 run --release -- orchard.json output/orchard-first.glb
+          cargo +1.97.1 run --release -- orchard.json output/orchard-second.glb
+          sha256sum Cargo.lock > output/cargo-lock.sha256
+          cp Cargo.lock output/Cargo.lock
+
+      - name: Independently verify GLB container, nodes, and byte reproducibility
+        working-directory: experiments/verdant-consumer
+        run: |
+          set -euo pipefail
+          node verify-glb.mjs output/orchard-first.glb output/orchard-second.glb output/manifest.json
+
+      - name: Bad region fixture must be rejected before any output
+        working-directory: experiments/verdant-consumer
+        run: |
+          set -euo pipefail
+          if cargo +1.97.1 run --release -- invalid-orchard.json output/invalid.glb; then
+            echo 'FAIL: invalid recipe accepted'
+            exit 1
+          fi
+          test ! -e output/invalid.glb
+
+      - name: Save complete source-bound experiment evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
+        with:
+          name: verdant-external-consumer-evidence
+          path: |
+            experiments/verdant-consumer/output/
+          if-no-files-found: ignore
+          retention-days: 14
