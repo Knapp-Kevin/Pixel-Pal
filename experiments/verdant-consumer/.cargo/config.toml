@@ -1,0 +1,4 @@
+# Immutable release-specific index; archives resolve to v2.21.7 GitHub release.
+# Source: afflom/verdant-engine stitch-mirror/v2.21.7/crates/index/config.json
+[registries.verdant]
+index = "sparse+https://cdn.jsdelivr.net/gh/afflom/verdant-engine@stitch-mirror/v2.21.7/crates/index/"
