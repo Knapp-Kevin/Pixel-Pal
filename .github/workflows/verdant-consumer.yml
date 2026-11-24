@@ -35,10 +35,14 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --location --retry 3 --max-time 30 \
-            'https://cdn.jsdelivr.net/gh/afflom/verdant-engine@stitch-mirror/v2.21.7/crates/index/config.json' \
+            'https://raw.githubusercontent.com/afflom/verdant-engine/stitch-mirror/v2.21.7/crates/index/config.json' \
             > /tmp/verdant-registry-config.json
           node -e 'const c=require("/tmp/verdant-registry-config.json"); if (!c.dl.includes("releases/download/v2.21.7/")) process.exit(1)'
           cat /tmp/verdant-registry-config.json
+          curl --fail --location --retry 3 --max-time 30 \\
+            'https://raw.githubusercontent.com/afflom/verdant-engine/stitch-mirror/v2.21.7/crates/index/uo/r-/uor-matmul-core' \\
+            > /tmp/verdant-core-dependency-index
+          grep -q 'uor-matmul-core' /tmp/verdant-core-dependency-index || test -s /tmp/verdant-core-dependency-index
 
       - name: Build independently and generate same GLB twice
         working-directory: experiments/verdant-consumer
