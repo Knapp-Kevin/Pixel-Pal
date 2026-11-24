@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "regionId": "forgotten-orchard",
+  "seed": 314159,
+  "halfExtentMeters": 22,
+  "landmarks": [
+    {
+      "id": "home",
+      "x": -9,
+      "z": -5
+    },
+    {
+      "id": "bridge-crossing",
+      "x": 0,
+      "z": 0
+    },
+    {
+      "id": "old-tree",
+      "x": 8,
+      "z": 5
+    }
+  ],
+  "paths": [
+    [
+      "home",
+      "bridge-crossing"
+    ],
+    [
+      "bridge-crossing",
+      "old-tree"
+    ]
+  ],
+  "bridge": {
+    "id": "stone-bridge",
+    "x": 0,
+    "z": 0,
+    "spanMeters": 8
+  },
+  "trees": [
+    {
+      "id": "canopy-west",
+      "x": -6,
+      "z": 5
+    },
+    {
+      "id": "canopy-east",
+      "x": 7,
+      "z": -4
+    },
+    {
+      "id": "memory-tree",
+      "x": 8,
+      "z": 5
+    }
+  ]
+}
