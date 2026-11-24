@@ -4,6 +4,15 @@
 **Owner:** Pixel Pals | **Technical tracker:** [#115](https://github.com/Knapp-Kevin/Pixel-Pal/issues/115)  
 **Expanded evidence and gap map:** [Contributor Handoff and Capability Gaps](VERDANT_CONTRIBUTOR_HANDOFF_AND_GAPS.md)
 
+
+## November 24 update: a better integration starting point
+
+**Important change since this brief was written:** Verdant has reached [v2.21.7](https://github.com/afflom/verdant-engine/releases/tag/v2.21.7), exact source [cf25bac](https://github.com/afflom/verdant-engine/commit/cf25bac29df05f97573ca5ef2a1d83c2f201aff3). At that revision, [bootstrap passed on Linux x86 and ARM](https://github.com/afflom/verdant-engine/actions/runs/45442139567) and [Pages assembled and published successfully](https://github.com/afflom/verdant-engine/actions/runs/45442139690). The earlier v2.20 failures described in the longer research history are **resolved at the latest inspected upstream CI head**, not ongoing failures.
+
+**New opportunity:** the [v2.21.7 release](https://github.com/afflom/verdant-engine/releases/tag/v2.21.7) publishes versioned archives for all four Verdant Rust products plus a **release-pinned Cargo sparse index** and dependency archives. This makes a standalone *external* geometry-only consumer demo a more realistic first collaboration. Verdant's registry verification includes an outside-workspace consumer of **verdant-tensor**; we have **not yet independently compiled a verdant-core geometry consumer**, generated a Pixel Pals GLB, or validated actual tablets. The next best contribution is now a **minimal verdant-core consumer built from these released packages**, including an authored GLB, hash manifest and screenshot. A small portable offline .holo release artifact may also help share an authoring demonstration, not replace Pixel Pals' app.
+
+**What did not change:** the CLI still builds the engine's canonical scene in pack-scene; a Pixel Pals authored nature-region input interface and fixed-camera image/depth-layer exporter are **not demonstrated**. The general browser worker still invokes the observer during frames. Recent low-bit model-weight encoders are interesting engineering work but **do not establish child-safe local AI or better adventure storytelling**. Preserve game authority, privacy, artistic review and tablet testing.
+
 ## Why we're reaching out
 
 We're building [Pixel Pals](https://github.com/Knapp-Kevin/Pixel-Pal), an offline-first, family-friendly tablet game in which relationships and memories matter more than collecting items. Our next-generation adventure concept includes bounded, explorable regions, different companion contributions, and worlds that remember what players actually did.
@@ -20,7 +29,7 @@ We've reviewed [Verdant Engine](https://github.com/afflom/verdant-engine) and se
 | **2. Reproducible geometry-only consumer** | Verdant builds in its own workspace with pinned Cargo.lock inputs | Clean external example with explicit source, toolchain, transitive pins, output hash, and minimal feature/dependency surface |
 | **3. 2D/2.5D art tooling** | PBR renderers and an offline WebGL2 primitive player exist | Repeatable fixed-camera captures, safe areas, optional depth or foreground masks suitable for later *human-reviewed* painterly artwork |
 | **4. Optional child-facing viewer** | Current general worker renders scenes but also steps observer state on frames | A small renderer-only API without observer, network, AI, multiplayer, operator tools or engine-owned saves. **This is not our initial ask** |
-| **5. Build/device confidence** | At v2.20, Linux x86 bootstrap passes | ARM build and Pages checks were not green at the inspected revision; independent geometry-only and real-device evidence still needed |
+| **5. Build/device confidence** | At v2.21.7, Linux x86 and ARM bootstrap plus Pages checks pass | Independent geometry-only external consumer build, real tablet hardware and production-art evidence are still needed |
 
 These are **consumer gaps**, not a claim that the underlying engine cannot do the work. In particular, geometric pathfinding and narrative-state reachability already exist in Verdant. Pixel Pals keeps authority for Pal identity, relationship outcomes, consent, accessibility decisions and persistence.
 
@@ -53,7 +62,7 @@ Those prove a **small fixture validation approach**, not production narrative qu
 - Is there already a supported way to construct **arbitrary authored scenes** and export GLB outside Verdant's canonical scene packer?
 - What is the least complicated **geometry-only, offline** Verdant integration? Which crates and features would you use?
 - Can the existing toolchain produce consistent scene screenshots, camera views, or depth layers without importing the full runtime?
-- Is the current ARM ggml-oracle failure relevant to a geometry-only consumer, or can it be isolated?
+- Can the newly green ARM build and released Cargo closure be demonstrated in a **small external verdant-core geometry consumer**?
 - Would you approach this as a Verdant export example, a reusable authoring API, or something entirely different?
 
 **Our suggested first shared success:** a repeatable tree/bridge/meadow GLB built from bounded source inputs. From there we can compare painterly 2.5D composition with an optional live 3D scene on actual tablets. Adoption remains a separate decision.
