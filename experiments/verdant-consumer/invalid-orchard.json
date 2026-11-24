@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "regionId": "forgotten-orchard",
+  "seed": 314159,
+  "halfExtentMeters": 22,
+  "landmarks": [
+    {
+      "id": "home",
+      "x": -9,
+      "z": -5
+    },
+    {
+      "id": "old-tree",
+      "x": 8,
+      "z": 5
+    }
+  ],
+  "paths": [
+    [
+      "home",
+      "nonexistent-destination"
+    ]
+  ],
+  "bridge": {
+    "id": "stone-bridge",
+    "x": 0,
+    "z": 0,
+    "spanMeters": 8
+  },
+  "trees": [
+    {
+      "id": "canopy-west",
+      "x": -6,
+      "z": 5
+    }
+  ]
+}
