@@ -65,6 +65,25 @@ At the pinned release, this fails while compiling Verdant's own `.crate`: embedd
 
 The [scoped workflow](../../.github/workflows/verdant-consumer.yml) executes **source and diagnostic PNG tests on each experiment PR**. The strict released-package probe is available only via `workflow_dispatch` with `test_released_crate=true`, and is **expected to fail until upstream fixes its release**. A green source job must never be cited as a green package test.
 
+## First actual GLB visual inspection: source proof
+
+A real Verdant-generated GLB (source SHA-256 `8e3efaa8351ee48297eca3b99ce4bc3d68204cb731df7c2763ec36c80a5d0053`) was downloaded from [source-run 45470050027](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45470050027), rendered locally into landscape/portrait PNGs, and inspected. The scene visibly contains **three canopy-tree forms, a bridge, two authored path segments, a blue water slab and a broad terrain surface**.
+
+**Positive technical result:** both images render offline from the actual portable GLB without loading any Verdant runtime. Corrected diagnostic previews are nonblank and produced by drawing the actual triangles with z-buffer occlusion; no AI-generated illustration or substitute game scene was used.
+
+**Adversarial correction:** first render incorrectly favored farther surfaces and obscured trees behind terrain. The depth sign and camera framing were corrected. A new regression test draws exactly overlapping near-red/far-green geometry: **old implementation 5 pass / 1 fail; corrected implementation 6/6 pass locally**. The GitHub workflow must independently reconfirm the committed fix.
+
+**Visual quality finding:** the broad mostly flat land plate dominates the view, the three canopy trees look similar, and the sparse bridge/stream/path composition does not yet read as a painterly children's-book environment. Path legibility is weak, especially where bridge and pathway overlap. These are findings about **this simplified authored fixture and diagnostic renderer**, not claims about Verdant's maximum artistic capability. They establish concrete next-generation needs: richer foliage silhouette variation, believable riverbank/bridge alignment, visible paths and intentional foreground/background layer composition.
+
+**Local preview qualification (corrected renderer):**
+
+| Diagnostic viewport | Resolution | GLB triangles traversed | PNG SHA-256 |
+| --- | --- | --- | --- |
+| Landscape | 720×480 | 2,372 | `771a81ae7c48575dd55705ff4811186e3422d96b46bba92873aa3b7b364e481d` |
+| Portrait | 480×720 | 2,372 | `5f80d2e594f23b6bf5af90d392f933fb2a044c4263effe80eb1525ba1c18f005` |
+
+**These are debug previews only.** No approved art, physical tablet rendering, collision/route validation or family playtest resulted from this visual inspection. The scoped workflow uploads fresh images for independent review after it completes.
+
 ## Acceptance criteria and next useful fixes
 
 **Source baseline:** exact revision; successful external Rust compile; real Verdant mesh generation; valid self-contained GLB; **two byte-identical exports**; seed/recipe and lock provenance; unknown destination refused; two generated PNGs with image hashes. The image previews must be visually reviewed before any quality conclusion.
