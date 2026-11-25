@@ -69,8 +69,10 @@ export function renderPreview(glb,{width=720,height=480}={}){
   const scene=decodeGlb(glb),rgba=Buffer.alloc(width*height*4),zbuf=new Float64Array(width*height).fill(-Infinity);
   for(let p=0;p<rgba.length;p+=4){rgba[p]=243;rgba[p+1]=242;rgba[p+2]=234;rgba[p+3]=255;}
   const forward=normalized([-28,-30,-32]);const right=normalized(cross(forward,[0,1,0]));const up=normalized(cross(right,forward));
-  const scale=Math.min(width/64,height/47);
-  const project=(p)=>[width*0.5+dot(p,right)*scale,height*0.54-dot(p,up)*scale,dot(p,forward)];
+  // Focus the authoring preview on the landmarks, not the full terrain rim.
+  const scale=Math.min(width/35,height/27);
+  // Bigger depth is closer to the camera. The opposite sign hides trees behind terrain.
+  const project=(p)=>[width*0.5+dot(p,right)*scale,height*0.54-dot(p,up)*scale,-dot(p,forward)];
   const light=normalized([-0.42,0.85,0.38]);
   let triangles=0,paintedPixels=0;
   for(const node of scene.json.nodes){
