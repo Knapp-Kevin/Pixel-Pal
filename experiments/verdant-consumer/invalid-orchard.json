@@ -10,6 +10,11 @@
       "z": -5
     },
     {
+      "id": "bridge-crossing",
+      "x": 0,
+      "z": 0
+    },
+    {
       "id": "old-tree",
       "x": 8,
       "z": 5
@@ -18,6 +23,10 @@
   "paths": [
     [
       "home",
+      "bridge-crossing"
+    ],
+    [
+      "bridge-crossing",
       "nonexistent-destination"
     ]
   ],
