@@ -1,13 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { inflateSync } from 'node:zlib';
 import { renderPreview, decodeGlb, encodePng } from './preview-glb.mjs';
 
-function glbTriangle({color=[0.6,0.9,0.4,1],index=2}={}) {
+function glbTriangle({color=[0.6,0.9,0.4,1],index=2,overlap=false}={}) {
   const bin=Buffer.alloc(44);
   const positions=[-4,0,-4, 4,0,-4, 0,0,4];
   positions.forEach((v,i)=>bin.writeFloatLE(v,i*4));
   [0,1,index].forEach((v,i)=>bin.writeUInt16LE(v,36+i*2));
   const doc={asset:{version:'2.0'},scene:0,scenes:[{nodes:[0]}],nodes:[{name:'probe',mesh:0}],meshes:[{primitives:[{attributes:{POSITION:0},indices:1,material:0}]}],materials:[{pbrMetallicRoughness:{baseColorFactor:color}}],buffers:[{byteLength:bin.length}],bufferViews:[{buffer:0,byteOffset:0,byteLength:36},{buffer:0,byteOffset:36,byteLength:6}],accessors:[{bufferView:0,componentType:5126,count:3,type:'VEC3'},{bufferView:1,componentType:5123,count:3,type:'SCALAR'}]};
+  if (overlap) {
+    doc.nodes=[{name:'far',mesh:0}, {name:'near',mesh:1,translation:[2.8,3,3.2]}];
+    doc.scenes[0].nodes=[0,1];
+    doc.meshes.push({primitives:[{attributes:{POSITION:0},indices:1,material:1}]});
+    doc.materials=[
+      {pbrMetallicRoughness:{baseColorFactor:[0.2,0.85,0.25,1]}},
+      {pbrMetallicRoughness:{baseColorFactor:[0.9,0.2,0.2,1]}}
+    ];
+  }
   let json=Buffer.from(JSON.stringify(doc));while(json.length%4)json=Buffer.concat([json,Buffer.from(' ')]);
   const out=Buffer.alloc(12+8+json.length+8+bin.length);
   out.write('glTF',0);out.writeUInt32LE(2,4);out.writeUInt32LE(out.length,8);out.writeUInt32LE(json.length,12);out.write('JSON',16);json.copy(out,20);
@@ -43,4 +53,20 @@ test('refuses truncated GLB header, malformed indices and huge preview dimension
 
 test('PNG encoder enforces exactly width * height * 4 bytes',()=>{
   assert.throws(()=>encodePng(80,80,Buffer.alloc(3)),/bad rgba byte count/);
+});
+
+test('near geometry occludes far geometry in camera depth order',()=>{
+  const {png}=renderPreview(glbTriangle({overlap:true}),{width:240,height:240});
+  const offset=33,size=png.readUInt32BE(offset);
+  assert.equal(png.toString('ascii',offset+4,offset+8),'IDAT');
+  const raw=inflateSync(png.subarray(offset+8,offset+8+size));
+  let red=0,green=0;
+  for(let y=0;y<240;y++)for(let x=0;x<240;x++){
+    const i=y*(240*4+1)+1+x*4;
+    const r=raw[i],g=raw[i+1],b=raw[i+2];
+    if(r>g*1.25&&r>b*1.25)red++;
+    if(g>r*1.25&&g>b*1.25)green++;
+  }
+  assert.ok(red>30, 'front red geometry should be visible');
+  assert.equal(green,0, 'rear green geometry should be fully hidden');
 });
