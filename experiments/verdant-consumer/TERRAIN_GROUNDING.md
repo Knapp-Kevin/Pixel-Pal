@@ -5,6 +5,25 @@
 **Tracking:** [research #115](https://github.com/Knapp-Kevin/Pixel-Pal/issues/115).  
 **Code:** `src/grounding.rs`, `src/main.rs`, `verify-grounding.mjs`.
 
+## Executed results (2026-11-25)
+
+**First full hosted proof:** [Actions run 45715640952](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45715640952) at source commit `970ff11e33536712cb4f9cc3559b6696e1a740cc` passed exact-pinned Verdant source build/export, **3/3 Rust terrain unit tests**, independent GLB structural check, independent exported-mesh ground clearance audit, six preview-script tests, two camera PNGs, and invalid path refusal. Ordinary Pixel Pals CI and public-source checks also passed. The PR was subsequently history-cleaned to an eight-file diff against merged #122; exact-final-head requalification is required before merge.
+
+| Actual observation | Measured result |
+| --- | --- |
+| Generated GLB | **8 meshes**, **2,432 triangles**, **132,768 bytes** |
+| Deterministic identity | Same bytes across two exports, SHA-256 `e106aa47de5365185a1ce47575bb57c1db20a0ceb0ece3d10217c34bacde2e0b` |
+| Tree ground offsets | Canopy west **0.000m**, canopy east **0.000m**, memory tree **0.000m** |
+| Bridge origin | **+0.150m** over sampled terrain |
+| Each path ribbon | **34 vertices**, sampled clearance **+0.065m through +0.915m** (includes intentional bridge ramps) |
+| Water ribbon | **34 vertices**, all samples at **+0.045m** over terrain |
+| Landscape diagnostic | **720×480** PNG, SHA-256 `dd7aac222561c86fb62516bfd864d58580865d757acf221ef5042e0db2f13003` |
+| Portrait diagnostic | **480×720** PNG, SHA-256 `fd66d9744da6464d2c3680493fcf8b9f7ff0a5a2ac2a78844a2b7e1cc0d6740d` |
+
+**Source of numbers:** Host test output and the uploaded GLB, PNG and manifest files from the run. The artifact bytes were separately downloaded and rehashed against their source and preview manifests. These figures qualify **the source-pinned consumer**, not Verdant's broken published crate or an on-device child experience.
+
+**Visual assessment:** The resulting bridge, paths, three trees and stream are recognizable, and paths follow terrain rather than floating at global height zero. The scene remains a simple low-poly debug composition, without a realistic riverbed, foliage silhouette diversity, approved painterly treatment or child-accessible movement. This is an authoring-geometry improvement, not an art/UX acceptance.
+
 ## Why this slice exists
 
 The E0 consumer generated a valid, deterministic GLB, but inspecting its actual geometry revealed a **scene-composition error in our consumer**, not proven to be a Verdant bug. The objects were authored at fixed global heights while the procedural terrain had varying local height.
