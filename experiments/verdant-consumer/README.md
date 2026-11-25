@@ -15,7 +15,7 @@
 | **Diagnostic PNG generation** | **Local Node unit tests PASS; real-scene qualification pending scoped CI** | `preview-glb.test.mjs`: five tests for deterministic nonblank PNGs, independent portrait/landscape, materials, invalid indices/header, dimension bounds. The current scoped workflow generates both PNGs from a real exported GLB |
 | **Pixel Pals game / real hardware** | **NOT STARTED / NOT APPROVED** | No tablet renderer, no approved artwork, no schema/save or engine adoption |
 
-The earlier source test generated an **8-mesh / 2,372-triangle / 131,056-byte** GLB twice with identical SHA-256 `8e3efaa8351ee48297eca3b99ce4bc3d68204cb731d0a3a95590c74cc6f926`. That proof does not repair the published Cargo package.
+The earlier source test generated an **8-mesh / 2,372-triangle / 131,056-byte** GLB twice with identical SHA-256 `8e3efaa8351ee48297eca3b99ce4bc3d68204cb731df7c2763ec36c80a5d0053`. That proof does not repair the published Cargo package.
 
 Do not silently replace Verdant with an unrelated GLB exporter or weaken the failing published-package test to manufacture a green badge.
 
