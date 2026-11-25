@@ -1,0 +1,4 @@
+# Release-versioned GitHub mirror index; archives resolve to v2.21.7 GitHub release.
+# Source: afflom/verdant-engine stitch-mirror/v2.21.7/crates/index/config.json
+[registries.verdant]
+index = "sparse+https://raw.githubusercontent.com/afflom/verdant-engine/stitch-mirror/v2.21.7/crates/index/"

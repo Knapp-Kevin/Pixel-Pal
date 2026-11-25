@@ -1,0 +1,83 @@
+name: Verdant external scene-authoring experiment
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/verdant-consumer/**'
+      - '.github/workflows/verdant-consumer.yml'
+  workflow_dispatch:
+    inputs:
+      test_released_crate:
+        description: 'Run the independent published Verdant crate test; expected to fail until upstream packaging is fixed'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verdant-consumer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview-tests:
+    name: Test independent GLB preview and PNG diagnostics
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Use Node 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Test diagnostic geometry renderer
+        working-directory: experiments/verdant-consumer
+        run: |
+          node --check preview-glb.mjs
+          node --test preview-glb.test.mjs
+
+  source-proof:
+    name: Build exact-source Verdant orchard and capture PNG previews
+    needs: preview-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact Pixel Pals PR head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install Verdant-pinned Rust toolchain
+        run: rustup toolchain install 1.97.1 --profile minimal
+      - name: Use Node 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Build and independently verify pinned source artifact
+        run: bash experiments/verdant-consumer/run-source.sh
+      - name: Upload authored GLB, renders, hashes and resolved Cargo lock
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
+        with:
+          name: verdant-pinned-source-orchard
+          path: experiments/verdant-consumer/output/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  released-crate-diagnostic:
+    name: Diagnose installed verdant-core release package (strict)
+    if: github.event_name == 'workflow_dispatch' && inputs.test_released_crate == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.97.1 --profile minimal
+      - name: Probe released Verdant v2.21.7 directly, without source fallback
+        working-directory: experiments/verdant-consumer
+        run: |
+          set -euo pipefail
+          mkdir -p output
+          cargo +1.97.1 run --release -- orchard.json output/released-orchard.glb
+          test -s output/released-orchard.glb
+          echo 'PUBLISHED_VERDANT_CORE_PASS: actual registry consumer generated GLB'
