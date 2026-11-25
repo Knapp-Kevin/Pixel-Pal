@@ -7,6 +7,26 @@
 **Project:** [Pixel Pals](https://github.com/Knapp-Kevin/Pixel-Pal)  
 **Engine:** [Verdant Engine](https://github.com/afflom/verdant-engine)
 
+## November 25 executed integration evidence: source GLB PASS, distributed core FAIL
+
+**This is an executed downstream experiment, superseding the November 24 proposed first-build status.** We constructed and ran an independent consumer rather than extrapolating from Verdant's internal build badges.
+
+| Integration question | Observed evidence | Acceptance |
+| --- | --- | --- |
+| Can an external project generate bounded authored geometry with Verdant's public Rust API? | [Merged Pixel Pals PR #122](https://github.com/Knapp-Kevin/Pixel-Pal/pull/122), [exact-head source CI 45714904551](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45714904551), source pin `cf25bac29d...`, Rust 1.97.1 | **PASS: Git source mode.** Two byte-identical 8-mesh GLBs, 2,372 tris, 131,056B; independent GLB structural/embedded-data validation and a strict invalid-input refusal |
+| Is there an independent inspectable visualization? | The real GLB produced **720×480 landscape and 480×720 portrait PNGs** in a zero-dependency camera-locked engineering renderer. A deliberately broken depth ordering hid trees; regression tests detected/fixed it | **PASS: geometry diagnostic only.** Not proof of Verdant's production rendering quality or painterly illustration |
+| Does the **published** versioned `verdant-core=2.21.7` package actually compile outside the repo? | [Clean external Cargo attempt 45469597645](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45469597645) resolved the raw Github sparse index and dependencies, then reported **17 compile errors inside Verdant core** | **FAIL: packaged library.** Missing repository-root embedded `catalogs/` and `model/` files plus `default-features=false` UORC gating breakage. Source-mode success does not close this |
+| Can authored objects lie on procedural terrain? | [Terrain PR #123](https://github.com/Knapp-Kevin/Pixel-Pal/pull/123), [first full source CI 45715640952](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45715640952) ran 3/3 Rust terrain tests, generated identical 2,432-triangle / 132,768B GLBs, and independently audited actual exported vertices | **Source PASS in initial qualification:** all three tree-base deltas zero, bridge +0.15m, paths +0.065..0.915m, stream +0.045m. Final clean-head and merge status belong to PR #123; not a child walkability proof |
+
+**Concrete upstream request (highest priority now):** Preserve Verdant governance/proof data while packaging `verdant-core` so all compile-time embedded files resolve **inside** a distributable crate; gate optional UORC APIs coherently; add a release-gated **outside-workspace `verdant-core` consumer** that generates and validates a small authored GLB using versioned crate archives, not only a `verdant-tensor` registry smoke test. Confirm minimal supported feature set and a pinned independent Cargo.lock; document any unsupported geometry-only build.
+
+**What Pixel Pals has already contributed:** [Actual Rust source consumer and strict orchard recipe](../../experiments/verdant-consumer/README.md), deterministic GLB/PNG verifiers, [terrain grounding details](https://github.com/Knapp-Kevin/Pixel-Pal/pull/123), malformed input checks and artifact/provenance manifests. These are public and do not require child data, credentials, or repository-write access. Verdant's upstream GitHub Issues are disabled, so the reproduction is currently linked from [Pixel Pals research #115](https://github.com/Knapp-Kevin/Pixel-Pal/issues/115) and the PRs, not a new upstream issue.
+
+**Release freshness qualification:** Verdant has since published v2.22.4, but the exact **executed** downstream source and package matrix above is pinned to v2.21.7. We are not claiming v2.22.4 fixes or reproduces these defects without rerunning the same consumer at that revision.
+
+**Unchanged:** neither source proof nor geometry alignment changes story authority, approved animal illustration, production tablet UI, network permissions, family save data, device performance, accessibility or safe physical routes. The full runtime migration remains deferred.
+
+---
 ## November 24 reassessment: Verdant v2.21.7
 
 **Source compared:** previous handoff SHA [a51262d](https://github.com/afflom/verdant-engine/commit/a51262d2008b030b290f70cd0b39a080f72cb4e9) (v2.20.0) to current [cf25bac](https://github.com/afflom/verdant-engine/commit/cf25bac29df05f97573ca5ef2a1d83c2f201aff3) (v2.21.7), **54 intervening commits**. See [release v2.21.7](https://github.com/afflom/verdant-engine/releases/tag/v2.21.7). This section supersedes historical release/CI-status statements below; it does **not** supersede the gameplay/art/child-trust boundaries.
