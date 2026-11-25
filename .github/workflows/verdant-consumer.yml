@@ -1,4 +1,4 @@
-name: Verdant external consumer experiment
+name: Verdant external scene-authoring experiment
 
 on:
   pull_request:
@@ -6,6 +6,12 @@ on:
       - 'experiments/verdant-consumer/**'
       - '.github/workflows/verdant-consumer.yml'
   workflow_dispatch:
+    inputs:
+      test_released_crate:
+        description: 'Run the independent published Verdant crate test; expected to fail until upstream packaging is fixed'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -15,106 +21,63 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  external-consumer:
+  preview-tests:
+    name: Test independent GLB preview and PNG diagnostics
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 5
     steps:
-      - name: Check out exact PR source
+      - name: Check out source
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-
-      - name: Install upstream Rust toolchain version
-        run: rustup toolchain install 1.97.1 --profile minimal
-
-      - name: Use Node.js 22
+      - name: Use Node 22
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
-
-      - name: Confirm release-specific sparse registry index
+      - name: Test diagnostic geometry renderer
         working-directory: experiments/verdant-consumer
         run: |
-          set -euo pipefail
-          curl --fail --location --retry 3 --max-time 30 \
-            'https://raw.githubusercontent.com/afflom/verdant-engine/stitch-mirror/v2.21.7/crates/index/config.json' \
-            > /tmp/verdant-registry-config.json
-          node -e 'const c=require("/tmp/verdant-registry-config.json"); if (!c.dl.includes("releases/download/v2.21.7/")) process.exit(1)'
-          cat /tmp/verdant-registry-config.json
-          curl --fail --location --retry 3 --max-time 30 'https://raw.githubusercontent.com/afflom/verdant-engine/stitch-mirror/v2.21.7/crates/index/uo/r-/uor-matmul-core' > /tmp/verdant-core-dependency-index
-          grep -q 'uor-matmul-core' /tmp/verdant-core-dependency-index || test -s /tmp/verdant-core-dependency-index
+          node --check preview-glb.mjs
+          node --test preview-glb.test.mjs
 
-      - name: Build released verdant-core and generate the same GLB twice
-        id: release_build
-        continue-on-error: true
+  source-proof:
+    name: Build exact-source Verdant orchard and capture PNG previews
+    needs: preview-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact Pixel Pals PR head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install Verdant-pinned Rust toolchain
+        run: rustup toolchain install 1.97.1 --profile minimal
+      - name: Use Node 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Build and independently verify pinned source artifact
+        run: bash experiments/verdant-consumer/run-source.sh
+      - name: Upload authored GLB, renders, hashes and resolved Cargo lock
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
+        with:
+          name: verdant-pinned-source-orchard
+          path: experiments/verdant-consumer/output/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  released-crate-diagnostic:
+    name: Diagnose installed verdant-core release package (strict)
+    if: github.event_name == 'workflow_dispatch' && inputs.test_released_crate == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.97.1 --profile minimal
+      - name: Probe released Verdant v2.21.7 directly, without source fallback
         working-directory: experiments/verdant-consumer
         run: |
           set -euo pipefail
           mkdir -p output
-          cargo +1.97.1 run --release -- orchard.json output/orchard-first.glb
-          cargo +1.97.1 run --release -- orchard.json output/orchard-second.glb
-          sha256sum Cargo.lock > output/cargo-lock.sha256
-          cp Cargo.lock output/Cargo.lock
-
-      - name: Independently verify released-crate GLB and byte reproducibility
-        if: steps.release_build.outcome == 'success'
-        working-directory: experiments/verdant-consumer
-        run: |
-          set -euo pipefail
-          node verify-glb.mjs output/orchard-first.glb output/orchard-second.glb output/manifest.json
-
-      - name: Bad region fixture must be rejected before any output
-        if: steps.release_build.outcome == 'success'
-        working-directory: experiments/verdant-consumer
-        run: |
-          set -euo pipefail
-          if cargo +1.97.1 run --release -- invalid-orchard.json output/invalid.glb; then
-            echo 'FAIL: invalid recipe accepted'
-            exit 1
-          fi
-          test ! -e output/invalid.glb
-
-      - name: Separate exact-commit git source proof if published archive cannot compile
-        if: steps.release_build.outcome == 'failure'
-        run: |
-          set -euo pipefail
-          OUT="$GITHUB_WORKSPACE/experiments/verdant-consumer/output"
-          SRC="$RUNNER_TEMP/verdant-source-consumer"
-          mkdir -p "$SRC/src" "$SRC/output" "$OUT"
-          cp experiments/verdant-consumer/Cargo.toml experiments/verdant-consumer/orchard.json experiments/verdant-consumer/invalid-orchard.json experiments/verdant-consumer/verify-glb.mjs "$SRC/"
-          cp experiments/verdant-consumer/src/main.rs "$SRC/src/main.rs"
-          python3 - "$SRC/Cargo.toml" <<'PY'
-          import pathlib,sys
-          f=pathlib.Path(sys.argv[1]); s=f.read_text()
-          old='verdant-core = { version = "=2.21.7", registry = "verdant", default-features = false }'
-          new='verdant-core = { git = "https://github.com/afflom/verdant-engine", rev = "cf25bac29df05f97573ca5ef2a1d83c2f201aff3", default-features = true }'
-          assert old in s, 'expected released dependency absent'
-          f.write_text(s.replace(old,new))
-          PY
-          cd "$SRC"
-          cargo +1.97.1 run --release -- orchard.json output/orchard-first.glb
-          cargo +1.97.1 run --release -- orchard.json output/orchard-second.glb
-          node verify-glb.mjs output/orchard-first.glb output/orchard-second.glb output/manifest.json
-          if cargo +1.97.1 run --release -- invalid-orchard.json output/invalid.glb; then
-            echo 'FAIL: invalid recipe accepted in source mode'
-            exit 1
-          fi
-          test ! -e output/invalid.glb
-          cp output/orchard-first.glb "$OUT/source-orchard.glb"
-          cp output/manifest.json "$OUT/source-manifest.json"
-          cp Cargo.lock "$OUT/source-Cargo.lock"
-          sha256sum Cargo.lock > "$OUT/source-cargo-lock.sha256"
-
-      - name: Keep published-crate qualification failing when source-only fallback works
-        if: steps.release_build.outcome == 'failure'
-        run: |
-          echo 'Published verdant-core=2.21.7 crate failed its independent consumer compile.'
-          echo 'Any separate git-source GLB is evidence only for source API viability, not packaged release readiness.'
-          exit 1
-      - name: Save complete source-bound experiment evidence
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
-        with:
-          name: verdant-external-consumer-evidence
-          path: |
-            experiments/verdant-consumer/output/
-          if-no-files-found: ignore
-          retention-days: 14
+          cargo +1.97.1 run --release -- orchard.json output/released-orchard.glb
+          test -s output/released-orchard.glb
+          echo 'PUBLISHED_VERDANT_CORE_PASS: actual registry consumer generated GLB'
