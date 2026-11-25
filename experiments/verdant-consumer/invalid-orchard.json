@@ -34,7 +34,8 @@
     "id": "stone-bridge",
     "x": 0,
     "z": 0,
-    "spanMeters": 8
+    "spanMeters": 8,
+    "crossingLandmarkId": "bridge-crossing"
   },
   "trees": [
     {

@@ -7,8 +7,8 @@ TEMP="$(mktemp -d)"
 trap 'rm -rf "$TEMP"' EXIT
 mkdir -p "$TEMP/src" "$TEMP/output" "$OUT"
 
-cp "$ROOT/Cargo.toml" "$ROOT/orchard.json" "$ROOT/invalid-orchard.json" "$ROOT/verify-glb.mjs" "$ROOT/preview-glb.mjs" "$TEMP/"
-cp "$ROOT/src/main.rs" "$TEMP/src/main.rs"
+cp "$ROOT/Cargo.toml" "$ROOT/orchard.json" "$ROOT/invalid-orchard.json" "$ROOT/verify-glb.mjs" "$ROOT/preview-glb.mjs" "$ROOT/verify-grounding.mjs" "$TEMP/"
+cp "$ROOT"/src/*.rs "$TEMP/src/"
 python3 - "$TEMP/Cargo.toml" <<'PY'
 import pathlib, sys
 p=pathlib.Path(sys.argv[1])
@@ -21,9 +21,11 @@ PY
 
 (
   cd "$TEMP"
+  cargo +1.97.1 test --release
   cargo +1.97.1 run --release -- orchard.json output/orchard-first.glb
   cargo +1.97.1 run --release -- orchard.json output/orchard-second.glb
   node verify-glb.mjs output/orchard-first.glb output/orchard-second.glb output/source-manifest.json
+  node verify-grounding.mjs output/orchard-first.glb output/grounding-manifest.json
   node preview-glb.mjs output/orchard-first.glb output/orchard-landscape.png output/orchard-portrait.png output/preview-manifest.json
   if cargo +1.97.1 run --release -- invalid-orchard.json output/invalid.glb; then
     echo 'FAIL: bad route accepted by source consumer' >&2
@@ -33,6 +35,6 @@ PY
   sha256sum Cargo.lock > output/source-cargo-lock.sha256
   cp Cargo.lock output/source-Cargo.lock
   cp output/orchard-first.glb "$OUT/source-orchard.glb"
-  cp output/orchard-landscape.png output/orchard-portrait.png output/source-manifest.json output/preview-manifest.json output/source-Cargo.lock output/source-cargo-lock.sha256 "$OUT/"
-  echo 'VERDANT_SOURCE_GATE_PASS: exact pinned Verdant source, duplicate GLB, negative input and two independent debug previews'
+  cp output/orchard-landscape.png output/orchard-portrait.png output/source-manifest.json output/preview-manifest.json output/grounding-manifest.json output/source-Cargo.lock output/source-cargo-lock.sha256 "$OUT/"
+  echo 'VERDANT_SOURCE_GATE_PASS: exact pinned Verdant source, duplicate GLB, negative input and two debug previews and ground clearance evidence'
 )

@@ -2,6 +2,9 @@
 //! Not linked into Pixel Pals runtime or into the canonical World save schema.
 #![forbid(unsafe_code)]
 
+mod grounding;
+use grounding::{terrain_height_at, terrain_ribbon};
+
 use std::{collections::{BTreeMap, BTreeSet, VecDeque}, env, fs, path::Path};
 
 use serde::Deserialize;
@@ -11,7 +14,6 @@ use verdant_core::{
     gltf_io::{export_scene_to_glb, validate_glb_bytes},
     hd_world::{
         generate_parabolic_arch_bridge_mesh, generate_sculpted_canopy_tree_mesh,
-        generate_studio_primitive_mesh, AuthorPrimitiveKind,
     },
     math::{Quat, Vec3},
     render::PbrMaterial,
@@ -45,6 +47,7 @@ struct Bridge {
     x: f64,
     z: f64,
     span_meters: f64,
+    crossing_landmark_id: String,
 }
 
 fn valid_id(s: &str) -> bool {
@@ -87,6 +90,12 @@ fn validate(recipe: &Region) -> Result<(), String> {
         return Err("bridge outside allowed terrain bounds".into());
     }
     let places: BTreeMap<&str, &Point> = recipe.landmarks.iter().map(|p| (p.id.as_str(), p)).collect();
+    let crossing = places.get(recipe.bridge.crossing_landmark_id.as_str())
+        .ok_or("bridge crossing landmark does not exist")?;
+    if (crossing.x - recipe.bridge.x).hypot(crossing.z - recipe.bridge.z) > 0.75 {
+        return Err("bridge crossing landmark must align with bridge center".into());
+    }
+
     if !places.contains_key("home") { return Err("no safe home landmark".into()); }
     let mut edges: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     let mut used_edges = BTreeSet::new();
@@ -156,30 +165,50 @@ fn export(recipe: &Region) -> Result<(Vec<u8>, usize, usize), String> {
         material("walkway", [0.82,0.75,0.62,1.0]),
         material("water", [0.35,0.65,0.79,1.0]),
     ];
+    // Keep the generated terrain mesh as the sole geometry height authority.
+    let terrain = generate_terrain_patch_mesh(recipe.seed,recipe.half_extent_meters,16);
     append(&mut scene,&mut meshes,"orchard-ground",EntityRole::TerrainPatch,
-        generate_terrain_patch_mesh(recipe.seed,recipe.half_extent_meters,16),
-        0, 0.0,0.0,0.0,0.0)?;
+        terrain.clone(),0,0.0,0.0,0.0,0.0)?;
+
     for p in &recipe.trees {
+        let ground_y = terrain_height_at(&terrain,p.x,p.z)?;
         append(&mut scene,&mut meshes,&p.id,EntityRole::SurfaceFoliage,
-            generate_sculpted_canopy_tree_mesh(0), 1, p.x,0.0,p.z,0.0)?;
+            generate_sculpted_canopy_tree_mesh(0),1,p.x,ground_y,p.z,0.0)?;
     }
+
+    // The bridge crest is approximately 0.75m above its local origin.
+    // Approach ribbons rise gently towards the same authored crossing anchor.
+    let bridge_y = terrain_height_at(&terrain,recipe.bridge.x,recipe.bridge.z)? + 0.15;
     append(&mut scene,&mut meshes,&recipe.bridge.id,EntityRole::StaticArchitecture,
         generate_parabolic_arch_bridge_mesh(Vec3::ZERO,recipe.bridge.span_meters,0),
-        2,recipe.bridge.x,0.0,recipe.bridge.z,0.0)?;
-    for (idx, endpoints) in recipe.paths.iter().enumerate() {
-        let from = recipe.landmarks.iter().find(|p| p.id == endpoints[0]).ok_or("path origin not found")?;
-        let to = recipe.landmarks.iter().find(|p| p.id == endpoints[1]).ok_or("path destination not found")?;
-        let dx = to.x-from.x;
-        let dz = to.z-from.z;
-        let length = dx.hypot(dz);
-        if length < 0.1 { return Err("zero-length walk".into()); }
-        let mesh = generate_studio_primitive_mesh(AuthorPrimitiveKind::Platform, length/2.0,0.05,0.3,[0.73,0.64,0.46,1.0]);
-        append(&mut scene,&mut meshes,&format!("path-{idx}"),EntityRole::StaticArchitecture,
-            mesh,3,(from.x+to.x)/2.0,0.02,(from.z+to.z)/2.0,-dz.atan2(dx))?;
+        2,recipe.bridge.x,bridge_y,recipe.bridge.z,0.0)?;
+
+    for (idx,endpoints) in recipe.paths.iter().enumerate() {
+        let from = recipe.landmarks.iter().find(|p| p.id == endpoints[0])
+            .ok_or("path origin not found")?;
+        let to = recipe.landmarks.iter().find(|p| p.id == endpoints[1])
+            .ok_or("path destination not found")?;
+        let rise_from = if from.id == recipe.bridge.crossing_landmark_id { 0.85 } else { 0.0 };
+        let rise_to = if to.id == recipe.bridge.crossing_landmark_id { 0.85 } else { 0.0 };
+        let name = format!("path-{idx}");
+        let ribbon = terrain_ribbon(
+            &name,&terrain,(from.x,from.z),(to.x,to.z),
+            0.45,0.065,rise_from,rise_to,16,[0.73,0.64,0.46,1.0],
+        )?;
+        append(&mut scene,&mut meshes,&name,EntityRole::StaticArchitecture,
+            ribbon,3,0.0,0.0,0.0,0.0)?;
     }
-    let water = generate_studio_primitive_mesh(AuthorPrimitiveKind::Platform,1.1,0.02,7.0,[0.30,0.60,0.80,1.0]);
+
+    // A surface-following blue stream strip, rather than a fixed-height slab.
+    // It is visual authoring geometry only; no hydrodynamics or erosion proof.
+    let stream = terrain_ribbon(
+        "orchard-stream",&terrain,
+        (recipe.bridge.x,recipe.bridge.z - 7.0),
+        (recipe.bridge.x,recipe.bridge.z + 7.0),
+        1.1,0.045,0.0,0.0,16,[0.30,0.60,0.80,1.0],
+    )?;
     append(&mut scene,&mut meshes,"orchard-stream",EntityRole::FluidVolume,
-        water,4,recipe.bridge.x,-0.40,recipe.bridge.z,0.0)?;
+        stream,4,0.0,0.0,0.0,0.0)?;
 
     let count = meshes.len();
     let triangles = meshes.iter().map(|m| m.triangle_count()).sum();

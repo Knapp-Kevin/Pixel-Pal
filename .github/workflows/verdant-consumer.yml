@@ -36,6 +36,7 @@ jobs:
         working-directory: experiments/verdant-consumer
         run: |
           node --check preview-glb.mjs
+          node --check verify-grounding.mjs
           node --test preview-glb.test.mjs
 
   source-proof:
