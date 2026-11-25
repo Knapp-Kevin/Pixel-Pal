@@ -1,52 +1,80 @@
-# Verdant v2.21.7: External Woodland Scene Consumer
+# Verdant Orchard: External Scene-Authoring Experiment
 
-**Status:** isolated integration experiment. Do not add this Rust crate to Pixel Pals' runtime or workspace.
-**Source basis:** [Verdant v2.21.7](https://github.com/afflom/verdant-engine/releases/tag/v2.21.7), commit [cf25bac](https://github.com/afflom/verdant-engine/commit/cf25bac29df05f97573ca5ef2a1d83c2f201aff3).
-**Tracker:** [Pixel Pals #115](https://github.com/Knapp-Kevin/Pixel-Pal/issues/115).
+**Scope:** Public, isolated research. Does not modify Pixel Pals gameplay, dependencies, saved worlds, Pal identity or production art.
 
-## Objective
+**Pinned upstream:** [Verdant v2.21.7 at cf25bac29df05f97573ca5ef2a1d83c2f201aff3](https://github.com/afflom/verdant-engine/commit/cf25bac29df05f97573ca5ef2a1d83c2f201aff3).  
+**Tracker:** [Pixel Pals #115](https://github.com/Knapp-Kevin/Pixel-Pal/issues/115).  
+**Development PR:** [#122](https://github.com/Knapp-Kevin/Pixel-Pal/pull/122).
 
-Qualify Verdant as a **standalone, external offline scene-authoring library** by building a separate Rust consumer against its public released crates, without importing the observer, network runtime, native Verdant world snapshot or child data.
+## Read this first: two different acceptance results
 
-The fixture contains a seeded terrain mesh, three Verdant sculpted canopy-tree meshes, a Verdant stone arch bridge, authored landmark connections drawn as platform paths, and a stream slab. It uses **Verdant public generation and GLB export APIs**, not an independent replacement mesh exporter. The output is one ordinary glTF 2.0 binary container.
+| Qualification | Status | Evidence |
+| --- | --- | --- |
+| **Exact-source Rust consumer / authored GLB** | **PASS**, initially demonstrated | [External action 45470050027](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45470050027): independent Git-source consumer built, exported identical outputs, validated GLB, rejected invalid recipe |
+| **Published verdant-core v2.21.7 crate** | **FAIL / NOT CONSUMER READY** | [Action 45469597645](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45469597645): 17 Rust compile errors because catalog/model includes leave the .crate archive and no-default-feature UORC references are unresolved |
+| **Diagnostic PNG generation** | **Local Node unit tests PASS; real-scene qualification pending scoped CI** | `preview-glb.test.mjs`: five tests for deterministic nonblank PNGs, independent portrait/landscape, materials, invalid indices/header, dimension bounds. The current scoped workflow generates both PNGs from a real exported GLB |
+| **Pixel Pals game / real hardware** | **NOT STARTED / NOT APPROVED** | No tablet renderer, no approved artwork, no schema/save or engine adoption |
 
-This is a deliberately small **geometry-only integration probe**, not a painterly art asset, game level, character animation, safe pathfinding implementation, or proof that natural landforms align visually.
+The earlier source test generated an **8-mesh / 2,372-triangle / 131,056-byte** GLB twice with identical SHA-256 `8e3efaa8351ee48297eca3b99ce4bc3d68204cb731d0a3a95590c74cc6f926`. That proof does not repair the published Cargo package.
 
-## Build and run
+Do not silently replace Verdant with an unrelated GLB exporter or weaken the failing published-package test to manufacture a green badge.
 
-Requires Rust **1.97.1** (the pinned upstream toolchain) and Node 22. Run commands **inside this directory** so Cargo loads its local released-version sparse registry configuration:
+## What the working code does
+
+- `src/main.rs` reads strict `orchard.json`, validates seed, bounded coordinates, unique IDs, safe-home graph connectivity, tree/path counts and bridge dimensions, then uses Verdant's public **terrain**, **canopy tree**, **parabolic bridge**, **studio primitive**, **scene graph**, and **glTF exporter** APIs.
+- `verify-glb.mjs` independently checks GLB 2.0 framing, embedded binary, buffer-view bounds, materials, mesh accessors, required named nodes, and deterministic byte identity; it writes `source-manifest.json`.
+- `preview-glb.mjs` independently reads the exported GLB and produces **fixed-camera diagnostic orthographic PNG previews** at landscape 720×480 and portrait 480×720, with real mesh triangles, simple material colors and a z-buffer. It writes hashes and pixel counts in `preview-manifest.json`.
+- `preview-glb.test.mjs` runs without external packages. The PNG renderer is **for source review only**, not a replacement for painterly assets, real-time WebGL, image quality approval or production compositing.
+- `invalid-orchard.json` deliberately references an unknown destination in an otherwise correctly shaped recipe. The consumer must reject it before writing a GLB.
+- `run-source.sh` makes a clean temporary consumer directory, pins `verdant-core` to an **exact Git commit** with upstream default features, builds two GLBs, validates them, generates two previews, proves the negative test, and copies evidence into ignored `output/`. Source is compiled externally but still requires access to Verdant's full Git source tree at build time.
+
+## Execute the functional source lane
+
+Prerequisites: Rust **1.97.1**, Node.js **22**, Bash, Python 3, Git, network access for first-time Cargo resolution.
+
+From this experiment directory:
 
 ```bash
 rustup toolchain install 1.97.1 --profile minimal
-cargo +1.97.1 run --release -- orchard.json output/orchard-first.glb
-cargo +1.97.1 run --release -- orchard.json output/orchard-second.glb
-node verify-glb.mjs output/orchard-first.glb output/orchard-second.glb output/manifest.json
+node --test preview-glb.test.mjs
+bash run-source.sh
 ```
 
-The relative output directory must already exist: `mkdir -p output` first. The scoped GitHub Actions experiment creates it. The preexisting Pixel Pals JavaScript build, dependencies and saved worlds are untouched.
+The successful script creates these local-only outputs under `output/`:
 
-The consumer uses exactly `verdant-core=2.21.7` from Verdant's version-specific sparse registry mirror, with `default-features=false`. This explicitly **does not prove the entire transitive dependency closure is minimal**. The GitHub Actions job captures the resolved `Cargo.lock` as evidence. Upstream verifies a standalone **verdant-tensor** crate consumer, but not this specific `verdant-core` authored-scene consumer.
+| File | Purpose |
+| --- | --- |
+| `source-orchard.glb` | Actual authored Verdant-exported scene |
+| `source-manifest.json` | Source pin, input/output SHA-256, mesh/triangle/node counts and output bytes |
+| `source-Cargo.lock`, `source-cargo-lock.sha256` | Resolved transitive dependency evidence |
+| `orchard-landscape.png`, `orchard-portrait.png` | Generated geometry debug previews at two fixed orientations |
+| `preview-manifest.json` | Preview dimensions, painted-pixel counts and image SHA-256 |
 
-## Acceptance matrix
+The standalone tool's output is a portable binary GLB. Pixel Pals never loads this experiment's generated data automatically.
 
-1. **External Rust consumer:** Cargo resolves all packages from the release index and builds the isolated program without copying Verdant source into Pixel Pals.
-2. **Generated geometry:** Verdant creates terrain, trees, a bridge and a stream from `orchard.json`; every procedural mesh passes Verdant's mesh validator and the combined GLB passes Verdant's GLB validator.
-3. **Independent artifact validation:** Node examines glTF 2.0 binary framing, embedded BIN, accessors, views, material references and required authored node identifiers. No runtime URL or externally referenced buffers are accepted.
-4. **Reproducibility:** two independent runs with the same recipe and toolchain must produce byte-identical GLB outputs with matching SHA-256. If this fails, retain both artifacts, diagnose before loosening the acceptance contract.
-5. **Adversarial failure:** an invalid recipe referring to a nonexistent landmark must fail before writing any GLB.
-6. **Provenance:** generate a manifest with version, exact upstream commit, input SHA-256, output SHA-256, byte size, triangle count and recorded Cargo lockfile.
+## Reproduce the **published-package failure** separately
 
-## Boundaries and shortcomings
+The directory's `Cargo.toml` deliberately references `verdant-core =2.21.7` from Verdant's **release-specific sparse registry**, `default-features=false`. Its local `.cargo/config.toml` points to the versioned raw GitHub mirror. This path is *not* what `run-source.sh` uses.
 
-- The accepted input is deliberately restrictive: five fixed primitive classes (terrain, tree, bridge, walkway, stream), three or more landmarks, finite bounded coordinates, no unsupported attributes or dynamic scripts, and a connected undirected home-return path.
-- Safety of a graph path does not guarantee a physically traversable 3D route or accessibility for real children. No collision/navigation/guard conformance is claimed.
-- Tree and bridge meshes originate from Verdant, but materials are chosen by the consumer. This is a **low-fidelity authoring fixture**, not production illustration or a child-safe scene.
-- No independent GLB visual preview, two-camera composition, texture art, WebGL2 renderer, iPad/Android benchmark, offline cold-start, energy usage or human approval is implied by passing this test.
-- Only this experiment's request JSON is consumed. Real Pal identities, world memories, save data and player preferences remain outside the experiment.
-- The real Pixel Pals renderer and canonical saves remain authoritative; this produces static assets only.
-- Cargo registry URLs and release-hosted archives require internet access **at build time**. The exported GLB is self-contained and contains no network imports.
-- **If upstream packages do not compile or export as described, fail explicitly.** Do not silently fall back to a homegrown GLB writer and call it Verdant evidence.
+```bash
+mkdir -p output
+cargo +1.97.1 run --release -- orchard.json output/released-orchard.glb
+```
 
-## Continuing gates
+At the pinned release, this fails while compiling Verdant's own `.crate`: embedded `../../../catalogs/` and `../../../model/` files are outside the packaged source, and optional UORC symbols are not consistently feature-guarded. The dependency archives themselves resolve via the raw mirror. An earlier jsDelivr mirror returned HTTP 403 for a transitive index entry.
 
-Once this build passes, the next proof is a visually inspectable camera-locked screenshot, followed by a portrait/landscape composition comparison with human-reviewed painterly illustrations. Only if that earns approval should we benchmark an optional GLB viewer on physical tablets. The minimum Pixel Pals Family Tablet Alpha artwork and device-validation obligations remain higher priority.
+The [scoped workflow](../../.github/workflows/verdant-consumer.yml) executes **source and diagnostic PNG tests on each experiment PR**. The strict released-package probe is available only via `workflow_dispatch` with `test_released_crate=true`, and is **expected to fail until upstream fixes its release**. A green source job must never be cited as a green package test.
+
+## Acceptance criteria and next useful fixes
+
+**Source baseline:** exact revision; successful external Rust compile; real Verdant mesh generation; valid self-contained GLB; **two byte-identical exports**; seed/recipe and lock provenance; unknown destination refused; two generated PNGs with image hashes. The image previews must be visually reviewed before any quality conclusion.
+
+**Published-package recovery:** the Verdant author packages all required embedded catalogs or refactors their paths, correctly gates UORC methods under disabled features, and adds an **outside-workspace verdant-core scene-export consumer** to the release checks. The registry workflow's external `verdant-tensor` smoke test alone is insufficient.
+
+**Future optional art qualification:** inspect landscape/portrait images, test composition legibility, compare with hand-authored painterly 2D/2.5D candidates, measure authored correction effort, then measure actual tablet memory, load time, frame rate, offline behavior, accessibility and battery. No general observer, AI, player-memory authority or networking enters Pixel Pals' child-facing app on this evidence.
+
+## Boundaries and limitations
+
+The geometry fixture is a five-kind scene (terrain, trees, bridge, paths and stream), **not a complete game level**. A connected undirected graph does not demonstrate that children can physically traverse the path, that the path is obstruction-free, or that any story can be safely completed. The simple diagnostic renderer ignores advanced materials, textures, alpha blending, animations, occlusion masks, browser-specific render effects and painterly art direction; it provides no automated aesthetic approval.
+
+The Git revision and Rust toolchain are pinned, and the resulting resolved `Cargo.lock` is captured as evidence, but the first source build resolves registry packages online and is **not a formally hermetic offline build**. No actual child data is read or stored. An artifact's successful generation is not production acceptance.
