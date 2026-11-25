@@ -127,7 +127,6 @@ if(process.argv[1]&&resolve(process.argv[1])===new URL(import.meta.url).pathname
   const variants=[{name:'landscape',width:720,height:480,path:landscape},{name:'portrait',width:480,height:720,path:portrait}];
   const report={status:'PASS',kind:'unapproved-diagnostic-preview',glbSha256:hash(bytes),views:[]};
   for(const v of variants){const o=renderPreview(bytes,v);mkdirSync(dirname(v.path),{recursive:true});writeFileSync(v.path,o.png);report.views.push({name:v.name,width:o.width,height:o.height,triangles:o.triangles,paintedPixels:o.paintedPixels,bytes:o.png.length,sha256:hash(o.png)});}
-  mkdirSync(dirname(manifestPath),{recursive:true});writeFileSync(manifestPath,JSON.stringify(report,null,2)+'
-');
+  mkdirSync(dirname(manifestPath),{recursive:true});writeFileSync(manifestPath,JSON.stringify(report,null,2)+'\n');
   console.log('VERDANT_PREVIEW_PASS '+JSON.stringify(report));
 }
