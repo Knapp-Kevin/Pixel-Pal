@@ -1,5 +1,10 @@
 # System State
 
+**Historical snapshot notice (reviewed 2026-11-25):** This file records a **2026-07-15 Qor-logic development checkpoint**, not the current state of Pixel Pals. Its phase, session seal, file tree and compliance statistics are preserved as historical evidence and must not be interpreted as live results. Use [the current backlog](BACKLOG.md), [M2 roadmap](product/ROADMAP.md), [feature/test index](FEATURE_INDEX.md) and GitHub's latest main checks for present status. The source history below is intentionally not rewritten.
+
+---
+
+
 ## Snapshot Metadata
 
 | Attribute | Value |
