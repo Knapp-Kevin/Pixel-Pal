@@ -237,9 +237,13 @@ Pixel-Pal/
 │   └── production-manifest.json
 ├── docs/
 │   └── art/                       Art direction, asset contracts, and review policy
+├── experiments/
+│   └── verdant-consumer/          Isolated, non-production geometry authoring research
 ├── scripts/                       CI, browser, release, art, and evidence gates
 └── .github/workflows/ci.yml       Locked verification pipeline
 ```
+
+**Current project status and contribution entrypoints:** [live issue-backed backlog](docs/BACKLOG.md), [feature and verification index](docs/FEATURE_INDEX.md), and [M2 product roadmap](docs/product/ROADMAP.md). The July [system snapshot](docs/SYSTEM_STATE.md) and [historical governance index](docs/GOVERNANCE_INDEX.md) are archival, not the live release state.
 
 ## Technology
 
