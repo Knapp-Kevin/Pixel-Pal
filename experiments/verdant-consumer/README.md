@@ -6,13 +6,15 @@
 **Tracker:** [Pixel Pals #115](https://github.com/Knapp-Kevin/Pixel-Pal/issues/115).  
 **Development PR:** [#122](https://github.com/Knapp-Kevin/Pixel-Pal/pull/122).
 
+**Latest component review:** [Verdant v2.22.4 architecture and asset safety assessment](../../docs/research/VERDANT_V2224_ARCHITECTURE_REVIEW.md). This consumer remains pinned to v2.21.7 source. v2.22.4 published-core compilation is **unverified**, not presumed repaired.
+
 ## Read this first: two different acceptance results
 
 | Qualification | Status | Evidence |
 | --- | --- | --- |
 | **Exact-source Rust consumer / authored GLB** | **PASS**, initially demonstrated | [External action 45470050027](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45470050027): independent Git-source consumer built, exported identical outputs, validated GLB, rejected invalid recipe |
 | **Published verdant-core v2.21.7 crate** | **FAIL / NOT CONSUMER READY** | [Action 45469597645](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45469597645): 17 Rust compile errors because catalog/model includes leave the .crate archive and no-default-feature UORC references are unresolved |
-| **Diagnostic PNG generation** | **Local Node unit tests PASS; real-scene qualification pending scoped CI** | `preview-glb.test.mjs`: five tests for deterministic nonblank PNGs, independent portrait/landscape, materials, invalid indices/header, dimension bounds. The current scoped workflow generates both PNGs from a real exported GLB |
+| **Diagnostic PNG generation** | **PASS, source experiment only** | [Final-head run 45717270211](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45717270211) generated and verified both real-orchard PNGs, with six preview unit tests and independent GLB grounding verification |
 | **Pixel Pals game / real hardware** | **NOT STARTED / NOT APPROVED** | No tablet renderer, no approved artwork, no schema/save or engine adoption |
 
 The earlier source test generated an **8-mesh / 2,372-triangle / 131,056-byte** GLB twice with identical SHA-256 `8e3efaa8351ee48297eca3b99ce4bc3d68204cb731df7c2763ec36c80a5d0053`. That proof does not repair the published Cargo package.
@@ -22,7 +24,7 @@ Do not silently replace Verdant with an unrelated GLB exporter or weaken the fai
 ## What the working code does
 
 - `src/main.rs` reads strict `orchard.json`, validates seed, bounded coordinates, unique IDs, safe-home graph connectivity, tree/path counts and bridge dimensions, then uses Verdant's public **terrain**, **canopy tree**, **parabolic bridge**, **studio primitive**, **scene graph**, and **glTF exporter** APIs.
-- `verify-glb.mjs` independently checks GLB 2.0 framing, embedded binary, buffer-view bounds, materials, mesh accessors, required named nodes, and deterministic byte identity; it writes `source-manifest.json`.
+- `verify-glb.mjs` independently checks GLB 2.0 framing, embedded geometry buffers, embedded texture-image references, buffer-view bounds, materials, mesh accessors, required named nodes, and deterministic byte identity; it writes `source-manifest.json`. Every texture image URI is rejected, including network, local file, and data URIs.
 - `preview-glb.mjs` independently reads the exported GLB and produces **fixed-camera diagnostic orthographic PNG previews** at landscape 720×480 and portrait 480×720, with real mesh triangles, simple material colors and a z-buffer. It writes hashes and pixel counts in `preview-manifest.json`.
 - `preview-glb.test.mjs` runs without external packages. The PNG renderer is **for source review only**, not a replacement for painterly assets, real-time WebGL, image quality approval or production compositing.
 - `invalid-orchard.json` deliberately references an unknown destination in an otherwise correctly shaped recipe. The consumer must reject it before writing a GLB.
@@ -36,7 +38,7 @@ From this experiment directory:
 
 ```bash
 rustup toolchain install 1.97.1 --profile minimal
-node --test preview-glb.test.mjs
+node --test preview-glb.test.mjs verify-glb.test.mjs
 bash run-source.sh
 ```
 
