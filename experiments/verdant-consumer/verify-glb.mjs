@@ -38,6 +38,30 @@ export function inspectGlb(bytes) {
   assert.ok(Array.isArray(json.buffers) && json.buffers.length === 1, 'one embedded BIN buffer');
   assert.equal(json.buffers[0].uri, undefined, 'must be self-contained');
   assert.equal((json.extensionsRequired ?? []).length, 0, 'no required extensions');
+
+  // A standalone GLB can hide network dependencies in images even when geometry
+  // buffers are embedded. This diagnostic pipeline admits only BIN-backed images.
+  // Data URIs are deliberately refused too: they bypass our single bounded BIN
+  // inspection path and are not required for the authored orchard contract.
+  const images = json.images ?? [];
+  const textures = json.textures ?? [];
+  assert.ok(Array.isArray(images), 'images must be an array');
+  assert.ok(Array.isArray(textures), 'textures must be an array');
+  for (const [index, entry] of images.entries()) {
+    assert.ok(entry && typeof entry === 'object', `image ${index} must be an object`);
+    assert.equal(entry.uri, undefined, `image ${index} must not reference a URI`);
+    assert.ok(Number.isInteger(entry.bufferView) &&
+      entry.bufferView >= 0 && entry.bufferView < json.bufferViews.length,
+    `image ${index} must use a declared embedded BIN bufferView`);
+    assert.ok(['image/png', 'image/jpeg', 'image/webp'].includes(entry.mimeType),
+      `image ${index} must declare an allowed MIME type`);
+  }
+  for (const [index, entry] of textures.entries()) {
+    assert.ok(entry && typeof entry === 'object', `texture ${index} must be an object`);
+    assert.ok(Number.isInteger(entry.source) &&
+      entry.source >= 0 && entry.source < images.length,
+    `texture ${index} must reference an embedded image`);
+  }
   assert.ok(json.buffers[0].byteLength <= chunks[1].content.length, 'declared binary within BIN');
   for (const view of json.bufferViews) {
     assert.equal(view.buffer, 0, 'only buffer 0 allowed');

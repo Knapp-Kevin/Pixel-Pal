@@ -36,8 +36,9 @@ jobs:
         working-directory: experiments/verdant-consumer
         run: |
           node --check preview-glb.mjs
+          node --check verify-glb.mjs
           node --check verify-grounding.mjs
-          node --test preview-glb.test.mjs
+          node --test preview-glb.test.mjs verify-glb.test.mjs
 
   source-proof:
     name: Build exact-source Verdant orchard and capture PNG previews
