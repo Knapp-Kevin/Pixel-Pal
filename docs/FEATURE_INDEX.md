@@ -1,30 +1,29 @@
-# Pixel Pals Feature Index
+# Pixel Pals Feature and Verification Index
 
-Single canonical cross-reference of every user-touchable feature in Pixel Pals against documentation, source code, and test surface. Updated per the Phase 73 FEATURE_INDEX update obligation in every `/qor-implement` cycle (see `/qor-implement` Step 12.5).
+**Reviewed:** 2026-11-25 against [`main`](https://github.com/Knapp-Kevin/Pixel-Pal/commit/c17a497df5320df44cb7e764da075677cc5dc81c).  
+**Purpose:** a compact map from shipped **software paths** to independently checkable tests and remaining acceptance gates. The original July bootstrap file incorrectly claimed **zero features**; it was never maintained as an accurate count.
 
-**Generated**: 2026-07-15 by `qor-bootstrap`
-**Sources**: declared by `/qor-plan` `Feature Inventory Touches` table per cycle.
+**Evidence vocabulary:** **Software-tested** means source and its listed automated check exist and ordinary [main CI](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45718829109) passed. **Experiment-tested** means a separately scoped test passed, with no production adoption. **Release-blocked** means further art, family or device evidence is mandatory. None means independently confirmed real-user behavior.
 
-## Coverage Summary
+| Feature / responsibility | Implementation | Verification source | Current boundary |
+| --- | --- | --- | --- |
+| Canonical world schema, validation and migrations | `packages/content-schema/src/world.ts`, `migration.ts` | `packages/content-schema/src/index.test.ts`; `npm run test --workspace=@pixel-pals/content-schema` | Software-tested; imported child/world data must remain bounded and validated |
+| Deterministic first world and relationship loop | `packages/simulation/src/index.ts`, `firstNeighbor.ts` | `packages/simulation/src/index.test.ts` | Software-tested; independent child's comprehension remains unverified |
+| Activity completion and persistent markers | `packages/simulation/src/completeActivity.ts`, `activityMarkers.test.ts` | `packages/simulation/src/activityMarkers.test.ts` | Software-tested; no claim of physical tap comfort |
+| Local-first checkpoint, import and recovery | `packages/persistence/src/index.ts` | `packages/persistence/src/index.test.ts`, `dayCyclePersistence.test.ts`; `scripts/verify-multiple-worlds.mjs` | Software-tested; interrupted writes/storage pressure require real-device qualification |
+| Isolated local-world switching | `apps/tablet/src/LocalWorldChooser.tsx` | `scripts/verify-multiple-worlds.mjs` | Software-tested; independent tablet family use pending |
+| Touch accessibility preferences | `apps/tablet/src/AccessibilitySettingsProvider.tsx`, `accessibilitySettings.ts` | `apps/tablet/src/accessibilitySettings.test.ts`, `scripts/verify-tablet-viewports.mjs` | Software-tested; real-device and observed child accessibility pending |
+| Parent-only actions | `apps/tablet/src/parentGate/ParentAccessGate.tsx`, `useParentGate.ts`, `apps/tablet/src/parentTools/BackupSection.tsx` | Protected-feature visibility checks in `scripts/verify-family-map.mjs` and `scripts/verify-traits-lab.mjs`; multi-world backup checks in `scripts/verify-multiple-worlds.mjs` | Device/UX verification required; local PIN is not remote authentication |
+| Stone Stacking, Leaf Chase and Garden Game | `apps/tablet/src/StoneStackingGame.tsx`, `LeafChaseGame.tsx`, `GardenGame.tsx` | `stoneStackingVariants.test.ts`, `leafChaseModel.test.ts`, `gardenGameModel.test.ts`; `scripts/verify-tablet-viewports.mjs` | Software-tested; issue [#26](https://github.com/Knapp-Kevin/Pixel-Pal/issues/26) retains child playtest and replay-variation work |
+| Two authored illustrated adventures | `packages/simulation/src/adventures.ts`, `apps/tablet/src/AdventureScreen.tsx` | `packages/simulation/src/adventures.test.ts`, `scripts/verify-illustrated-adventures.mjs` | Software-tested; **production art still blocked** under [#88](https://github.com/Knapp-Kevin/Pixel-Pal/issues/88) |
+| Family bonds, Family Map and journal surfaces | `packages/simulation/src/familyBonds.ts`, `apps/tablet/src/MemoryJournal.tsx` | `packages/simulation/src/familyBonds.test.ts`, `scripts/verify-family-map.mjs` | Partial family experience; full Chronicle is **open** [#84](https://github.com/Knapp-Kevin/Pixel-Pal/issues/84) |
+| Traits Lab and inheritance | `packages/simulation/src/inheritance.ts` | `packages/simulation/src/inheritance.test.ts`, `scripts/verify-traits-lab.mjs` | Software-tested, outside M2 art/device critical path |
+| Production art manifest and review gate | `art/production-manifest.json`, `apps/tablet/src/productionArtRegistry.ts` | `scripts/verify-production-art.mjs`, `scripts/verify-human-art-reviews.mjs` | **Release-blocked:** manifest still `alpha-blocked`; do not mislabel benchmark/planned art as production |
+| Installable tablet PWA and update pathway | `apps/tablet/src/ServiceWorkerUpdateNotice.tsx` | `scripts/verify-deployment.mjs`, `scripts/verify-tablet-suspension.mjs` | Software-tested; deployment headers, real install/offline/updates remain open [#21](https://github.com/Knapp-Kevin/Pixel-Pal/issues/21) |
+| Optional Verdant orchard authoring utility | `experiments/verdant-consumer/src/main.rs`, `grounding.rs`, `verify-grounding.mjs` | [exact pinned-source GLB test](https://github.com/Knapp-Kevin/Pixel-Pal/actions/runs/45717270211) (3 Rust tests, duplicated GLB and spatial audit), [research #115](https://github.com/Knapp-Kevin/Pixel-Pal/issues/115) | **Experiment-tested only**, not a game dependency; published `verdant-core=2.21.7` external package is broken in the tested configuration |
 
-- Total entries: **0** (newly bootstrapped)
-- **Verified**: 0
-- **Unverified**: 0
-- **N/A (operator-justified)**: 0
+## What this index does not certify
 
----
+Passing `npm test`, a green PR, an emulated viewport matrix, or deterministic GLB output is **not** evidence of approved storybook artwork, actual tablet battery/thermal behavior, child comprehension, physical route traversal or a deployable family release. Follow the [M2 roadmap](product/ROADMAP.md), the [current backlog](BACKLOG.md), and each original GitHub issue's acceptance criteria.
 
-## Section: Village & Pals
-
-| ID | Feature | Doc | Code | Test | Status | Notes |
-|---|---|---|---|---|---|---|
-<!-- First /qor-implement cycle appends rows here. -->
-
----
-
-## Gaps Surfaced
-
-<!-- Reality without Promise / Promise without Reality entries land here. -->
-<!-- Note: this repository predates Qor governance — pre-existing features (tablet app shell,
-     persistence/backup import, memory journal, species compatibility) are candidates for
-     retroactive indexing during the first seal-time audit. -->
+**Maintenance:** Update this curated index when a feature or its real verification surface changes. Do not claim a generated, exhaustive inventory or add rows solely to inflate coverage. When a path is removed, replace its references with the verified successor instead of leaving dead links. Historical feature inventories remain in Git history.

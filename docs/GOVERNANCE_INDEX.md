@@ -1,5 +1,10 @@
 # Governance Index
 
+**Historical index notice (reviewed 2026-11-25):** The tier table below maps a **July 2026 Qor-logic-era governance snapshot**. Some paths describe old local tooling or files no longer present in the public repository (for example, `CHANGELOG.md`). They are **historical references, not live completeness claims**. Current document authority is [DOCUMENTATION_GOVERNANCE.md](DOCUMENTATION_GOVERNANCE.md); current delivery status is [BACKLOG.md](BACKLOG.md) and [product/ROADMAP.md](product/ROADMAP.md). Preserve older seals and ledgers without restamping them as fresh evidence.
+
+---
+
+
 **Last Reviewed**: 2026-07-15
 
 A single authoritative map of every governance artifact in this project, organized
